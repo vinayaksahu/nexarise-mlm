@@ -8,6 +8,7 @@ import { useTheme } from '@/components/theme-provider';
 interface SidebarProps {
   isAdmin?: boolean;
   user?: { name: string; username: string; role: string } | null;
+  onCloseMobile?: () => void;
 }
 
 const userNavGroups = [
@@ -80,7 +81,7 @@ const adminNavGroups = [
   },
 ];
 
-export function Sidebar({ isAdmin = false, user }: SidebarProps) {
+export function Sidebar({ isAdmin = false, user, onCloseMobile }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
@@ -88,13 +89,17 @@ export function Sidebar({ isAdmin = false, user }: SidebarProps) {
 
   return (
     <aside
-      className={`hidden lg:flex flex-col h-screen sticky top-0 bg-slate-900 text-slate-300 border-r border-slate-800 transition-all duration-300 ${
+      className={`flex flex-col h-full lg:h-screen sticky top-0 bg-slate-900 text-slate-300 border-r border-slate-800 transition-all duration-300 ${
         collapsed ? 'w-20' : 'w-64'
       }`}
     >
       {/* Brand Header */}
-      <div className="flex items-center h-16 px-4 border-b border-slate-800 bg-slate-950">
-        <Link href={isAdmin ? '/admin' : '/dashboard'} className="flex items-center gap-2.5">
+      <div className="flex items-center h-16 px-4 border-b border-slate-800 bg-slate-950 shrink-0">
+        <Link
+          href={isAdmin ? '/admin' : '/dashboard'}
+          className="flex items-center gap-2.5"
+          onClick={onCloseMobile}
+        >
           <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
             N
           </div>
@@ -106,11 +111,19 @@ export function Sidebar({ isAdmin = false, user }: SidebarProps) {
         </Link>
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="ml-auto text-slate-400 hover:text-white transition-colors p-1.5 rounded-md hover:bg-slate-800"
+          className="hidden lg:flex ml-auto text-slate-400 hover:text-white transition-colors p-1.5 rounded-md hover:bg-slate-800"
           title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
         >
           {collapsed ? '➔' : '☰'}
         </button>
+        {onCloseMobile && (
+          <button
+            onClick={onCloseMobile}
+            className="lg:hidden ml-auto text-slate-400 hover:text-white transition-colors p-1.5 rounded-md hover:bg-slate-800"
+          >
+            ✕
+          </button>
+        )}
       </div>
 
       {/* SB Admin Navigation Accordions */}
@@ -132,6 +145,7 @@ export function Sidebar({ isAdmin = false, user }: SidebarProps) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={onCloseMobile}
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
                     isActive
                       ? 'bg-blue-600 text-white font-semibold shadow-sm'
@@ -148,24 +162,15 @@ export function Sidebar({ isAdmin = false, user }: SidebarProps) {
         ))}
       </nav>
 
-      {/* Theme Toggle & Logged in as Footer */}
-      <div className="p-3 border-t border-slate-800 bg-slate-950 space-y-2">
+      {/* Theme Toggle Footer */}
+      <div className="p-3 border-t border-slate-800 bg-slate-950 shrink-0">
         <button
           onClick={toggleTheme}
-          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-all"
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-xs font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-all"
         >
           <span className="text-sm">{theme === 'dark' ? '☀️' : '🌙'}</span>
           {!collapsed && <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>}
         </button>
-
-        {!collapsed && (
-          <div className="px-3 py-2 bg-slate-900 rounded-lg text-xs border border-slate-800 text-slate-400">
-            <div className="text-[10px] uppercase font-bold text-slate-500">Logged in as:</div>
-            <div className="font-semibold text-white truncate mt-0.5">
-              {user?.name || 'User'} <span className="text-blue-400 font-mono">({user?.role || 'MEMBER'})</span>
-            </div>
-          </div>
-        )}
       </div>
     </aside>
   );
