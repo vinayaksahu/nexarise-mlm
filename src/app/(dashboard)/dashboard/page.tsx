@@ -12,6 +12,7 @@ export default function DashboardPage() {
   const [wallet, setWallet] = useState<any>(null);
   const [team, setTeam] = useState<any>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [investments, setInvestments] = useState<any[]>([]);
   const [copied, setCopied] = useState(false);
   const [origin, setOrigin] = useState('');
 
@@ -20,11 +21,12 @@ export default function DashboardPage() {
     
     async function loadData() {
       try {
-        const [resUser, resWallet, resTeam, resTx] = await Promise.all([
+        const [resUser, resWallet, resTeam, resTx, resInv] = await Promise.all([
           fetch('/api/auth/me'),
           fetch('/api/wallet'),
           fetch('/api/team'),
           fetch('/api/transactions?limit=5'),
+          fetch('/api/investments'),
         ]);
 
         if (resUser.ok) {
@@ -42,6 +44,10 @@ export default function DashboardPage() {
         if (resTx.ok) {
           const tx = await resTx.json();
           setTransactions(tx.transactions || []);
+        }
+        if (resInv.ok) {
+          const inv = await resInv.json();
+          setInvestments(inv.investments || []);
         }
       } catch (err) {
         console.error('Failed to load dashboard data:', err);
@@ -78,6 +84,11 @@ export default function DashboardPage() {
         <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
           Welcome back, {user?.name || 'User'}! 👋
         </h1>
+        {investments.some(inv => inv.status === 'ACTIVE') ? (
+          <span className="inline-block mt-2 px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Account Status: Active</span>
+        ) : (
+          <span className="inline-block mt-2 px-2.5 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Account Status: Inactive</span>
+        )}
         <p className="text-muted text-sm mt-1">Here is your live account overview and growth metrics.</p>
       </div>
 
@@ -113,6 +124,17 @@ export default function DashboardPage() {
             </p>
             <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-emerald-600 dark:text-emerald-400">
               ${wallet?.availableBalance ? Number(wallet.availableBalance).toFixed(2) : '0.00'}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-3 sm:p-4">
+            <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+              P2P Balance
+            </p>
+            <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-cyan-600 dark:text-cyan-400">
+              ${wallet?.p2pBalance ? Number(wallet.p2pBalance).toFixed(2) : '0.00'}
             </p>
           </CardContent>
         </Card>

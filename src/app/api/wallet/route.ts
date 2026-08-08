@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Wallet not found' }, { status: 404 })
     }
 
-    return NextResponse.json(wallet)
+    return NextResponse.json({ wallet })
   } catch (error) {
     console.error('Fetch wallet error:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })

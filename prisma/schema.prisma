@@ -41,6 +41,7 @@ enum TransactionType {
   REFUND
   ADMIN_CREDIT
   ADMIN_DEBIT
+  WALLET_TRANSFER
 }
 
 enum TransactionStatus {
@@ -149,6 +150,7 @@ model Wallet {
   userId           String   @unique
   user             User     @relation(fields: [userId], references: [id])
   availableBalance Decimal  @default(0) @db.Decimal(20, 8)
+  p2pBalance       Decimal  @default(0) @db.Decimal(20, 8)
   roiIncome        Decimal  @default(0) @db.Decimal(20, 8)
   levelIncome      Decimal  @default(0) @db.Decimal(20, 8)
   rewardIncome     Decimal  @default(0) @db.Decimal(20, 8)

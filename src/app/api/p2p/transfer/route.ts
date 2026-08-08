@@ -85,8 +85,8 @@ export async function POST(req: NextRequest) {
         throw new Error('Sender wallet not found')
       }
 
-      const availableBalance = new Decimal(senderWallet.availableBalance.toString())
-      if (availableBalance.lessThan(transferAmount)) {
+      const p2pBalance = new Decimal(senderWallet.p2pBalance.toString())
+      if (p2pBalance.lessThan(transferAmount)) {
         throw new Error('Insufficient balance')
       }
 
@@ -104,14 +104,14 @@ export async function POST(req: NextRequest) {
       const updatedSenderWallet = await tx.wallet.update({
         where: { userId: sender.id },
         data: {
-          availableBalance: availableBalance.minus(transferAmount).toString()
+          p2pBalance: p2pBalance.minus(transferAmount).toString()
         }
       })
 
       const updatedReceiverWallet = await tx.wallet.update({
         where: { userId: receiver.id },
         data: {
-          availableBalance: new Decimal(receiverWallet.availableBalance.toString()).plus(netAmount).toString()
+          p2pBalance: new Decimal(receiverWallet.p2pBalance.toString()).plus(netAmount).toString()
         }
       })
 
@@ -136,8 +136,8 @@ export async function POST(req: NextRequest) {
           type: 'P2P_SENT',
           amount: transferAmount.toString(),
           status: 'COMPLETED',
-          balanceBefore: availableBalance.toString(),
-          balanceAfter: updatedSenderWallet.availableBalance,
+          balanceBefore: p2pBalance.toString(),
+          balanceAfter: updatedSenderWallet.p2pBalance,
           referenceKey: `P2P-S-${transfer.id}`,
           createdAt: new Date(),
         }
@@ -149,8 +149,8 @@ export async function POST(req: NextRequest) {
           type: 'P2P_RECEIVED',
           amount: netAmount.toString(),
           status: 'COMPLETED',
-          balanceBefore: receiverWallet.availableBalance.toString(),
-          balanceAfter: updatedReceiverWallet.availableBalance,
+          balanceBefore: receiverWallet.p2pBalance.toString(),
+          balanceAfter: updatedReceiverWallet.p2pBalance,
           referenceKey: `P2P-R-${transfer.id}`,
           createdAt: new Date(),
         }

@@ -4,12 +4,17 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 
 export default function WalletPage() {
   const [loading, setLoading] = useState(true);
   const [wallet, setWallet] = useState<any>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [transferAmount, setTransferAmount] = useState('');
+  const [pin, setPin] = useState('');
+  const [isTransferring, setIsTransferring] = useState(false);
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     async function loadWalletData() {
@@ -46,6 +51,35 @@ export default function WalletPage() {
     );
   }
 
+  const handleTransfer = async () => {
+    setMessage('');
+    setIsTransferring(true);
+    try {
+      const res = await fetch('/api/wallet/transfer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: Number(transferAmount), pin }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMessage('Transfer successful!');
+        setTransferAmount('');
+        setPin('');
+        const resWallet = await fetch('/api/wallet');
+        if (resWallet.ok) {
+          const w = await resWallet.json();
+          setWallet(w.wallet);
+        }
+      } else {
+        setMessage(data.error || 'Transfer failed');
+      }
+    } catch (err) {
+      setMessage('Error processing transfer');
+    } finally {
+      setIsTransferring(false);
+    }
+  };
+
   const fmt = (val: any) => (val ? Number(val).toFixed(2) : '0.00');
 
   return (
@@ -65,6 +99,17 @@ export default function WalletPage() {
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 truncate">
             ${fmt(wallet?.availableBalance)}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+              P2P Wallet Balance
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold text-cyan-600 dark:text-cyan-400 truncate">
+            ${fmt(wallet?.p2pBalance)}
           </CardContent>
         </Card>
 
@@ -136,6 +181,34 @@ export default function WalletPage() {
           <Button variant="secondary" className="w-full sm:w-auto text-xs py-2.5 justify-center">🔄 P2P Transfer</Button>
         </Link>
       </div>
+
+      <Card>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-base sm:text-lg">Transfer to P2P Wallet</CardTitle>
+          <CardDescription className="text-xs">Move funds from Available Balance to P2P Balance for peer-to-peer transfers.</CardDescription>
+        </CardHeader>
+        <CardContent className="p-4 sm:p-6 pt-0 space-y-4">
+          <Input 
+            className="w-full text-sm py-2.5" 
+            type="number" 
+            placeholder="Amount to transfer" 
+            value={transferAmount} 
+            onChange={e => setTransferAmount(e.target.value)} 
+          />
+          <Input 
+            className="w-full text-sm py-2.5" 
+            type="password" 
+            placeholder="6-digit Transaction PIN" 
+            maxLength={6} 
+            value={pin} 
+            onChange={e => setPin(e.target.value)} 
+          />
+          {message && <p className={`text-sm ${message.includes('Error') || message.includes('failed') ? 'text-red-500' : 'text-green-500'}`}>{message}</p>}
+          <Button onClick={handleTransfer} className="w-full sm:w-auto" disabled={isTransferring}>
+            {isTransferring ? 'Transferring...' : 'Transfer to P2P'}
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Recent Transactions Table */}
       <Card>

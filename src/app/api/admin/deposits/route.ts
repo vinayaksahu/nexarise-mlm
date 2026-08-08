@@ -13,11 +13,11 @@ export async function GET(req: NextRequest) {
     const statusParam = searchParams.get('status')
     
     let whereClause = {}
-    if (statusParam && statusParam !== 'ALL') {
+    if (statusParam && ['PENDING', 'APPROVED', 'REJECTED'].includes(statusParam)) {
       whereClause = { status: statusParam }
     }
 
-    const withdrawals = await db.withdrawal.findMany({
+    const deposits = await db.deposit.findMany({
       where: whereClause,
       include: {
         user: { select: { name: true, username: true, email: true } }
@@ -25,9 +25,9 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: 'desc' }
     })
 
-    return NextResponse.json({ withdrawals })
+    return NextResponse.json({ deposits })
   } catch (error) {
-    console.error('Admin Withdrawals Error:', error)
+    console.error('Admin Deposits Error:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }

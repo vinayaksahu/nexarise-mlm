@@ -127,7 +127,7 @@ export default function InvestmentsPage() {
                   <tr key={inv.id} className="border-b border-border/50 hover:bg-gray-50 dark:hover:bg-slate-800/50">
                     <td className="py-2.5 px-3 font-mono text-xs">{inv.referenceKey || inv.id.substring(0,8)}</td>
                     <td className="py-2.5 px-3">${Number(inv.amount).toFixed(2)}</td>
-                    <td className="py-2.5 px-3"><Badge variant={inv.status === 'ACTIVE' ? 'success' : 'default'}>{inv.status}</Badge></td>
+                    <td className="py-2.5 px-3"><Badge variant={inv.status === 'ACTIVE' ? 'success' : inv.status === 'COMPLETED' ? 'info' : inv.status === 'CANCELLED' ? 'danger' : 'default'}>{inv.status}</Badge></td>
                     <td className="py-2.5 px-3">${Number(inv.roiReceived).toFixed(2)}</td>
                     <td className="py-2.5 px-3">{new Date(inv.createdAt).toLocaleDateString()}</td>
                   </tr>

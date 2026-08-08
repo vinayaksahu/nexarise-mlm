@@ -17,7 +17,7 @@ export default function AdminWithdrawalsPage() {
       const res = await fetch(`/api/admin/withdrawals?status=${statusTab === 'ALL' ? '' : statusTab}`);
       if (res.ok) {
         const data = await res.json();
-        setWithdrawals(data.withdrawals || []);
+        setWithdrawals(Array.isArray(data) ? data : (data.withdrawals || []));
       }
     } catch (e) {
       console.error(e);
@@ -30,10 +30,12 @@ export default function AdminWithdrawalsPage() {
 
   const handleAction = async (id: string, action: 'approve' | 'paid' | 'reject') => {
     try {
-      const body: any = { action };
-      if (action === 'reject') {
-        body.adminNote = adminNote;
-      }
+      let status = '';
+      if (action === 'approve') status = 'APPROVED';
+      else if (action === 'paid') status = 'PAID';
+      else if (action === 'reject') status = 'REJECTED';
+
+      const body: any = { status, adminNote };
       const res = await fetch(`/api/admin/withdrawals/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
