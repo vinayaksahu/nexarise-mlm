@@ -9,6 +9,7 @@ interface SidebarProps {
   isAdmin?: boolean;
   user?: { name: string; username: string; role: string } | null;
   onCloseMobile?: () => void;
+  isMobileDrawer?: boolean;
 }
 
 const userNavGroups = [
@@ -81,18 +82,20 @@ const adminNavGroups = [
   },
 ];
 
-export function Sidebar({ isAdmin = false, user, onCloseMobile }: SidebarProps) {
+export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer = false }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const navGroups = isAdmin ? adminNavGroups : userNavGroups;
 
-  return (
-    <aside
-      className={`flex flex-col h-full lg:h-screen sticky top-0 bg-slate-900 text-slate-300 border-r border-slate-800 transition-all duration-300 ${
+  const baseClasses = isMobileDrawer
+    ? 'flex flex-col h-full bg-slate-900 text-slate-300 w-full overflow-hidden'
+    : `hidden lg:flex flex-col h-screen sticky top-0 bg-slate-900 text-slate-300 border-r border-slate-800 transition-all duration-300 ${
         collapsed ? 'w-20' : 'w-64'
-      }`}
-    >
+      }`;
+
+  return (
+    <aside className={baseClasses}>
       {/* Brand Header */}
       <div className="flex items-center h-16 px-4 border-b border-slate-800 bg-slate-950 shrink-0">
         <Link
@@ -103,23 +106,26 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile }: SidebarProps) 
           <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
             N
           </div>
-          {!collapsed && (
+          {(!collapsed || isMobileDrawer) && (
             <span className="text-lg font-bold tracking-tight text-white">
               Nexa<span className="text-blue-500">Rise</span>
             </span>
           )}
         </Link>
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="hidden lg:flex ml-auto text-slate-400 hover:text-white transition-colors p-1.5 rounded-md hover:bg-slate-800"
-          title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-        >
-          {collapsed ? '➔' : '☰'}
-        </button>
+        {!isMobileDrawer && (
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="hidden lg:flex ml-auto text-slate-400 hover:text-white transition-colors p-1.5 rounded-md hover:bg-slate-800"
+            title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+          >
+            {collapsed ? '➔' : '☰'}
+          </button>
+        )}
         {onCloseMobile && (
           <button
             onClick={onCloseMobile}
-            className="lg:hidden ml-auto text-slate-400 hover:text-white transition-colors p-1.5 rounded-md hover:bg-slate-800"
+            className="ml-auto text-slate-400 hover:text-white transition-colors p-1.5 rounded-md hover:bg-slate-800 font-bold"
+            title="Close Drawer"
           >
             ✕
           </button>
@@ -130,7 +136,7 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile }: SidebarProps) 
       <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-4">
         {navGroups.map((group, idx) => (
           <div key={idx} className="space-y-1">
-            {!collapsed && (
+            {(!collapsed || isMobileDrawer) && (
               <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
                 {group.heading}
               </div>
@@ -151,10 +157,10 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile }: SidebarProps) 
                       ? 'bg-blue-600 text-white font-semibold shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`}
-                  title={collapsed ? item.label : undefined}
+                  title={collapsed && !isMobileDrawer ? item.label : undefined}
                 >
                   <span className="text-base shrink-0">{item.icon}</span>
-                  {!collapsed && <span className="truncate">{item.label}</span>}
+                  {(!collapsed || isMobileDrawer) && <span className="truncate">{item.label}</span>}
                 </Link>
               );
             })}
@@ -169,7 +175,9 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile }: SidebarProps) 
           className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-xs font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-all"
         >
           <span className="text-sm">{theme === 'dark' ? '☀️' : '🌙'}</span>
-          {!collapsed && <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>}
+          {(!collapsed || isMobileDrawer) && (
+            <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+          )}
         </button>
       </div>
     </aside>

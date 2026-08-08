@@ -46,16 +46,16 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
   return (
     <>
       <header className="sticky top-0 z-40 h-16 bg-slate-950 text-white border-b border-slate-800 flex items-center justify-between px-4 lg:px-6 shadow-md">
-        {/* Mobile Hamburger Toggle & Brand Logo */}
+        {/* Left Controls: Hamburger Menu & Mobile Brand Logo (hidden on desktop lg:hidden) */}
         <div className="flex items-center gap-3">
           <button
             onClick={() => setMobileDrawerOpen(true)}
-            className="lg:hidden text-slate-300 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition-colors"
-            title="Open Menu"
+            className="lg:hidden text-slate-300 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition-colors text-lg"
+            title="Open Navigation Menu"
           >
             ☰
           </button>
-          <Link href={isAdmin ? '/admin' : '/dashboard'} className="flex items-center gap-2">
+          <Link href={isAdmin ? '/admin' : '/dashboard'} className="flex items-center gap-2 lg:hidden">
             <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow">
               N
             </div>
@@ -176,11 +176,16 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
       {mobileDrawerOpen && (
         <div className="fixed inset-0 z-50 flex lg:hidden">
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
             onClick={() => setMobileDrawerOpen(false)}
           />
-          <div className="relative flex-1 flex flex-col max-w-xs w-full bg-slate-900 z-50">
-            <Sidebar isAdmin={isAdmin} user={user} onCloseMobile={() => setMobileDrawerOpen(false)} />
+          <div className="relative flex-1 flex flex-col max-w-xs w-full bg-slate-900 z-50 h-full">
+            <Sidebar
+              isAdmin={isAdmin}
+              user={user}
+              isMobileDrawer={true}
+              onCloseMobile={() => setMobileDrawerOpen(false)}
+            />
           </div>
         </div>
       )}
