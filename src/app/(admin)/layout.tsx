@@ -14,12 +14,12 @@ const getCachedAdminUser = cache(async (userId: string) => {
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession()
-  if (!session) redirect('/login')
+  if (!session) redirect('/admin/login')
 
   const user = await getCachedAdminUser(session.userId)
 
   if (!user || !['SUPER_ADMIN', 'ADMIN', 'FINANCE', 'SUPPORT', 'VIEWER'].includes(user.role)) {
-    redirect('/dashboard')
+    redirect('/admin/login')
   }
 
   return (
