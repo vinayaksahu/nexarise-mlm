@@ -1,41 +1,156 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 export default function SelfROIPage() {
+  const [loading, setLoading] = useState(true);
+  const [wallet, setWallet] = useState<any>(null);
+  const [investments, setInvestments] = useState<any[]>([]);
+  const [roiTxs, setRoiTxs] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [resWallet, resInv, resTx] = await Promise.all([
+          fetch('/api/wallet'),
+          fetch('/api/investments'),
+          fetch('/api/transactions?limit=20'),
+        ]);
+
+        if (resWallet.ok) {
+          const w = await resWallet.json();
+          setWallet(w.wallet);
+        }
+        if (resInv.ok) {
+          const inv = await resInv.json();
+          setInvestments(inv.investments || []);
+        }
+        if (resTx.ok) {
+          const tx = await resTx.json();
+          const filtered = (tx.transactions || []).filter((t: any) => t.type === 'SELF_ROI');
+          setRoiTxs(filtered);
+        }
+      } catch (err) {
+        console.error('Failed to load ROI data:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px] text-muted">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-3" />
+        <span>Loading Self ROI data...</span>
+      </div>
+    );
+  }
+
+  const fmt = (val: any) => (val ? Number(val).toFixed(2) : '0.00');
+  const activeInvestments = investments.filter((i: any) => i.status === 'ACTIVE');
+  const totalActiveCapital = activeInvestments.reduce((acc, curr) => acc + Number(curr.amount), 0);
+
   return (
-    <div className="space-y-6 p-6">
-      <h1 className="text-2xl font-bold">Self ROI History</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card><CardHeader><CardTitle>Total Self ROI</CardTitle></CardHeader><CardContent>$150</CardContent></Card>
-        <Card><CardHeader><CardTitle>Daily ROI Rate</CardTitle></CardHeader><CardContent>1.0%</CardContent></Card>
-        <Card><CardHeader><CardTitle>Active Investment</CardTitle></CardHeader><CardContent>$500</CardContent></Card>
+    <div className="space-y-6 animate-fade-in">
+      <div>
+        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Self ROI History</h1>
+        <p className="text-muted text-sm mt-1">Track your active investment returns, daily ROI rate, and payout history.</p>
       </div>
 
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader className="p-4 pb-2"><CardTitle className="text-xs text-muted">Total Self ROI Earned</CardTitle></CardHeader>
+          <CardContent className="p-4 pt-0 text-2xl font-bold text-primary dark:text-primary-light">${fmt(wallet?.roiIncome)}</CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="p-4 pb-2"><CardTitle className="text-xs text-muted">Daily ROI Rate</CardTitle></CardHeader>
+          <CardContent className="p-4 pt-0 text-2xl font-bold text-emerald-600 dark:text-emerald-400">1.0% / day</CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="p-4 pb-2"><CardTitle className="text-xs text-muted">Active Capital</CardTitle></CardHeader>
+          <CardContent className="p-4 pt-0 text-2xl font-bold text-indigo-600 dark:text-indigo-400">${fmt(totalActiveCapital)}</CardContent>
+        </Card>
+      </div>
+
+      {/* Active Investments Progress */}
       <Card>
-        <CardHeader><CardTitle>Investments Progress</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>Active Investment Progress</CardTitle>
+          <CardDescription>200-day ROI duration breakdown per active investment plan.</CardDescription>
+        </CardHeader>
         <CardContent>
-          <div className="mb-4">
-            <p>Investment #1 ($500) - 10 / 200 days</p>
-            <div className="w-full bg-gray-200 rounded-full h-2.5">
-              <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '5%' }}></div>
+          {activeInvestments.length === 0 ? (
+            <div className="text-center py-6 text-muted">
+              <p className="text-sm">No active investments found.</p>
             </div>
-          </div>
+          ) : (
+            <div className="space-y-4">
+              {activeInvestments.map((inv: any) => {
+                const startDate = new Date(inv.startDate);
+                const now = new Date();
+                const diffTime = Math.abs(now.getTime() - startDate.getTime());
+                const daysPassed = Math.min(200, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
+                const pct = Math.min(100, Math.round((daysPassed / 200) * 100));
+
+                return (
+                  <div key={inv.id} className="p-3 bg-gray-50 dark:bg-slate-900 rounded-xl border border-border">
+                    <div className="flex justify-between items-center text-sm mb-1.5 font-medium">
+                      <span>Investment ID: <span className="font-mono text-xs text-primary">{inv.id.substring(0, 8)}...</span></span>
+                      <span>Amount: <span className="font-semibold text-emerald-600 dark:text-emerald-400">${fmt(inv.amount)}</span> ({daysPassed} / 200 Days)</span>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-2.5">
+                      <div className="bg-primary h-2.5 rounded-full transition-all duration-300" style={{ width: `${pct}%` }}></div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </CardContent>
       </Card>
 
+      {/* Recent ROI Distributions Table */}
       <Card>
-        <CardHeader><CardTitle>Recent ROI Distributions</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>Recent ROI Distributions</CardTitle>
+        </CardHeader>
         <CardContent>
-          <table className="w-full text-left">
-            <thead>
-              <tr><th>Date</th><th>Amount</th><th>Investment ID</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>2023-10-01</td><td>$5.00</td><td>INV-1</td></tr>
-            </tbody>
-          </table>
+          {roiTxs.length === 0 ? (
+            <div className="text-center py-8 text-muted">
+              <p className="text-3xl mb-1">📈</p>
+              <p className="text-sm">No ROI payouts recorded yet.</p>
+              <p className="text-xs text-muted mt-1">Daily ROI is distributed automatically every 24 hours.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b border-border text-muted">
+                    <th className="py-2.5 px-3">Date</th>
+                    <th className="py-2.5 px-3">Amount</th>
+                    <th className="py-2.5 px-3">Reference Key</th>
+                    <th className="py-2.5 px-3">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {roiTxs.map((tx: any) => (
+                    <tr key={tx.id} className="border-b border-border/50 hover:bg-gray-50 dark:hover:bg-slate-800/50">
+                      <td className="py-2.5 px-3 text-xs text-muted">{new Date(tx.createdAt).toLocaleDateString()}</td>
+                      <td className="py-2.5 px-3 font-semibold text-emerald-600 dark:text-emerald-400">${fmt(tx.amount)}</td>
+                      <td className="py-2.5 px-3 font-mono text-xs text-muted">{tx.referenceKey}</td>
+                      <td className="py-2.5 px-3"><Badge variant="success">COMPLETED</Badge></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
