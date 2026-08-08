@@ -19,6 +19,7 @@ const userNavItems = [
   { label: 'Genealogy', href: '/genealogy', icon: '🌳' },
   { label: 'Referrals', href: '/referrals', icon: '🔗' },
   { label: 'Transactions', href: '/transactions', icon: '📋' },
+  { label: 'Income History', href: '/income-history', icon: '💰' },
   { label: 'Support', href: '/support', icon: '🎧' },
 ]
 

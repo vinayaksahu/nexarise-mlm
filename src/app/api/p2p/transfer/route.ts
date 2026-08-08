@@ -30,6 +30,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Sender not found or inactive' }, { status: 400 })
     }
 
+    const activeInv = await db.investment.findFirst({
+      where: { userId: session.userId, status: 'ACTIVE' }
+    });
+    
+    if (!activeInv) {
+      return NextResponse.json({ error: 'Only active accounts with an active investment can perform fund transfers' }, { status: 400 });
+    }
+
     if (!sender.transactionPinHash) {
       return NextResponse.json({ error: 'Set transaction PIN first' }, { status: 400 })
     }

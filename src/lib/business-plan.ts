@@ -18,6 +18,8 @@ export interface BusinessConfig {
   maxDirectReferralsForIncome: number
   requireDirectReferralsForLevelIncome: boolean
   minDirectReferralsForLevel: number[]
+  showP2pFee?: boolean
+  showWithdrawalFee?: boolean
 }
 
 let cachedConfig: { config: BusinessConfig; fetchedAt: number } | null = null

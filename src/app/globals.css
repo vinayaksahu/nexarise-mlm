@@ -128,3 +128,7 @@ body {
 .dark ::-webkit-scrollbar-thumb {
   background: #475569;
 }
+
+
+select, option { background-color: var(--color-surface); color: inherit; }
+.dark select, .dark option { background-color: #1e293b; color: #f8fafc; }

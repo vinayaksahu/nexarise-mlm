@@ -113,9 +113,7 @@ async function main() {
 
   // 4. Create default payment methods
   const paymentMethods = [
-    { name: 'Bank Transfer', type: 'BANK', details: { note: 'Direct bank transfer' } },
-    { name: 'UPI', type: 'UPI', details: { note: 'UPI payment' } },
-    { name: 'USDT (TRC-20)', type: 'CRYPTO', details: { network: 'TRC-20' } },
+    { name: 'USDT (BEP-20)', type: 'CRYPTO', details: { network: 'BEP-20', walletAddress: '0x1234567890abcdef1234567890abcdef12345678' } }
   ]
 
   for (const pm of paymentMethods) {

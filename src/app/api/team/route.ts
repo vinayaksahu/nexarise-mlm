@@ -16,8 +16,13 @@ export async function GET(request: NextRequest) {
         username: true,
         name: true,
         email: true,
+        mobile: true,
         status: true,
         createdAt: true,
+        investments: {
+          where: { status: 'ACTIVE' },
+          select: { amount: true }
+        }
       },
     })
 

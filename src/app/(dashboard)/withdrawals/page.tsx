@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,9 +9,15 @@ import { Badge } from '@/components/ui/badge';
 export default function WithdrawalsPage() {
   const [amount, setAmount] = useState('');
   const [method, setMethod] = useState('USDT');
+  const [config, setConfig] = useState<any>(null);
+
+  useEffect(() => {
+    fetch('/api/business-plan').then(r => r.json()).then(setConfig);
+  }, []);
 
   const numAmount = Number(amount) || 0;
-  const fee = numAmount * 0.05;
+  const feePercent = config?.withdrawalFeePercentage || 0;
+  const fee = numAmount * (feePercent / 100);
   const netAmount = numAmount - fee;
 
   const handleWithdraw = () => {
@@ -26,8 +32,8 @@ export default function WithdrawalsPage() {
         <CardHeader><CardTitle>Withdrawal Information</CardTitle></CardHeader>
         <CardContent>
           <p>Available Balance: $100</p>
-          <p>Min Withdrawal: $5</p>
-          <p>Fee: 5%</p>
+          <p>Min Withdrawal: ${config?.minWithdrawal || 5}</p>
+          {config?.showWithdrawalFee && <p>Fee: {feePercent}%</p>}
         </CardContent>
       </Card>
 
@@ -35,11 +41,9 @@ export default function WithdrawalsPage() {
         <CardHeader><CardTitle>Request Withdrawal</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <Input type="number" placeholder="Amount" value={amount} onChange={e => setAmount(e.target.value)} />
-          <p>Fee: ${fee.toFixed(2)} | Net Amount: ${netAmount.toFixed(2)}</p>
+          {config?.showWithdrawalFee && <p>Fee: ${fee.toFixed(2)} | Net Amount: ${netAmount.toFixed(2)}</p>}
           <select className="w-full p-2 border rounded" value={method} onChange={e => setMethod(e.target.value)}>
-            <option>USDT</option>
-            <option>Bank Transfer</option>
-            <option>UPI</option>
+            <option>USDT (BEP-20)</option>
           </select>
           <Button onClick={handleWithdraw}>Submit Request</Button>
         </CardContent>
@@ -53,7 +57,7 @@ export default function WithdrawalsPage() {
               <tr><th>ID</th><th>Amount</th><th>Fee</th><th>Net</th><th>Method</th><th>Status</th></tr>
             </thead>
             <tbody>
-              <tr><td>WD-1</td><td>$50</td><td>$2.50</td><td>$47.50</td><td>USDT</td><td><Badge variant="default">PENDING</Badge></td></tr>
+              
             </tbody>
           </table>
         </CardContent>

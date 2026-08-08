@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { invalidateConfigCache } from '@/lib/business-plan';
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,12 +12,8 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     
-    // Validate config body roughly
-    if (!body.dailyRoiPercent || !body.durationDays) {
-      return NextResponse.json({ error: 'Invalid config' }, { status: 400 });
-    }
-
-    // In a real app we'd invalidate cache here if we had a cache function
+    // Invalidate cache
+    invalidateConfigCache();
 
     await db.$transaction(async (tx) => {
       // Set all existing plans to inactive

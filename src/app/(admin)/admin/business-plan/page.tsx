@@ -12,6 +12,9 @@ export default function AdminBusinessPlanPage() {
     minInvestment: 0,
     maxInvestment: 0,
     withdrawalFeePercent: 0,
+    p2pFeePercent: 0,
+    showP2pFee: false,
+    showWithdrawalFee: false,
     levelIncomes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   });
 
@@ -101,6 +104,30 @@ export default function AdminBusinessPlanPage() {
                 value={config.withdrawalFeePercent} 
                 onChange={e => setConfig({...config, withdrawalFeePercent: parseFloat(e.target.value)})}
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">P2P Fee (%)</label>
+              <Input 
+                type="number" step="0.1"
+                value={config.p2pFeePercent} 
+                onChange={e => setConfig({...config, p2pFeePercent: parseFloat(e.target.value)})}
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <input 
+                type="checkbox" 
+                checked={config.showWithdrawalFee} 
+                onChange={e => setConfig({...config, showWithdrawalFee: e.target.checked})}
+              />
+              <label className="text-sm font-medium">Show Withdrawal Fee</label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input 
+                type="checkbox" 
+                checked={config.showP2pFee} 
+                onChange={e => setConfig({...config, showP2pFee: e.target.checked})}
+              />
+              <label className="text-sm font-medium">Show P2P Fee</label>
             </div>
           </div>
         </div>

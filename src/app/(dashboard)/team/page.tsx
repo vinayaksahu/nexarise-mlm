@@ -131,25 +131,34 @@ export default function TeamPage() {
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-border text-muted">
+                    <th className="py-2.5 px-3">S.No</th>
                     <th className="py-2.5 px-3">Name</th>
                     <th className="py-2.5 px-3">Username</th>
                     <th className="py-2.5 px-3">Email</th>
+                    <th className="py-2.5 px-3">Mobile</th>
+                    <th className="py-2.5 px-3">Active Investment</th>
                     <th className="py-2.5 px-3">Status</th>
                     <th className="py-2.5 px-3">Joined Date</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {directs.map((member: any) => (
+                  {directs.map((member: any, index: number) => {
+                    const totalActiveInvestment = member.investments?.reduce((sum: number, inv: any) => sum + Number(inv.amount), 0) || 0;
+                    return (
                     <tr key={member.id} className="border-b border-border/50 hover:bg-gray-50 dark:hover:bg-slate-800/50">
+                      <td className="py-2.5 px-3">{index + 1}</td>
                       <td className="py-2.5 px-3 font-medium text-gray-900 dark:text-white">{member.name}</td>
                       <td className="py-2.5 px-3 font-mono text-xs text-primary">{member.username}</td>
                       <td className="py-2.5 px-3 text-muted">{member.email}</td>
+                      <td className="py-2.5 px-3 text-muted">{member.mobile || 'N/A'}</td>
+                      <td className="py-2.5 px-3 text-muted">${totalActiveInvestment.toFixed(2)}</td>
                       <td className="py-2.5 px-3">
                         <Badge variant={member.status === 'ACTIVE' ? 'success' : 'danger'}>{member.status}</Badge>
                       </td>
                       <td className="py-2.5 px-3 text-xs text-muted">{new Date(member.createdAt).toLocaleDateString()}</td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

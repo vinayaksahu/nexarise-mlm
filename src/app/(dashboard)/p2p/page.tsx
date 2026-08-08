@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,9 +9,15 @@ export default function P2PPage() {
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
   const [pin, setPin] = useState('');
+  const [config, setConfig] = useState<any>(null);
+
+  useEffect(() => {
+    fetch('/api/business-plan').then(r => r.json()).then(setConfig);
+  }, []);
 
   const numAmount = Number(amount) || 0;
-  const fee = numAmount * 0.02;
+  const feePercent = config?.p2pFeePercentage || 0;
+  const fee = numAmount * (feePercent / 100);
 
   const handleTransfer = () => {
     alert(`Transferred $${amount} to ${recipient}`);
@@ -26,7 +32,11 @@ export default function P2PPage() {
         <CardContent className="space-y-4">
           <Input placeholder="Recipient Username / Email / Referral Code" value={recipient} onChange={e => setRecipient(e.target.value)} />
           <Input type="number" placeholder="Amount" value={amount} onChange={e => setAmount(e.target.value)} />
-          <p>Fee: ${fee.toFixed(2)} (2%) | Net Deducted: ${(numAmount + fee).toFixed(2)}</p>
+          
+          {config?.showP2pFee && (
+            <p>Fee: ${fee.toFixed(2)} ({feePercent}%) | Net Deducted: ${(numAmount + fee).toFixed(2)}</p>
+          )}
+
           <Input type="password" placeholder="6-digit Transaction PIN" maxLength={6} value={pin} onChange={e => setPin(e.target.value)} />
           <Button onClick={handleTransfer}>Send Funds</Button>
           <p className="text-sm"><a href="#" className="text-blue-500">Set or Update PIN</a></p>
