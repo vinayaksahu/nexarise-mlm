@@ -46,16 +46,52 @@ export default function InvestmentsPage() {
   const activeInvestments = investments.filter(inv => inv.status === 'ACTIVE').length;
   const totalRoi = investments.reduce((sum, inv) => sum + Number(inv.roiReceived), 0);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px] text-muted">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-3" />
+        <span>Loading investments...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
       <h1 className="text-2xl font-bold">Investments</h1>
       
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
-        <Card><CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted font-medium truncate">Total Invested</CardTitle></CardHeader><CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold truncate">${totalInvested.toFixed(2)}</CardContent></Card>
-        <Card><CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted font-medium truncate">Active Investments</CardTitle></CardHeader><CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold truncate">{activeInvestments}</CardContent></Card>
-        <Card><CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted font-medium truncate">Total ROI Earned</CardTitle></CardHeader><CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold truncate">${totalRoi.toFixed(2)}</CardContent></Card>
+        <Card>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+              Total Invested
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold truncate">
+            ${totalInvested.toFixed(2)}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+              Active Investments
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold truncate">
+            {activeInvestments}
+          </CardContent>
+        </Card>
+
+        <Card className="col-span-2 sm:col-span-1">
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+              Total ROI Earned
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold truncate">
+            ${totalRoi.toFixed(2)}
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
@@ -77,7 +113,7 @@ export default function InvestmentsPage() {
         <CardHeader className="p-4 sm:p-6"><CardTitle>Your Investments</CardTitle></CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
           {investments.length === 0 ? (
-            <p>No investments found.</p>
+            <p className="text-sm text-muted py-4">No investments found.</p>
           ) : (
           <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
             <table className="w-full text-left text-sm min-w-[500px]">

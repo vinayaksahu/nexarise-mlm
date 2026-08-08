@@ -59,7 +59,9 @@ export default function WalletPage() {
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
         <Card>
           <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
-            <CardTitle className="text-[11px] sm:text-xs text-muted font-medium truncate">Available Balance</CardTitle>
+            <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+              Available Balance
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 truncate">
             ${fmt(wallet?.availableBalance)}
@@ -68,7 +70,9 @@ export default function WalletPage() {
 
         <Card>
           <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
-            <CardTitle className="text-[11px] sm:text-xs text-muted font-medium truncate">ROI Income</CardTitle>
+            <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+              ROI Income
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold text-primary dark:text-primary-light truncate">
             ${fmt(wallet?.roiIncome)}
@@ -77,7 +81,9 @@ export default function WalletPage() {
 
         <Card>
           <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
-            <CardTitle className="text-[11px] sm:text-xs text-muted font-medium truncate">Level Income</CardTitle>
+            <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+              Level Income
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold text-accent dark:text-accent-light truncate">
             ${fmt(wallet?.levelIncome)}
@@ -86,7 +92,9 @@ export default function WalletPage() {
 
         <Card>
           <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
-            <CardTitle className="text-[11px] sm:text-xs text-muted font-medium truncate">Reward Income</CardTitle>
+            <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+              Reward Income
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold text-amber-500 truncate">
             ${fmt(wallet?.rewardIncome)}
@@ -95,7 +103,9 @@ export default function WalletPage() {
 
         <Card>
           <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
-            <CardTitle className="text-[11px] sm:text-xs text-muted font-medium truncate">Total Income</CardTitle>
+            <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+              Total Income
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold text-indigo-600 dark:text-indigo-400 truncate">
             ${fmt(wallet?.totalIncome)}
@@ -104,7 +114,9 @@ export default function WalletPage() {
 
         <Card>
           <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
-            <CardTitle className="text-[11px] sm:text-xs text-muted font-medium truncate">Total Withdrawals</CardTitle>
+            <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+              Total Withdrawals
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold text-gray-700 dark:text-gray-300 truncate">
             ${fmt(wallet?.totalWithdrawals)}
@@ -127,21 +139,21 @@ export default function WalletPage() {
 
       {/* Recent Transactions Table */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-between p-4 sm:p-6">
           <div>
-            <CardTitle>Recent Transactions</CardTitle>
+            <CardTitle className="text-base sm:text-lg">Recent Transactions</CardTitle>
             <CardDescription className="text-xs mt-0.5">Your latest account transactions.</CardDescription>
           </div>
           <Link href="/transactions" className="text-xs text-primary hover:underline">View All →</Link>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6 pt-0">
           {transactions.length === 0 ? (
             <div className="text-center py-8 text-muted">
               <p className="text-3xl mb-1">📋</p>
               <p className="text-sm">No recent transactions yet.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0">
+            <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
               <table className="w-full text-left text-sm min-w-[500px]">
                 <thead>
                   <tr className="border-b border-border text-muted">

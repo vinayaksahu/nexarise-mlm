@@ -4,17 +4,18 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
 
 export default function TeamPage() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
-  const [teamData, setTeamData] = useState<any>(null);
+  const [team, setTeam] = useState<any>(null);
   const [copied, setCopied] = useState(false);
   const [origin, setOrigin] = useState('');
 
   useEffect(() => {
     setOrigin(window.location.origin);
-
+    
     async function loadTeamData() {
       try {
         const [resUser, resTeam] = await Promise.all([
@@ -28,7 +29,7 @@ export default function TeamPage() {
         }
         if (resTeam.ok) {
           const t = await resTeam.json();
-          setTeamData(t);
+          setTeam(t);
         }
       } catch (err) {
         console.error('Failed to load team data:', err);
@@ -54,39 +55,44 @@ export default function TeamPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px] text-muted">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-3" />
-        <span>Loading team data...</span>
+        <span>Loading team network...</span>
       </div>
     );
   }
 
-  const directs = teamData?.directReferrals || [];
+  const directs = team?.directReferrals || [];
   const activeDirects = directs.filter((d: any) => d.status === 'ACTIVE').length;
-  const businessVolume = teamData?.businessVolume || {};
+  const businessVolume = team?.businessVolume || {};
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Team & Direct Referrals</h1>
-        <p className="text-muted text-sm mt-1">Track your network downline, share your referral link, and monitor business volume.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Direct Team Members</h1>
+          <p className="text-muted text-sm mt-1">Detailed row-wise breakdown of members registered using your referral code.</p>
+        </div>
+        <Link href="/genealogy">
+          <Button variant="outline" size="sm">🌳 View Genealogy Tree →</Button>
+        </Link>
       </div>
 
-      {/* Share Referral Link Card */}
+      {/* Referral Link Share Card */}
       <Card variant="gradient" hover={false}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-primary dark:text-primary-light">
-            <span>🔗 Your Direct Referral Link</span>
+        <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-3">
+          <CardTitle className="flex items-center gap-2 text-primary dark:text-primary-light text-base sm:text-lg">
+            <span>🔗 Your Referral Link</span>
           </CardTitle>
-          <CardDescription>
-            Give this unique link to anyone you sponsor. When they register, they will be placed directly in Level 1 of your team network.
+          <CardDescription className="text-xs sm:text-sm">
+            Share this link to register new users directly under your account.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6 pt-0">
           <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
             <div className="w-full text-xs font-mono truncate px-3 py-2 bg-white dark:bg-slate-900 border border-border rounded-lg flex items-center justify-between gap-2">
               <span className="truncate">{refLink}</span>
               <Badge variant="info" className="shrink-0">Code: {refCode}</Badge>
             </div>
-            <Button onClick={copyLink} variant="primary" className="w-full sm:w-auto text-xs py-2">
+            <Button onClick={copyLink} variant="primary" className="w-full sm:w-auto text-xs py-2 shrink-0">
               {copied ? '✓ Copied!' : '📋 Copy Link'}
             </Button>
           </div>
@@ -96,34 +102,58 @@ export default function TeamPage() {
       {/* Team Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
         <Card>
-          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Total Direct Referrals</CardTitle></CardHeader>
-          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-blue-600 dark:text-blue-400 truncate">{directs.length}</CardContent>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+              Total Direct Referrals
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-blue-600 dark:text-blue-400 truncate">
+            {directs.length}
+          </CardContent>
         </Card>
         <Card>
-          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Active Directs</CardTitle></CardHeader>
-          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 truncate">{activeDirects}</CardContent>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+              Active Directs
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 truncate">
+            {activeDirects}
+          </CardContent>
         </Card>
         <Card>
-          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Strong Leg Volume</CardTitle></CardHeader>
-          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-purple-600 dark:text-purple-400 truncate">${Number(businessVolume.strongLeg || 0).toFixed(2)}</CardContent>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+              Strong Leg Volume
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-purple-600 dark:text-purple-400 truncate">
+            ${Number(businessVolume.strongLeg || 0).toFixed(2)}
+          </CardContent>
         </Card>
         <Card>
-          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Weak Leg Volume</CardTitle></CardHeader>
-          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-amber-500 truncate">${Number(businessVolume.weakLeg || 0).toFixed(2)}</CardContent>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+              Weak Leg Volume
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-amber-500 truncate">
+            ${Number(businessVolume.weakLeg || 0).toFixed(2)}
+          </CardContent>
         </Card>
       </div>
 
-      {/* Direct Referrals Table */}
+      {/* Row-wise Direct Members Table */}
       <Card>
-        <CardHeader>
-          <CardTitle>Direct Referral Members (Level 1)</CardTitle>
-          <CardDescription>List of users directly sponsored by your referral code.</CardDescription>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-base sm:text-lg">Direct Referral List</CardTitle>
+          <CardDescription className="text-xs">Complete list of users sponsored directly by your referral code.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6 pt-0">
           {directs.length === 0 ? (
-            <div className="text-center py-8 text-muted">
-              <p className="text-3xl mb-1">👥</p>
-              <p className="text-sm font-medium">No direct referrals yet.</p>
+            <div className="text-center py-10 text-muted">
+              <p className="text-4xl mb-2">👥</p>
+              <p className="text-base font-semibold text-gray-800 dark:text-gray-200">No direct team members yet</p>
               <p className="text-xs text-muted mt-1">Share your referral link above to start building your team network!</p>
             </div>
           ) : (
@@ -138,25 +168,31 @@ export default function TeamPage() {
                     <th className="py-2.5 px-3">Mobile</th>
                     <th className="py-2.5 px-3">Active Investment</th>
                     <th className="py-2.5 px-3">Status</th>
-                    <th className="py-2.5 px-3">Joined Date</th>
+                    <th className="py-2.5 px-3">Date Joined</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {directs.map((member: any, index: number) => {
-                    const totalActiveInvestment = member.investments?.reduce((sum: number, inv: any) => sum + Number(inv.amount), 0) || 0;
+                  {directs.map((m: any, idx: number) => {
+                    const activeInvSum = (m.investments || []).reduce((acc: number, curr: any) => acc + Number(curr.amount), 0);
                     return (
-                    <tr key={member.id} className="border-b border-border/50 hover:bg-gray-50 dark:hover:bg-slate-800/50">
-                      <td className="py-2.5 px-3">{index + 1}</td>
-                      <td className="py-2.5 px-3 font-medium text-gray-900 dark:text-white">{member.name}</td>
-                      <td className="py-2.5 px-3 font-mono text-xs text-primary">{member.username}</td>
-                      <td className="py-2.5 px-3 text-muted">{member.email}</td>
-                      <td className="py-2.5 px-3 text-muted">{member.mobile || 'N/A'}</td>
-                      <td className="py-2.5 px-3 text-muted">${totalActiveInvestment.toFixed(2)}</td>
-                      <td className="py-2.5 px-3">
-                        <Badge variant={member.status === 'ACTIVE' ? 'success' : 'danger'}>{member.status}</Badge>
-                      </td>
-                      <td className="py-2.5 px-3 text-xs text-muted">{new Date(member.createdAt).toLocaleDateString()}</td>
-                    </tr>
+                      <tr key={m.id} className="border-b border-border/50 hover:bg-gray-50 dark:hover:bg-slate-800/50">
+                        <td className="py-3 px-3 text-muted">{idx + 1}</td>
+                        <td className="py-3 px-3 font-semibold text-gray-900 dark:text-white">{m.name}</td>
+                        <td className="py-3 px-3 font-mono text-xs text-primary">@{m.username}</td>
+                        <td className="py-3 px-3 text-muted text-xs">{m.email}</td>
+                        <td className="py-3 px-3 text-muted text-xs">{m.mobile || 'N/A'}</td>
+                        <td className="py-3 px-3 font-semibold text-emerald-600 dark:text-emerald-400">
+                          ${activeInvSum.toFixed(2)}
+                        </td>
+                        <td className="py-3 px-3">
+                          <Badge variant={m.status === 'ACTIVE' ? 'success' : 'default'}>
+                            {m.status}
+                          </Badge>
+                        </td>
+                        <td className="py-3 px-3 text-xs text-muted">
+                          {new Date(m.createdAt).toLocaleDateString()}
+                        </td>
+                      </tr>
                     );
                   })}
                 </tbody>
