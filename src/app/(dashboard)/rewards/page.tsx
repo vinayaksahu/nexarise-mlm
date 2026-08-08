@@ -90,18 +90,18 @@ export default function RewardsPage() {
       )}
 
       {/* Volume Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
         <Card>
-          <CardHeader className="p-4 pb-2"><CardTitle className="text-xs text-muted">Strong Leg Volume</CardTitle></CardHeader>
-          <CardContent className="p-4 pt-0 text-2xl font-bold text-purple-600 dark:text-purple-400">${fmt(strongLeg)}</CardContent>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Strong Leg Volume</CardTitle></CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-purple-600 dark:text-purple-400 truncate">${fmt(strongLeg)}</CardContent>
         </Card>
         <Card>
-          <CardHeader className="p-4 pb-2"><CardTitle className="text-xs text-muted">Weak Leg Volume</CardTitle></CardHeader>
-          <CardContent className="p-4 pt-0 text-2xl font-bold text-amber-500">${fmt(weakLeg)}</CardContent>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Weak Leg Volume</CardTitle></CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-amber-500 truncate">${fmt(weakLeg)}</CardContent>
         </Card>
-        <Card>
-          <CardHeader className="p-4 pb-2"><CardTitle className="text-xs text-muted">Total Business Volume</CardTitle></CardHeader>
-          <CardContent className="p-4 pt-0 text-2xl font-bold text-emerald-600 dark:text-emerald-400">${fmt(totalBus)}</CardContent>
+        <Card className="col-span-2 sm:col-span-1">
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Total Business Volume</CardTitle></CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 truncate">${fmt(totalBus)}</CardContent>
         </Card>
       </div>
 
@@ -135,13 +135,13 @@ export default function RewardsPage() {
                   </div>
                 </div>
 
-                <div className="shrink-0">
+                <div className="shrink-0 w-full sm:w-auto mt-2 sm:mt-0 flex justify-end">
                   {isClaimed ? (
-                    <Badge variant="success">✓ CLAIMED</Badge>
+                    <Badge variant="success" className="w-full sm:w-auto justify-center">✓ CLAIMED</Badge>
                   ) : isQualified ? (
-                    <Button onClick={handleClaim} loading={claiming} variant="primary" size="sm">Claim Now</Button>
+                    <Button onClick={handleClaim} loading={claiming} variant="primary" className="w-full sm:w-auto text-xs py-2">Claim Now</Button>
                   ) : (
-                    <Badge variant="default">LOCKED</Badge>
+                    <Badge variant="default" className="w-full sm:w-auto justify-center">LOCKED</Badge>
                   )}
                 </div>
               </div>

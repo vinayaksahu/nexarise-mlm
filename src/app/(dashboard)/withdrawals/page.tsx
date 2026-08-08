@@ -25,41 +25,45 @@ export default function WithdrawalsPage() {
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 animate-fade-in">
       <h1 className="text-2xl font-bold">Withdrawals</h1>
       
       <Card>
-        <CardHeader><CardTitle>Withdrawal Information</CardTitle></CardHeader>
-        <CardContent>
-          <p>Available Balance: $100</p>
-          <p>Min Withdrawal: ${config?.minWithdrawal || 5}</p>
-          {config?.showWithdrawalFee && <p>Fee: {feePercent}%</p>}
+        <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4"><CardTitle>Withdrawal Information</CardTitle></CardHeader>
+        <CardContent className="p-4 sm:p-6 pt-0">
+          <p className="text-sm">Available Balance: $100</p>
+          <p className="text-sm">Min Withdrawal: ${config?.minWithdrawal || 5}</p>
+          {config?.showWithdrawalFee && <p className="text-sm">Fee: {feePercent}%</p>}
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>Request Withdrawal</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <Input type="number" placeholder="Amount" value={amount} onChange={e => setAmount(e.target.value)} />
-          {config?.showWithdrawalFee && <p>Fee: ${fee.toFixed(2)} | Net Amount: ${netAmount.toFixed(2)}</p>}
-          <select className="w-full p-2 border rounded" value={method} onChange={e => setMethod(e.target.value)}>
+        <CardHeader className="p-4 sm:p-6"><CardTitle>Request Withdrawal</CardTitle></CardHeader>
+        <CardContent className="p-4 sm:p-6 pt-0 space-y-4">
+          <Input type="number" className="w-full text-sm py-2.5" placeholder="Amount" value={amount} onChange={e => setAmount(e.target.value)} />
+          {config?.showWithdrawalFee && <p className="text-sm">Fee: ${fee.toFixed(2)} | Net Amount: ${netAmount.toFixed(2)}</p>}
+          <select className="w-full p-2 border border-input bg-transparent rounded-md text-sm py-2.5" value={method} onChange={e => setMethod(e.target.value)}>
             <option>USDT (BEP-20)</option>
           </select>
-          <Button onClick={handleWithdraw}>Submit Request</Button>
+          <Button onClick={handleWithdraw} className="w-full sm:w-auto">Submit Request</Button>
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>Withdrawal History</CardTitle></CardHeader>
-        <CardContent>
-          <table className="w-full text-left">
-            <thead>
-              <tr><th>ID</th><th>Amount</th><th>Fee</th><th>Net</th><th>Method</th><th>Status</th></tr>
-            </thead>
-            <tbody>
-              
-            </tbody>
-          </table>
+        <CardHeader className="p-4 sm:p-6"><CardTitle>Withdrawal History</CardTitle></CardHeader>
+        <CardContent className="p-4 sm:p-6 pt-0">
+          <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+            <table className="w-full text-left text-sm min-w-[600px]">
+              <thead>
+                <tr className="border-b border-border text-muted">
+                  <th className="py-2.5 px-3">ID</th><th className="py-2.5 px-3">Amount</th><th className="py-2.5 px-3">Fee</th><th className="py-2.5 px-3">Net</th><th className="py-2.5 px-3">Method</th><th className="py-2.5 px-3">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                
+              </tbody>
+            </table>
+          </div>
         </CardContent>
       </Card>
     </div>

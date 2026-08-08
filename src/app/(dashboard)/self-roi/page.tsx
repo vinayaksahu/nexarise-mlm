@@ -63,18 +63,18 @@ export default function SelfROIPage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
         <Card>
-          <CardHeader className="p-4 pb-2"><CardTitle className="text-xs text-muted">Total Self ROI Earned</CardTitle></CardHeader>
-          <CardContent className="p-4 pt-0 text-2xl font-bold text-primary dark:text-primary-light">${fmt(wallet?.roiIncome)}</CardContent>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Total Self ROI Earned</CardTitle></CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-primary dark:text-primary-light truncate">${fmt(wallet?.roiIncome)}</CardContent>
         </Card>
         <Card>
-          <CardHeader className="p-4 pb-2"><CardTitle className="text-xs text-muted">Daily ROI Rate</CardTitle></CardHeader>
-          <CardContent className="p-4 pt-0 text-2xl font-bold text-emerald-600 dark:text-emerald-400">1.0% / day</CardContent>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Daily ROI Rate</CardTitle></CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 truncate">1.0% / day</CardContent>
         </Card>
         <Card>
-          <CardHeader className="p-4 pb-2"><CardTitle className="text-xs text-muted">Active Capital</CardTitle></CardHeader>
-          <CardContent className="p-4 pt-0 text-2xl font-bold text-indigo-600 dark:text-indigo-400">${fmt(totalActiveCapital)}</CardContent>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Active Capital</CardTitle></CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-indigo-600 dark:text-indigo-400 truncate">${fmt(totalActiveCapital)}</CardContent>
         </Card>
       </div>
 
@@ -117,10 +117,10 @@ export default function SelfROIPage() {
 
       {/* Recent ROI Distributions Table */}
       <Card>
-        <CardHeader>
+        <CardHeader className="p-4 sm:p-6">
           <CardTitle>Recent ROI Distributions</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6 pt-0">
           {roiTxs.length === 0 ? (
             <div className="text-center py-8 text-muted">
               <p className="text-3xl mb-1">📈</p>
@@ -128,8 +128,8 @@ export default function SelfROIPage() {
               <p className="text-xs text-muted mt-1">Daily ROI is distributed automatically every 24 hours.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+            <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+              <table className="w-full text-left text-sm min-w-[500px]">
                 <thead>
                   <tr className="border-b border-border text-muted">
                     <th className="py-2.5 px-3">Date</th>

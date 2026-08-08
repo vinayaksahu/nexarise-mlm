@@ -62,14 +62,14 @@ export default function LevelIncomePage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
         <Card>
-          <CardHeader className="p-4 pb-2"><CardTitle className="text-xs text-muted">Total Level Income Earned</CardTitle></CardHeader>
-          <CardContent className="p-4 pt-0 text-2xl font-bold text-accent dark:text-accent-light">${fmt(wallet?.levelIncome)}</CardContent>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Total Level Income Earned</CardTitle></CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-accent dark:text-accent-light truncate">${fmt(wallet?.levelIncome)}</CardContent>
         </Card>
         <Card>
-          <CardHeader className="p-4 pb-2"><CardTitle className="text-xs text-muted">Max Network Levels</CardTitle></CardHeader>
-          <CardContent className="p-4 pt-0 text-2xl font-bold text-primary dark:text-primary-light">{levelPcts.length} Levels</CardContent>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Max Network Levels</CardTitle></CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-primary dark:text-primary-light truncate">{levelPcts.length} Levels</CardContent>
         </Card>
       </div>
 
@@ -104,8 +104,8 @@ export default function LevelIncomePage() {
               <p className="text-xs text-muted mt-1">Level income is credited automatically when members in your network earn daily ROI.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+            <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+              <table className="w-full text-left text-sm min-w-[500px]">
                 <thead>
                   <tr className="border-b border-border text-muted">
                     <th className="py-2.5 px-3">Type</th>

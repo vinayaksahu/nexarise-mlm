@@ -48,16 +48,16 @@ export default function SupportPage() {
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 animate-fade-in">
       <h1 className="text-2xl font-bold">Support</h1>
       
       <Card>
-        <CardHeader><CardTitle>Create New Ticket</CardTitle></CardHeader>
-        <CardContent>
+        <CardHeader className="p-4 sm:p-6"><CardTitle>Create New Ticket</CardTitle></CardHeader>
+        <CardContent className="p-4 sm:p-6 pt-0">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1">Category</label>
-              <select className="w-full p-2 border rounded" value={category} onChange={e => setCategory(e.target.value)}>
+              <select className="w-full p-2 border border-input bg-transparent rounded-md text-sm py-2.5" value={category} onChange={e => setCategory(e.target.value)}>
                 <option>Investment</option>
                 <option>Withdrawal</option>
                 <option>Deposit</option>
@@ -67,28 +67,28 @@ export default function SupportPage() {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Subject</label>
-              <Input value={subject} onChange={e => setSubject(e.target.value)} required />
+              <Input className="w-full text-sm py-2.5" value={subject} onChange={e => setSubject(e.target.value)} required />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Message</label>
               <textarea 
-                className="w-full p-2 border rounded min-h-[100px]" 
+                className="w-full p-2 border border-input bg-transparent rounded-md min-h-[100px] text-sm py-2.5 px-3" 
                 value={message} 
                 onChange={e => setMessage(e.target.value)} 
                 required 
               />
             </div>
-            <Button type="submit">Submit Ticket</Button>
+            <Button type="submit" className="w-full sm:w-auto">Submit Ticket</Button>
           </form>
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>My Tickets</CardTitle></CardHeader>
-        <CardContent>
+        <CardHeader className="p-4 sm:p-6"><CardTitle>My Tickets</CardTitle></CardHeader>
+        <CardContent className="p-4 sm:p-6 pt-0">
           <div className="space-y-4">
             {tickets.map(ticket => (
-              <div key={ticket.id} className="border p-4 rounded shadow-sm">
+              <div key={ticket.id} className="border border-border p-4 rounded-xl shadow-sm bg-gray-50 dark:bg-slate-900">
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-bold text-lg">{ticket.subject}</h3>
                   <Badge variant={ticket.status === 'OPEN' ? 'default' : ticket.status === 'RESOLVED' ? 'success' : 'warning'}>

@@ -45,7 +45,7 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 h-16 bg-slate-950 text-white border-b border-slate-800 flex items-center justify-between px-4 lg:px-6 shadow-md">
+      <header className="sticky top-0 z-40 h-16 bg-slate-950 text-white border-b border-slate-800 flex items-center justify-between px-3 sm:px-6 shadow-md">
         {/* Left Controls: Hamburger Menu & Mobile Brand Logo (hidden on desktop lg:hidden) */}
         <div className="flex items-center gap-3">
           <button
@@ -55,18 +55,18 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
           >
             ☰
           </button>
-          <Link href={isAdmin ? '/admin' : '/dashboard'} className="flex items-center gap-2 lg:hidden">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow">
+          <Link href={isAdmin ? '/admin' : '/dashboard'} className="flex items-center gap-1.5 lg:hidden">
+            <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow">
               N
             </div>
-            <span className="text-lg font-bold text-white tracking-tight">
+            <span className="text-base font-bold text-white tracking-tight">
               Nexa<span className="text-blue-500">Rise</span>
             </span>
           </Link>
         </div>
 
         {/* Right Controls */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           {/* Dark/Light Mode Toggle */}
           <button
             onClick={toggleTheme}

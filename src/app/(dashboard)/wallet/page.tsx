@@ -56,72 +56,72 @@ export default function WalletPage() {
       </div>
 
       {/* Wallet Cards Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
         <Card>
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-xs text-muted font-medium">Available Balance</CardTitle>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardTitle className="text-[11px] sm:text-xs text-muted font-medium truncate">Available Balance</CardTitle>
           </CardHeader>
-          <CardContent className="p-4 pt-0 text-xl lg:text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 truncate">
             ${fmt(wallet?.availableBalance)}
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-xs text-muted font-medium">ROI Income</CardTitle>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardTitle className="text-[11px] sm:text-xs text-muted font-medium truncate">ROI Income</CardTitle>
           </CardHeader>
-          <CardContent className="p-4 pt-0 text-xl lg:text-2xl font-bold text-primary dark:text-primary-light">
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold text-primary dark:text-primary-light truncate">
             ${fmt(wallet?.roiIncome)}
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-xs text-muted font-medium">Level Income</CardTitle>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardTitle className="text-[11px] sm:text-xs text-muted font-medium truncate">Level Income</CardTitle>
           </CardHeader>
-          <CardContent className="p-4 pt-0 text-xl lg:text-2xl font-bold text-accent dark:text-accent-light">
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold text-accent dark:text-accent-light truncate">
             ${fmt(wallet?.levelIncome)}
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-xs text-muted font-medium">Reward Income</CardTitle>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardTitle className="text-[11px] sm:text-xs text-muted font-medium truncate">Reward Income</CardTitle>
           </CardHeader>
-          <CardContent className="p-4 pt-0 text-xl lg:text-2xl font-bold text-amber-500">
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold text-amber-500 truncate">
             ${fmt(wallet?.rewardIncome)}
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-xs text-muted font-medium">Total Income</CardTitle>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardTitle className="text-[11px] sm:text-xs text-muted font-medium truncate">Total Income</CardTitle>
           </CardHeader>
-          <CardContent className="p-4 pt-0 text-xl lg:text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold text-indigo-600 dark:text-indigo-400 truncate">
             ${fmt(wallet?.totalIncome)}
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-xs text-muted font-medium">Total Withdrawals</CardTitle>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardTitle className="text-[11px] sm:text-xs text-muted font-medium truncate">Total Withdrawals</CardTitle>
           </CardHeader>
-          <CardContent className="p-4 pt-0 text-xl lg:text-2xl font-bold text-gray-700 dark:text-gray-300">
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold text-gray-700 dark:text-gray-300 truncate">
             ${fmt(wallet?.totalWithdrawals)}
           </CardContent>
         </Card>
       </div>
 
       {/* Quick Action Shortcuts */}
-      <div className="flex flex-wrap gap-3">
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
         <Link href="/deposits">
-          <Button variant="primary" size="md">📥 Deposit</Button>
+          <Button variant="primary" className="w-full sm:w-auto text-xs py-2.5 justify-center">📥 Deposit</Button>
         </Link>
         <Link href="/withdrawals">
-          <Button variant="outline" size="md">📤 Withdraw</Button>
+          <Button variant="outline" className="w-full sm:w-auto text-xs py-2.5 justify-center">📤 Withdraw</Button>
         </Link>
         <Link href="/p2p">
-          <Button variant="secondary" size="md">🔄 P2P Transfer</Button>
+          <Button variant="secondary" className="w-full sm:w-auto text-xs py-2.5 justify-center">🔄 P2P Transfer</Button>
         </Link>
       </div>
 
@@ -141,8 +141,8 @@ export default function WalletPage() {
               <p className="text-sm">No recent transactions yet.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+            <div className="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0">
+              <table className="w-full text-left text-sm min-w-[500px]">
                 <thead>
                   <tr className="border-b border-border text-muted">
                     <th className="py-2.5 px-3">Type</th>

@@ -27,41 +27,41 @@ export default function SettingsPage() {
     <div className="space-y-6 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold">Account Settings</h1>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <Card className="p-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+        <Card className="p-4 sm:p-6">
           <h2 className="text-xl font-bold mb-4">Change Password</h2>
           <form onSubmit={handleChangePassword} className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1">Current Password</label>
-              <Input type="password" required value={passwords.current} onChange={e => setPasswords({...passwords, current: e.target.value})} />
+              <Input type="password" required value={passwords.current} onChange={e => setPasswords({...passwords, current: e.target.value})} className="w-full text-sm py-2.5" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">New Password</label>
-              <Input type="password" required value={passwords.new} onChange={e => setPasswords({...passwords, new: e.target.value})} />
+              <Input type="password" required value={passwords.new} onChange={e => setPasswords({...passwords, new: e.target.value})} className="w-full text-sm py-2.5" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Confirm New Password</label>
-              <Input type="password" required value={passwords.confirm} onChange={e => setPasswords({...passwords, confirm: e.target.value})} />
+              <Input type="password" required value={passwords.confirm} onChange={e => setPasswords({...passwords, confirm: e.target.value})} className="w-full text-sm py-2.5" />
             </div>
             <Button type="submit" className="w-full">Update Password</Button>
           </form>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-4 sm:p-6">
           <h2 className="text-xl font-bold mb-4">Transaction PIN</h2>
           <p className="text-sm text-gray-500 mb-4">Set up or change your 6-digit transaction PIN for withdrawals and transfers.</p>
           <form onSubmit={handleChangePin} className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1">Current PIN (if set)</label>
-              <Input type="password" maxLength={6} value={pins.current} onChange={e => setPins({...pins, current: e.target.value})} />
+              <Input type="password" maxLength={6} value={pins.current} onChange={e => setPins({...pins, current: e.target.value})} className="w-full text-sm py-2.5" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">New 6-Digit PIN</label>
-              <Input type="password" maxLength={6} required value={pins.new} onChange={e => setPins({...pins, new: e.target.value})} />
+              <Input type="password" maxLength={6} required value={pins.new} onChange={e => setPins({...pins, new: e.target.value})} className="w-full text-sm py-2.5" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Confirm New PIN</label>
-              <Input type="password" maxLength={6} required value={pins.confirm} onChange={e => setPins({...pins, confirm: e.target.value})} />
+              <Input type="password" maxLength={6} required value={pins.confirm} onChange={e => setPins({...pins, confirm: e.target.value})} className="w-full text-sm py-2.5" />
             </div>
             <Button type="submit" className="w-full">Update PIN</Button>
           </form>

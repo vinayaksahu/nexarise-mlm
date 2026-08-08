@@ -92,12 +92,12 @@ export default function DashboardPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-            <div className="flex-1 bg-white dark:bg-slate-900 border border-border rounded-xl px-4 py-2.5 font-mono text-sm break-all flex items-center justify-between gap-2">
+          <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
+            <div className="w-full text-xs font-mono truncate px-3 py-2 bg-white dark:bg-slate-900 border border-border rounded-lg flex items-center justify-between gap-2">
               <span className="truncate">{refLink}</span>
-              <Badge variant="info">Code: {refCode}</Badge>
+              <Badge variant="info" className="shrink-0">Code: {refCode}</Badge>
             </div>
-            <Button onClick={copyRefLink} variant="primary" size="md" className="shrink-0">
+            <Button onClick={copyRefLink} variant="primary" className="w-full sm:w-auto text-xs py-2">
               {copied ? '✓ Copied!' : '📋 Copy Referral Link'}
             </Button>
           </div>
@@ -105,74 +105,74 @@ export default function DashboardPage() {
       </Card>
 
       {/* Financial Stat Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
         <Card>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted font-medium">Available Balance</p>
-            <p className="text-xl lg:text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+          <CardContent className="p-3 sm:p-4">
+            <p className="text-[11px] sm:text-xs font-medium text-slate-400 truncate">Available Balance</p>
+            <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-emerald-600 dark:text-emerald-400">
               ${wallet?.availableBalance ? Number(wallet.availableBalance).toFixed(2) : '0.00'}
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted font-medium">Total ROI Income</p>
-            <p className="text-xl lg:text-2xl font-bold text-primary dark:text-primary-light mt-1">
+          <CardContent className="p-3 sm:p-4">
+            <p className="text-[11px] sm:text-xs font-medium text-slate-400 truncate">Total ROI Income</p>
+            <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-primary dark:text-primary-light">
               ${wallet?.roiIncome ? Number(wallet.roiIncome).toFixed(2) : '0.00'}
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted font-medium">Total Level Income</p>
-            <p className="text-xl lg:text-2xl font-bold text-accent dark:text-accent-light mt-1">
+          <CardContent className="p-3 sm:p-4">
+            <p className="text-[11px] sm:text-xs font-medium text-slate-400 truncate">Total Level Income</p>
+            <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-accent dark:text-accent-light">
               ${wallet?.levelIncome ? Number(wallet.levelIncome).toFixed(2) : '0.00'}
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted font-medium">Total Reward Income</p>
-            <p className="text-xl lg:text-2xl font-bold text-amber-500 mt-1">
+          <CardContent className="p-3 sm:p-4">
+            <p className="text-[11px] sm:text-xs font-medium text-slate-400 truncate">Total Reward Income</p>
+            <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-amber-500">
               ${wallet?.rewardIncome ? Number(wallet.rewardIncome).toFixed(2) : '0.00'}
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted font-medium">Total Earnings</p>
-            <p className="text-xl lg:text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-1">
+          <CardContent className="p-3 sm:p-4">
+            <p className="text-[11px] sm:text-xs font-medium text-slate-400 truncate">Total Earnings</p>
+            <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-indigo-600 dark:text-indigo-400">
               ${wallet?.totalIncome ? Number(wallet.totalIncome).toFixed(2) : '0.00'}
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted font-medium">Total Withdrawals</p>
-            <p className="text-xl lg:text-2xl font-bold text-gray-700 dark:text-gray-300 mt-1">
+          <CardContent className="p-3 sm:p-4">
+            <p className="text-[11px] sm:text-xs font-medium text-slate-400 truncate">Total Withdrawals</p>
+            <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-gray-700 dark:text-gray-300">
               ${wallet?.totalWithdrawals ? Number(wallet.totalWithdrawals).toFixed(2) : '0.00'}
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted font-medium">Direct Referrals</p>
-            <p className="text-xl lg:text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">
+          <CardContent className="p-3 sm:p-4">
+            <p className="text-[11px] sm:text-xs font-medium text-slate-400 truncate">Direct Referrals</p>
+            <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-blue-600 dark:text-blue-400">
               {team?.directReferrals?.length || 0}
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted font-medium">Total Business Volume</p>
-            <p className="text-xl lg:text-2xl font-bold text-purple-600 dark:text-purple-400 mt-1">
+          <CardContent className="p-3 sm:p-4">
+            <p className="text-[11px] sm:text-xs font-medium text-slate-400 truncate">Total Business Volume</p>
+            <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-purple-600 dark:text-purple-400">
               ${team?.businessVolume?.totalBusiness ? Number(team.businessVolume.totalBusiness).toFixed(2) : '0.00'}
             </p>
           </CardContent>
@@ -180,18 +180,18 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Action Banner */}
-      <div className="flex flex-wrap gap-3">
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
         <Link href="/deposits">
-          <Button variant="primary" size="md">📥 Deposit Funds</Button>
+          <Button variant="primary" className="w-full sm:w-auto text-xs py-2.5 justify-center">📥 Deposit Funds</Button>
         </Link>
         <Link href="/investments">
-          <Button variant="secondary" size="md">📈 Activate Investment</Button>
+          <Button variant="secondary" className="w-full sm:w-auto text-xs py-2.5 justify-center">📈 Activate Investment</Button>
         </Link>
         <Link href="/p2p">
-          <Button variant="outline" size="md">🔄 P2P Transfer</Button>
+          <Button variant="outline" className="w-full sm:w-auto text-xs py-2.5 justify-center">🔄 P2P Transfer</Button>
         </Link>
         <Link href="/withdrawals">
-          <Button variant="ghost" size="md">📤 Withdraw Earnings</Button>
+          <Button variant="ghost" className="w-full sm:w-auto text-xs py-2.5 justify-center">📤 Withdraw Earnings</Button>
         </Link>
       </div>
 
@@ -208,8 +208,8 @@ export default function DashboardPage() {
               <p className="text-sm">No recent transactions yet.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+            <div className="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0">
+              <table className="w-full text-left text-sm min-w-[500px]">
                 <thead>
                   <tr className="border-b border-border text-muted">
                     <th className="py-2 px-3">Type</th>

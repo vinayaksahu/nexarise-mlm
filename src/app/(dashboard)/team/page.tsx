@@ -81,12 +81,12 @@ export default function TeamPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-            <div className="flex-1 bg-white dark:bg-slate-900 border border-border rounded-xl px-4 py-2.5 font-mono text-sm break-all flex items-center justify-between gap-2">
+          <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
+            <div className="w-full text-xs font-mono truncate px-3 py-2 bg-white dark:bg-slate-900 border border-border rounded-lg flex items-center justify-between gap-2">
               <span className="truncate">{refLink}</span>
-              <Badge variant="info">Code: {refCode}</Badge>
+              <Badge variant="info" className="shrink-0">Code: {refCode}</Badge>
             </div>
-            <Button onClick={copyLink} variant="primary" size="md" className="shrink-0">
+            <Button onClick={copyLink} variant="primary" className="w-full sm:w-auto text-xs py-2">
               {copied ? '✓ Copied!' : '📋 Copy Link'}
             </Button>
           </div>
@@ -94,22 +94,22 @@ export default function TeamPage() {
       </Card>
 
       {/* Team Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
         <Card>
-          <CardHeader className="p-4 pb-2"><CardTitle className="text-xs text-muted">Total Direct Referrals</CardTitle></CardHeader>
-          <CardContent className="p-4 pt-0 text-2xl font-bold text-blue-600 dark:text-blue-400">{directs.length}</CardContent>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Total Direct Referrals</CardTitle></CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-blue-600 dark:text-blue-400 truncate">{directs.length}</CardContent>
         </Card>
         <Card>
-          <CardHeader className="p-4 pb-2"><CardTitle className="text-xs text-muted">Active Directs</CardTitle></CardHeader>
-          <CardContent className="p-4 pt-0 text-2xl font-bold text-emerald-600 dark:text-emerald-400">{activeDirects}</CardContent>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Active Directs</CardTitle></CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 truncate">{activeDirects}</CardContent>
         </Card>
         <Card>
-          <CardHeader className="p-4 pb-2"><CardTitle className="text-xs text-muted">Strong Leg Volume</CardTitle></CardHeader>
-          <CardContent className="p-4 pt-0 text-2xl font-bold text-purple-600 dark:text-purple-400">${Number(businessVolume.strongLeg || 0).toFixed(2)}</CardContent>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Strong Leg Volume</CardTitle></CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-purple-600 dark:text-purple-400 truncate">${Number(businessVolume.strongLeg || 0).toFixed(2)}</CardContent>
         </Card>
         <Card>
-          <CardHeader className="p-4 pb-2"><CardTitle className="text-xs text-muted">Weak Leg Volume</CardTitle></CardHeader>
-          <CardContent className="p-4 pt-0 text-2xl font-bold text-amber-500">${Number(businessVolume.weakLeg || 0).toFixed(2)}</CardContent>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Weak Leg Volume</CardTitle></CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-amber-500 truncate">${Number(businessVolume.weakLeg || 0).toFixed(2)}</CardContent>
         </Card>
       </div>
 
@@ -127,8 +127,8 @@ export default function TeamPage() {
               <p className="text-xs text-muted mt-1">Share your referral link above to start building your team network!</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+            <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+              <table className="w-full text-left text-sm min-w-[700px]">
                 <thead>
                   <tr className="border-b border-border text-muted">
                     <th className="py-2.5 px-3">S.No</th>

@@ -24,36 +24,42 @@ export default function P2PPage() {
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 animate-fade-in">
       <h1 className="text-2xl font-bold">P2P Transfer</h1>
       
       <Card>
-        <CardHeader><CardTitle>Transfer Funds</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <Input placeholder="Recipient Username / Email / Referral Code" value={recipient} onChange={e => setRecipient(e.target.value)} />
-          <Input type="number" placeholder="Amount" value={amount} onChange={e => setAmount(e.target.value)} />
+        <CardHeader className="p-4 sm:p-6"><CardTitle>Transfer Funds</CardTitle></CardHeader>
+        <CardContent className="p-4 sm:p-6 pt-0 space-y-4">
+          <Input className="w-full text-sm py-2.5" placeholder="Recipient Username / Email / Referral Code" value={recipient} onChange={e => setRecipient(e.target.value)} />
+          <Input className="w-full text-sm py-2.5" type="number" placeholder="Amount" value={amount} onChange={e => setAmount(e.target.value)} />
           
           {config?.showP2pFee && (
-            <p>Fee: ${fee.toFixed(2)} ({feePercent}%) | Net Deducted: ${(numAmount + fee).toFixed(2)}</p>
+            <p className="text-sm">Fee: ${fee.toFixed(2)} ({feePercent}%) | Net Deducted: ${(numAmount + fee).toFixed(2)}</p>
           )}
 
-          <Input type="password" placeholder="6-digit Transaction PIN" maxLength={6} value={pin} onChange={e => setPin(e.target.value)} />
-          <Button onClick={handleTransfer}>Send Funds</Button>
-          <p className="text-sm"><a href="#" className="text-blue-500">Set or Update PIN</a></p>
+          <Input className="w-full text-sm py-2.5" type="password" placeholder="6-digit Transaction PIN" maxLength={6} value={pin} onChange={e => setPin(e.target.value)} />
+          <Button onClick={handleTransfer} className="w-full sm:w-auto">Send Funds</Button>
+          <p className="text-sm"><a href="#" className="text-blue-500 hover:underline">Set or Update PIN</a></p>
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>P2P History</CardTitle></CardHeader>
-        <CardContent>
-          <table className="w-full text-left">
-            <thead>
-              <tr><th>Type</th><th>Party</th><th>Amount</th><th>Fee</th><th>Net Amount</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>SENT</td><td>john_doe</td><td>$20</td><td>$0.40</td><td>$20</td></tr>
-            </tbody>
-          </table>
+        <CardHeader className="p-4 sm:p-6"><CardTitle>P2P History</CardTitle></CardHeader>
+        <CardContent className="p-4 sm:p-6 pt-0">
+          <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+            <table className="w-full text-left text-sm min-w-[500px]">
+              <thead>
+                <tr className="border-b border-border text-muted">
+                  <th className="py-2.5 px-3">Type</th><th className="py-2.5 px-3">Party</th><th className="py-2.5 px-3">Amount</th><th className="py-2.5 px-3">Fee</th><th className="py-2.5 px-3">Net Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-border/50 hover:bg-gray-50 dark:hover:bg-slate-800/50">
+                  <td className="py-2.5 px-3">SENT</td><td className="py-2.5 px-3">john_doe</td><td className="py-2.5 px-3">$20</td><td className="py-2.5 px-3">$0.40</td><td className="py-2.5 px-3">$20</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </CardContent>
       </Card>
     </div>
