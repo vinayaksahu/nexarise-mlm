@@ -143,7 +143,7 @@ export default function P2PPage() {
         <CardContent className="p-4 sm:p-6 pt-0 space-y-4">
           <Input 
             className="w-full text-sm py-2.5" 
-            placeholder="Recipient Username / Email / Referral Code" 
+            placeholder="Recipient Username" 
             value={recipient} 
             onChange={e => setRecipient(e.target.value)} 
           />
