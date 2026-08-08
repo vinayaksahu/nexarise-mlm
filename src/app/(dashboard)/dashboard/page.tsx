@@ -105,7 +105,7 @@ export default function DashboardPage() {
       </Card>
 
       {/* Financial Stat Cards Grid (Clean 2-column grid on mobile) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
         <Card>
           <CardContent className="p-3 sm:p-4">
             <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
