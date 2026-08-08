@@ -37,7 +37,7 @@ function RegisterForm() {
           email: form.email,
           mobile: form.mobile || undefined,
           password: form.password,
-          referralCode: form.referralCode || undefined,
+          referralCode: form.referralCode,
         }),
       })
       const data = await res.json()
@@ -68,7 +68,7 @@ function RegisterForm() {
           <Input label="Mobile (Optional)" placeholder="+91 9876543210" value={form.mobile} onChange={(e) => setForm(p => ({ ...p, mobile: e.target.value }))} />
           <Input label="Password" type="password" placeholder="Min 8 characters" value={form.password} onChange={(e) => setForm(p => ({ ...p, password: e.target.value }))} required />
           <Input label="Confirm Password" type="password" placeholder="Confirm your password" value={form.confirmPassword} onChange={(e) => setForm(p => ({ ...p, confirmPassword: e.target.value }))} required />
-          <Input label="Referral Code (Optional)" placeholder="Enter referral code" value={form.referralCode} onChange={(e) => setForm(p => ({ ...p, referralCode: e.target.value }))} />
+          <Input label="Referral Code" placeholder="Enter referral code" value={form.referralCode} onChange={(e) => setForm(p => ({ ...p, referralCode: e.target.value }))} required />
           <Button type="submit" loading={loading} className="w-full" size="lg">Create Account</Button>
         </form>
         <p className="text-center text-sm text-gray-400 mt-6">

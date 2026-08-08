@@ -6,7 +6,7 @@ export const registerSchema = z.object({
   email: z.string().email(),
   mobile: z.string().optional(),
   password: z.string().min(8),
-  referralCode: z.string().optional(),
+  referralCode: z.string().min(1, 'Referral code is required'),
 });
 
 export const loginSchema = z.object({

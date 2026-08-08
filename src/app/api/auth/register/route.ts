@@ -28,14 +28,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Username or email already exists' }, { status: 400 });
     }
 
-    let sponsorId: string | null = null;
-    if (referralCode) {
-      const sponsor = await db.user.findUnique({ where: { referralCode } });
-      if (!sponsor) {
-        return NextResponse.json({ error: 'Invalid referral code' }, { status: 400 });
-      }
-      sponsorId = sponsor.id;
+    const sponsor = await db.user.findUnique({ where: { referralCode } });
+    if (!sponsor) {
+      return NextResponse.json({ error: 'Invalid referral code' }, { status: 400 });
     }
+    const sponsorId = sponsor.id;
 
     const passwordHash = await hashPassword(password);
     const newReferralCode = generateReferralCode();
