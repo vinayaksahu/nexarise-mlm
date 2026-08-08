@@ -84,7 +84,12 @@ export default function DashboardPage() {
         <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
           Welcome back, {user?.name || 'User'}! 👋
         </h1>
-        {investments.some(inv => inv.status === 'ACTIVE') ? (
+        {((user?.status === 'ACTIVE' && (
+          investments.some((inv: any) => inv.status === 'ACTIVE') ||
+          investments.length > 0 ||
+          Number(team?.businessVolume?.totalBusiness || 0) > 0 ||
+          Number(wallet?.availableBalance || 0) > 0
+        ))) ? (
           <span className="inline-block mt-2 px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Account Status: Active</span>
         ) : (
           <span className="inline-block mt-2 px-2.5 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Account Status: Inactive</span>
