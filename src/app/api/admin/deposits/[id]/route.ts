@@ -19,9 +19,11 @@ export async function PATCH(
 
     const { id } = await params
     const body = await request.json()
-    const { action, adminNote } = body
+    const { action, status, adminNote } = body
     
-    if (action !== 'approve' && action !== 'reject') {
+    const effectiveAction = action || (status === 'APPROVED' ? 'approve' : status === 'REJECTED' ? 'reject' : null)
+    
+    if (effectiveAction !== 'approve' && effectiveAction !== 'reject') {
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
     }
 
@@ -38,15 +40,27 @@ export async function PATCH(
     }
 
     let updatedDeposit
-    if (action === 'approve') {
+    if (effectiveAction === 'approve') {
       updatedDeposit = await db.$transaction(async (tx) => {
-        const wallet = await tx.wallet.findUnique({
+        let wallet = await tx.wallet.findUnique({
           where: { userId: deposit.userId },
-          select: { availableBalance: true },
         })
         
         if (!wallet) {
-          throw new Error('Wallet not found for user')
+          wallet = await tx.wallet.create({
+            data: {
+              userId: deposit.userId,
+              availableBalance: 0,
+              p2pBalance: 0,
+              roiIncome: 0,
+              levelIncome: 0,
+              rewardIncome: 0,
+              totalIncome: 0,
+              totalWithdrawals: 0,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            }
+          })
         }
         
         const balanceBefore = new Decimal(wallet.availableBalance.toString())
@@ -79,7 +93,7 @@ export async function PATCH(
             referenceKey: `DEP-${deposit.id}`,
             relatedEntityId: deposit.id,
             description: 'Deposit approved',
-          createdAt: new Date(),
+            createdAt: new Date(),
           },
         })
         
