@@ -6,7 +6,7 @@ import { z } from 'zod'
 const depositSchema = z.object({
   amount: z.number().positive(),
   method: z.string().min(1),
-  proofUrl: z.string().url().optional(),
+  proofUrl: z.string().optional(),
 })
 
 export async function GET(request: NextRequest) {
