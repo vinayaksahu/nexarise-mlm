@@ -11,40 +11,91 @@ export default function InvestmentsPage() {
   const [investments, setInvestments] = useState<any[]>([]);
   const [config, setConfig] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [popup, setPopup] = useState<{ show: boolean; title: string; message: string; type: 'success' | 'error' }>({
+    show: false,
+    title: '',
+    message: '',
+    type: 'success',
+  });
   
-  useEffect(() => {
-    Promise.all([
-      fetch('/api/investments').then(res => res.json()),
-      fetch('/api/business-plan').then(res => res.json())
-    ]).then(([invData, planData]) => {
-      if (invData.investments) setInvestments(invData.investments);
-      setConfig(planData);
+  const loadInvestments = async () => {
+    try {
+      const [invRes, planRes] = await Promise.all([
+        fetch('/api/investments'),
+        fetch('/api/business-plan')
+      ]);
+      if (invRes.ok) {
+        const invData = await invRes.json();
+        setInvestments(invData.investments || (Array.isArray(invData) ? invData : []));
+      }
+      if (planRes.ok) {
+        const planData = await planRes.json();
+        setConfig(planData);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
       setLoading(false);
-    });
+    }
+  };
+
+  useEffect(() => {
+    loadInvestments();
   }, []);
 
   const handleInvest = async () => {
+    if (!amount || Number(amount) <= 0) {
+      setPopup({
+        show: true,
+        title: 'Invalid Input',
+        message: 'Please enter a valid investment amount.',
+        type: 'error',
+      });
+      return;
+    }
+
+    setSubmitting(true);
     try {
       const res = await fetch('/api/investments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: Number(amount) })
       });
+      const data = await res.json();
+      
       if (res.ok) {
-        alert('Investment successful!');
-        window.location.reload();
+        setAmount('');
+        loadInvestments();
+        setPopup({
+          show: true,
+          title: 'Investment Successful! 🎉',
+          message: `Your investment of $${Number(amount).toFixed(2)} is now active and generating ROI.`,
+          type: 'success',
+        });
       } else {
-        const data = await res.json();
-        alert(data.error || 'Failed to invest');
+        setPopup({
+          show: true,
+          title: 'Investment Failed',
+          message: data.error || 'Failed to submit investment. Please try again.',
+          type: 'error',
+        });
       }
-    } catch (e) {
-      alert('Error processing investment');
+    } catch (e: any) {
+      setPopup({
+        show: true,
+        title: 'Error',
+        message: e.message || 'Error processing investment. Please check your connection.',
+        type: 'error',
+      });
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const totalInvested = investments.reduce((sum, inv) => sum + Number(inv.amount), 0);
+  const totalInvested = investments.reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
   const activeInvestments = investments.filter(inv => inv.status === 'ACTIVE').length;
-  const totalRoi = investments.reduce((sum, inv) => sum + Number(inv.roiReceived), 0);
+  const totalRoi = investments.reduce((sum, inv) => sum + Number(inv.roiReceived || 0), 0);
 
   if (loading) {
     return (
@@ -77,7 +128,7 @@ export default function InvestmentsPage() {
               Active Investments
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold truncate">
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold truncate text-emerald-600 dark:text-emerald-400">
             {activeInvestments}
           </CardContent>
         </Card>
@@ -88,7 +139,7 @@ export default function InvestmentsPage() {
               Total ROI Earned
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold truncate">
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold truncate text-primary dark:text-primary-light">
             ${totalRoi.toFixed(2)}
           </CardContent>
         </Card>
@@ -104,8 +155,16 @@ export default function InvestmentsPage() {
             value={amount} 
             onChange={e => setAmount(e.target.value)} 
           />
-          <p className="text-sm">Expected ROI: {Number(amount) * (config?.totalRoiPercentage ? (config.totalRoiPercentage/100) : 2)}$ ({config?.totalRoiPercentage || 200}%)</p>
-          <Button onClick={handleInvest} className="w-full sm:w-auto">Submit Investment</Button>
+          <p className="text-sm text-slate-400">
+            Expected ROI: <span className="font-semibold text-emerald-500">${(Number(amount || 0) * (config?.totalRoiPercentage ? (config.totalRoiPercentage/100) : 2)).toFixed(2)}</span> ({config?.totalRoiPercentage || 200}%)
+          </p>
+          <Button 
+            onClick={handleInvest} 
+            disabled={submitting} 
+            className="w-full sm:w-auto min-w-[140px]"
+          >
+            {submitting ? 'Processing...' : 'Submit Investment'}
+          </Button>
         </CardContent>
       </Card>
 
@@ -119,17 +178,25 @@ export default function InvestmentsPage() {
             <table className="w-full text-left text-sm min-w-[500px]">
               <thead>
                 <tr className="border-b border-border text-muted">
-                  <th className="py-2.5 px-3">ID</th><th className="py-2.5 px-3">Amount</th><th className="py-2.5 px-3">Status</th><th className="py-2.5 px-3">Earned ROI</th><th className="py-2.5 px-3">Date</th>
+                  <th className="py-2.5 px-3">ID</th>
+                  <th className="py-2.5 px-3">Amount</th>
+                  <th className="py-2.5 px-3">Status</th>
+                  <th className="py-2.5 px-3">Earned ROI</th>
+                  <th className="py-2.5 px-3">Date</th>
                 </tr>
               </thead>
               <tbody>
                 {investments.map(inv => (
                   <tr key={inv.id} className="border-b border-border/50 hover:bg-gray-50 dark:hover:bg-slate-800/50">
                     <td className="py-2.5 px-3 font-mono text-xs">{inv.referenceKey || inv.id.substring(0,8)}</td>
-                    <td className="py-2.5 px-3">${Number(inv.amount).toFixed(2)}</td>
-                    <td className="py-2.5 px-3"><Badge variant={inv.status === 'ACTIVE' ? 'success' : inv.status === 'COMPLETED' ? 'info' : inv.status === 'CANCELLED' ? 'danger' : 'default'}>{inv.status}</Badge></td>
-                    <td className="py-2.5 px-3">${Number(inv.roiReceived).toFixed(2)}</td>
-                    <td className="py-2.5 px-3">{new Date(inv.createdAt).toLocaleDateString()}</td>
+                    <td className="py-2.5 px-3 font-semibold">${Number(inv.amount).toFixed(2)}</td>
+                    <td className="py-2.5 px-3">
+                      <Badge variant={inv.status === 'ACTIVE' ? 'success' : inv.status === 'COMPLETED' ? 'info' : inv.status === 'CANCELLED' ? 'danger' : 'default'}>
+                        {inv.status}
+                      </Badge>
+                    </td>
+                    <td className="py-2.5 px-3 font-medium text-emerald-500">${Number(inv.roiReceived || 0).toFixed(2)}</td>
+                    <td className="py-2.5 px-3 text-xs text-muted">{new Date(inv.createdAt).toLocaleDateString()}</td>
                   </tr>
                 ))}
               </tbody>
@@ -138,6 +205,30 @@ export default function InvestmentsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* UI Notification Modal Popup */}
+      {popup.show && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-slate-900 border border-border dark:border-slate-800 rounded-xl shadow-2xl max-w-sm w-full p-6 space-y-4 animate-fade-in text-center">
+            <div className="text-4xl">
+              {popup.type === 'success' ? '✅' : '❌'}
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+              {popup.title}
+            </h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              {popup.message}
+            </p>
+            <Button 
+              onClick={() => setPopup(p => ({ ...p, show: false }))} 
+              variant={popup.type === 'success' ? 'primary' : 'danger'}
+              className="w-full"
+            >
+              OK
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
