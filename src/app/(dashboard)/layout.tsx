@@ -4,16 +4,20 @@ import { MobileNav } from '@/components/layout/mobile-nav'
 import { getSession } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { redirect } from 'next/navigation'
+import { cache } from 'react'
+
+const getCachedUser = cache(async (userId: string) => {
+  return db.user.findUnique({
+    where: { id: userId },
+    select: { name: true, username: true, role: true },
+  })
+})
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession()
   if (!session) redirect('/login')
 
-  const user = await db.user.findUnique({
-    where: { id: session.userId },
-    select: { name: true, username: true, role: true },
-  })
-
+  const user = await getCachedUser(session.userId)
   if (!user) redirect('/login')
 
   return (

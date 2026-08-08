@@ -3,15 +3,20 @@ import { Header } from '@/components/layout/header'
 import { getSession } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { redirect } from 'next/navigation'
+import { cache } from 'react'
+
+const getCachedAdminUser = cache(async (userId: string) => {
+  return db.user.findUnique({
+    where: { id: userId },
+    select: { name: true, username: true, role: true },
+  })
+})
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession()
   if (!session) redirect('/login')
 
-  const user = await db.user.findUnique({
-    where: { id: session.userId },
-    select: { name: true, username: true, role: true },
-  })
+  const user = await getCachedAdminUser(session.userId)
 
   if (!user || !['SUPER_ADMIN', 'ADMIN', 'FINANCE', 'SUPPORT', 'VIEWER'].includes(user.role)) {
     redirect('/dashboard')

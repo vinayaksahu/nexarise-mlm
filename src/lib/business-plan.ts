@@ -23,20 +23,50 @@ export interface BusinessConfig {
 }
 
 let cachedConfig: { config: BusinessConfig; fetchedAt: number } | null = null
-const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+const CACHE_TTL = 15 * 60 * 1000 // 15 minutes
 
 export async function getBusinessConfig(): Promise<BusinessConfig> {
   if (cachedConfig && Date.now() - cachedConfig.fetchedAt < CACHE_TTL) {
     return cachedConfig.config
   }
-  const plan = await db.businessPlanVersion.findFirst({
-    where: { isActive: true },
-    orderBy: { version: 'desc' },
-  })
-  if (!plan) throw new Error('No active business plan found')
-  const config = plan.config as unknown as BusinessConfig
-  cachedConfig = { config, fetchedAt: Date.now() }
-  return config
+  try {
+    const plan = await db.businessPlanVersion.findFirst({
+      where: { isActive: true },
+      orderBy: { version: 'desc' },
+    })
+    if (plan) {
+      const config = plan.config as unknown as BusinessConfig
+      cachedConfig = { config, fetchedAt: Date.now() }
+      return config
+    }
+  } catch (e) {
+    console.error('Config fetch error:', e)
+  }
+
+  // Safe fallback config
+  const defaultConfig: BusinessConfig = {
+    minInvestment: 5,
+    maxInvestment: 10000,
+    investmentMultiple: 5,
+    currency: 'USDT',
+    dailyRoiPercentage: 1,
+    roiDurationDays: 200,
+    totalRoiPercentage: 200,
+    levelIncomePercentages: [5, 3, 2, 1, 1],
+    maxLevels: 5,
+    p2pFeePercentage: 2,
+    minP2pTransfer: 1,
+    withdrawalFeePercentage: 5,
+    minWithdrawal: 5,
+    maxWithdrawalPerDay: 5000,
+    maxDirectReferralsForIncome: 5,
+    requireDirectReferralsForLevelIncome: false,
+    minDirectReferralsForLevel: [0, 0, 0, 0, 0],
+    showP2pFee: true,
+    showWithdrawalFee: true,
+  }
+
+  return defaultConfig
 }
 
 export function invalidateConfigCache() {

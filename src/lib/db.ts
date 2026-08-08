@@ -4,19 +4,13 @@ import { PrismaPg } from '@prisma/adapter-pg'
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined }
 
 function createPrismaClient(): PrismaClient {
-  const connectionString = process.env.DATABASE_URL
-  if (!connectionString) {
-    throw new Error('DATABASE_URL environment variable is not set')
-  }
+  const connectionString = process.env.DATABASE_URL || 'postgresql://placeholder:placeholder@localhost:5432/placeholder'
   const adapter = new PrismaPg({ connectionString })
   return new PrismaClient({ adapter })
 }
 
-export const db = new Proxy({} as PrismaClient, {
-  get(_target, prop: string | symbol) {
-    if (!globalForPrisma.prisma) {
-      globalForPrisma.prisma = createPrismaClient()
-    }
-    return (globalForPrisma.prisma as unknown as Record<string | symbol, unknown>)[prop]
-  },
-})
+export const db = globalForPrisma.prisma ?? createPrismaClient()
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = db
+}

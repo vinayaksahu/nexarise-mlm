@@ -1,13 +1,14 @@
 import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
+import { cache } from 'react';
 import { COOKIE_NAME, TOKEN_EXPIRY, TOKEN_MAX_AGE } from './constants';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
 const secretKey = new TextEncoder().encode(JWT_SECRET);
 
 export async function hashPassword(password: string) {
-  return bcrypt.hash(password, 12);
+  return bcrypt.hash(password, 10);
 }
 
 export async function verifyPassword(password: string, hash: string) {
@@ -15,7 +16,7 @@ export async function verifyPassword(password: string, hash: string) {
 }
 
 export async function hashPin(pin: string) {
-  return bcrypt.hash(pin, 12);
+  return bcrypt.hash(pin, 10);
 }
 
 export async function verifyPin(pin: string, hash: string) {
@@ -38,12 +39,12 @@ export async function verifyToken(token: string) {
   }
 }
 
-export async function getSession() {
+export const getSession = cache(async () => {
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_NAME)?.value;
   if (!token) return null;
   return verifyToken(token);
-}
+});
 
 export async function setSession(token: string) {
   const cookieStore = await cookies();
