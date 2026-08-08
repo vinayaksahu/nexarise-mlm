@@ -12,7 +12,7 @@ const getCachedAdminUser = cache(async (userId: string) => {
   })
 })
 
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminProtectedLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession()
   if (!session) redirect('/admin/login')
 
