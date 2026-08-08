@@ -21,6 +21,22 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (stored) {
       setTheme(stored)
     }
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const msg = event.reason?.message || ''
+      const code = event.reason?.code
+      if (
+        code === 4001 ||
+        msg.includes('wallet') ||
+        msg.includes('MetaMask') ||
+        msg.includes('User rejected') ||
+        msg.includes('account')
+      ) {
+        event.preventDefault()
+      }
+    }
+    window.addEventListener('unhandledrejection', handleUnhandledRejection)
+    return () => window.removeEventListener('unhandledrejection', handleUnhandledRejection)
   }, [])
 
   useEffect(() => {
