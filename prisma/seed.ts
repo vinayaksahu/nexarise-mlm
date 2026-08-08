@@ -13,13 +13,13 @@ async function main() {
   const adminPasswordHash = await bcrypt.hash('Admin@2026', 12)
   const admin = await prisma.user.upsert({
     where: { username: 'superadmin' },
-    update: {},
+    update: { referralCode: 'superadmin' },
     create: {
       name: 'Super Admin',
       username: 'superadmin',
       email: 'admin@nexarise.com',
       passwordHash: adminPasswordHash,
-      referralCode: 'NEXARISE',
+      referralCode: 'superadmin',
       role: 'SUPER_ADMIN',
       status: 'ACTIVE',
       emailVerified: true,

@@ -3,10 +3,6 @@ import { db } from '@/lib/db';
 import { registerSchema } from '@/lib/validations';
 import { hashPassword } from '@/lib/auth';
 
-function generateReferralCode() {
-  return 'NR' + Math.random().toString(36).substring(2, 8).toUpperCase() + Date.now().toString(36).substring(-4);
-}
-
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -17,10 +13,11 @@ export async function POST(req: NextRequest) {
     }
 
     const { name, username, email, mobile, password, referralCode } = result.data;
+    const cleanUsername = username.toLowerCase().trim();
 
     const existingUser = await db.user.findFirst({
       where: {
-        OR: [{ username }, { email }]
+        OR: [{ username: cleanUsername }, { email: email.toLowerCase() }, { referralCode: cleanUsername }]
       }
     });
 
@@ -28,24 +25,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Username or email already exists' }, { status: 400 });
     }
 
-    const sponsor = await db.user.findUnique({ where: { referralCode } });
+    // Sponsor lookup: matches referralCode OR username
+    const sponsor = await db.user.findFirst({
+      where: {
+        OR: [
+          { referralCode: referralCode },
+          { username: referralCode.toLowerCase() },
+          { referralCode: referralCode.toUpperCase() }
+        ]
+      }
+    });
+
     if (!sponsor) {
-      return NextResponse.json({ error: 'Invalid referral code' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid referral code or sponsor username' }, { status: 400 });
     }
     const sponsorId = sponsor.id;
 
     const passwordHash = await hashPassword(password);
-    const newReferralCode = generateReferralCode();
 
     const user = await db.$transaction(async (tx) => {
       const newUser = await tx.user.create({
         data: {
           name,
-          username,
-          email,
+          username: cleanUsername,
+          email: email.toLowerCase(),
           mobile,
           passwordHash,
-          referralCode: newReferralCode,
+          referralCode: cleanUsername, // Referral code is user's chosen username!
           sponsorId,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -56,6 +62,13 @@ export async function POST(req: NextRequest) {
         data: {
           userId: newUser.id,
           createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+      });
+
+      await tx.businessVolume.create({
+        data: {
+          userId: newUser.id,
           updatedAt: new Date(),
         }
       });
