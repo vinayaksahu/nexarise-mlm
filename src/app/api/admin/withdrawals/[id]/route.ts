@@ -42,7 +42,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         })
 
         const wallet = await tx.wallet.findUnique({
-          where: { userId: withdrawal.userId }
+          where: { userId: withdrawal.userId },
+          select: { id: true, availableBalance: true },
         })
 
         if (!wallet) throw new Error('User wallet not found')
@@ -53,7 +54,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
         await tx.wallet.update({
           where: { userId: withdrawal.userId },
-          data: { availableBalance: balanceAfterDec.toString() }
+          data: { availableBalance: balanceAfterDec.toString() },
+          select: { id: true, availableBalance: true },
         })
 
         await tx.ledgerEntry.create({

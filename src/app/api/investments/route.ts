@@ -87,6 +87,7 @@ export async function POST(request: NextRequest) {
       await tx.wallet.update({
         where: { userId: session.userId },
         data: { availableBalance: balanceAfter.toNumber() },
+        select: { id: true, availableBalance: true },
       })
       
       // Create Investment

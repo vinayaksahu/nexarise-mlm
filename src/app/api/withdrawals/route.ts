@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     const withdrawal = await db.$transaction(async (tx) => {
       const wallet = await tx.wallet.findUnique({
         where: { userId: session.userId },
-        select: { availableBalance: true },
+        select: { id: true, availableBalance: true },
       })
       
       if (!wallet) {
@@ -81,6 +81,7 @@ export async function POST(request: NextRequest) {
           availableBalance: balanceAfter.toNumber(),
           totalWithdrawals: { increment: withdrawalAmount.toNumber() }
         },
+        select: { id: true, availableBalance: true, totalWithdrawals: true },
       })
       
       // Create Withdrawal

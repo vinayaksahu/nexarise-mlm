@@ -39,6 +39,12 @@ export async function PATCH(
       return NextResponse.json({ error: 'Deposit is not pending' }, { status: 400 })
     }
 
+    try {
+      await db.$executeRawUnsafe('ALTER TABLE "Wallet" ADD COLUMN IF NOT EXISTS "p2pBalance" DECIMAL(20, 8) NOT NULL DEFAULT 0;')
+    } catch (e) {
+      // Ignore if table/column already updated
+    }
+
     let updatedDeposit
     if (effectiveAction === 'approve') {
       updatedDeposit = await db.$transaction(async (tx) => {
@@ -76,6 +82,7 @@ export async function PATCH(
         await tx.wallet.update({
           where: { userId: deposit.userId },
           data: { availableBalance: balanceAfter.toNumber() },
+          select: { id: true, availableBalance: true },
         })
         
         await tx.ledgerEntry.create({
