@@ -156,8 +156,19 @@ export default function P2PPage() {
           />
           
           {numAmount > 0 && (
-            <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-xs sm:text-sm text-amber-500 font-medium">
-              Fee: ${fee.toFixed(2)} ({feePercent}%) | Recipient Net Amount: <span className="font-bold text-gray-900 dark:text-white">${netReceived.toFixed(2)}</span>
+            <div className="p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg text-xs sm:text-sm text-slate-300 space-y-1">
+              <div className="flex justify-between">
+                <span>Source:</span> <span className="font-medium text-cyan-400">Your P2P Wallet</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Destination:</span> <span className="font-medium text-emerald-400">{recipient || 'Recipient'} (P2P Wallet)</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Transaction Fee:</span> <span className="font-bold text-emerald-400">$0.00 (No Fee)</span>
+              </div>
+              <div className="flex justify-between border-t border-cyan-500/20 pt-1 font-bold">
+                <span>Total Amount Sent:</span> <span className="text-cyan-400">${numAmount.toFixed(2)}</span>
+              </div>
             </div>
           )}
 

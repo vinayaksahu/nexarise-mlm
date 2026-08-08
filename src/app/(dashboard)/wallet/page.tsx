@@ -185,13 +185,33 @@ export default function WalletPage() {
       <Card>
         <CardHeader className="p-4 sm:p-6">
           <CardTitle className="text-base sm:text-lg">Transfer to P2P Wallet</CardTitle>
-          <CardDescription className="text-xs">Move funds from Available Balance to P2P Balance for peer-to-peer transfers.</CardDescription>
+          <CardDescription className="text-xs">
+            Move funds from Main Wallet (<span className="font-semibold text-emerald-500">${fmt(wallet?.availableBalance)}</span>) to P2P Wallet (<span className="font-semibold text-cyan-500">${fmt(wallet?.p2pBalance)}</span>).
+          </CardDescription>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0 space-y-4">
+          <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-xs space-y-1 text-slate-300">
+            <div className="flex justify-between">
+              <span>Source:</span> <span className="font-medium text-emerald-400">Main Wallet</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Destination:</span> <span className="font-medium text-cyan-400">P2P Wallet</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Transaction Fee:</span> <span className="font-medium text-emerald-400">$0.00 (No Fee)</span>
+            </div>
+            {Number(transferAmount) > 0 && (
+              <div className="flex justify-between border-t border-blue-500/20 pt-1 font-bold">
+                <span>P2P Wallet Credit:</span>
+                <span className="text-cyan-400">${Number(transferAmount).toFixed(2)}</span>
+              </div>
+            )}
+          </div>
+
           <Input 
             className="w-full text-sm py-2.5" 
             type="number" 
-            placeholder="Amount to transfer" 
+            placeholder="Amount to transfer ($)" 
             value={transferAmount} 
             onChange={e => setTransferAmount(e.target.value)} 
           />
@@ -203,9 +223,15 @@ export default function WalletPage() {
             value={pin} 
             onChange={e => setPin(e.target.value)} 
           />
-          {message && <p className={`text-sm ${message.includes('Error') || message.includes('failed') ? 'text-red-500' : 'text-green-500'}`}>{message}</p>}
+          
+          <p className="text-[11px] text-amber-500/90 font-medium">
+            ⚠️ Important: Funds transferred to P2P Wallet cannot be transferred back to Main Wallet.
+          </p>
+
+          {message && <p className={`text-sm ${message.includes('Error') || message.includes('failed') ? 'text-red-500 font-medium' : 'text-emerald-500 font-bold'}`}>{message}</p>}
+          
           <Button onClick={handleTransfer} className="w-full sm:w-auto" disabled={isTransferring}>
-            {isTransferring ? 'Transferring...' : 'Transfer to P2P'}
+            {isTransferring ? 'Transferring...' : 'Transfer to P2P Wallet'}
           </Button>
         </CardContent>
       </Card>
