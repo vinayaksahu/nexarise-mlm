@@ -1,85 +1,172 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useTheme } from '@/components/theme-provider'
+import { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useTheme } from '@/components/theme-provider';
 
-const userNavItems = [
-  { label: 'Dashboard', href: '/dashboard', icon: '📊' },
-  { label: 'Investments', href: '/investments', icon: '💰' },
-  { label: 'Wallet', href: '/wallet', icon: '👛' },
-  { label: 'Deposits', href: '/deposits', icon: '📥' },
-  { label: 'Withdrawals', href: '/withdrawals', icon: '📤' },
-  { label: 'P2P Transfer', href: '/p2p', icon: '🔄' },
-  { label: 'Self ROI', href: '/self-roi', icon: '📈' },
-  { label: 'Level Income', href: '/level-income', icon: '🏆' },
-  { label: 'Rewards', href: '/rewards', icon: '🎁' },
-  { label: 'Team', href: '/team', icon: '👥' },
-  { label: 'Genealogy', href: '/genealogy', icon: '🌳' },
-  { label: 'Referrals', href: '/referrals', icon: '🔗' },
-  { label: 'Transactions', href: '/transactions', icon: '📋' },
-  { label: 'Income History', href: '/income-history', icon: '💰' },
-  { label: 'Support', href: '/support', icon: '🎧' },
-]
+interface SidebarProps {
+  isAdmin?: boolean;
+  user?: { name: string; username: string; role: string } | null;
+}
 
-const adminNavItems = [
-  { label: 'Dashboard', href: '/admin', icon: '📊' },
-  { label: 'Users', href: '/admin/users', icon: '👥' },
-  { label: 'Deposits', href: '/admin/deposits', icon: '📥' },
-  { label: 'Withdrawals', href: '/admin/withdrawals', icon: '📤' },
-  { label: 'Investments', href: '/admin/investments', icon: '💰' },
-  { label: 'MLM', href: '/admin/mlm', icon: '🌐' },
-  { label: 'Business Plan', href: '/admin/business-plan', icon: '📋' },
-  { label: 'Rewards', href: '/admin/rewards', icon: '🎁' },
-  { label: 'Reports', href: '/admin/reports', icon: '📊' },
-  { label: 'Audit Logs', href: '/admin/audit', icon: '📜' },
-  { label: 'Settings', href: '/admin/settings', icon: '⚙️' },
-]
+const userNavGroups = [
+  {
+    heading: 'CORE',
+    items: [
+      { label: 'Dashboard', href: '/dashboard', icon: '📊' },
+    ],
+  },
+  {
+    heading: 'FINANCIAL OPS',
+    items: [
+      { label: 'Investments', href: '/investments', icon: '💰' },
+      { label: 'Wallet', href: '/wallet', icon: '👛' },
+      { label: 'Deposits', href: '/deposits', icon: '📥' },
+      { label: 'Withdrawals', href: '/withdrawals', icon: '📤' },
+      { label: 'P2P Transfer', href: '/p2p', icon: '🔄' },
+      { label: 'Income History', href: '/income-history', icon: '💵' },
+      { label: 'Transactions', href: '/transactions', icon: '📋' },
+    ],
+  },
+  {
+    heading: 'NETWORK & TEAM',
+    items: [
+      { label: 'Team & Referrals', href: '/team', icon: '👥' },
+      { label: 'Genealogy Tree', href: '/genealogy', icon: '🌳' },
+      { label: 'Self ROI', href: '/self-roi', icon: '📈' },
+      { label: 'Level Income', href: '/level-income', icon: '🏆' },
+      { label: 'Rewards & Ranks', href: '/rewards', icon: '🎁' },
+    ],
+  },
+  {
+    heading: 'SUPPORT & SETTINGS',
+    items: [
+      { label: 'Help & Support', href: '/support', icon: '🎧' },
+      { label: 'Account Settings', href: '/settings', icon: '⚙️' },
+    ],
+  },
+];
 
-export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
-  const [collapsed, setCollapsed] = useState(false)
-  const pathname = usePathname()
-  const { theme, toggleTheme } = useTheme()
-  const navItems = isAdmin ? adminNavItems : userNavItems
+const adminNavGroups = [
+  {
+    heading: 'CORE',
+    items: [
+      { label: 'Admin Dashboard', href: '/admin', icon: '📊' },
+    ],
+  },
+  {
+    heading: 'MANAGEMENT',
+    items: [
+      { label: 'User Management', href: '/admin/users', icon: '👥' },
+      { label: 'Deposit Approvals', href: '/admin/deposits', icon: '📥' },
+      { label: 'Withdrawal Payouts', href: '/admin/withdrawals', icon: '📤' },
+      { label: 'System Investments', href: '/admin/investments', icon: '💰' },
+    ],
+  },
+  {
+    heading: 'SYSTEM & PLAN',
+    items: [
+      { label: 'Business Plan Editor', href: '/admin/business-plan', icon: '📋' },
+      { label: 'Reward Slabs', href: '/admin/rewards', icon: '🎁' },
+      { label: 'Audit & Security Logs', href: '/admin/audit', icon: '📜' },
+    ],
+  },
+  {
+    heading: 'USER PANEL',
+    items: [
+      { label: 'Back to User Dashboard', href: '/dashboard', icon: '⬅️' },
+    ],
+  },
+];
+
+export function Sidebar({ isAdmin = false, user }: SidebarProps) {
+  const [collapsed, setCollapsed] = useState(false);
+  const pathname = usePathname();
+  const { theme, toggleTheme } = useTheme();
+  const navGroups = isAdmin ? adminNavGroups : userNavGroups;
 
   return (
-    <aside className={`hidden lg:flex flex-col h-screen sticky top-0 bg-white dark:bg-slate-900 border-r border-border transition-all duration-300 ${collapsed ? 'w-20' : 'w-64'}`}>
-      {/* Logo */}
-      <div className="flex items-center h-16 px-4 border-b border-border">
-        <Link href={isAdmin ? '/admin' : '/dashboard'} className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-sm">N</div>
-          {!collapsed && <span className="text-lg font-bold gradient-text">NexaRise</span>}
+    <aside
+      className={`hidden lg:flex flex-col h-screen sticky top-0 bg-slate-900 text-slate-300 border-r border-slate-800 transition-all duration-300 ${
+        collapsed ? 'w-20' : 'w-64'
+      }`}
+    >
+      {/* Brand Header */}
+      <div className="flex items-center h-16 px-4 border-b border-slate-800 bg-slate-950">
+        <Link href={isAdmin ? '/admin' : '/dashboard'} className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
+            N
+          </div>
+          {!collapsed && (
+            <span className="text-lg font-bold tracking-tight text-white">
+              Nexa<span className="text-blue-500">Rise</span>
+            </span>
+          )}
         </Link>
-        <button onClick={() => setCollapsed(!collapsed)} className="ml-auto text-muted hover:text-primary transition-colors p-1">
-          {collapsed ? '→' : '←'}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="ml-auto text-slate-400 hover:text-white transition-colors p-1.5 rounded-md hover:bg-slate-800"
+          title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+        >
+          {collapsed ? '➔' : '☰'}
         </button>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href || (item.href !== '/dashboard' && item.href !== '/admin' && pathname.startsWith(item.href))
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${isActive ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'}`}
-            >
-              <span className="text-lg">{item.icon}</span>
-              {!collapsed && <span>{item.label}</span>}
-            </Link>
-          )
-        })}
+      {/* SB Admin Navigation Accordions */}
+      <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-4">
+        {navGroups.map((group, idx) => (
+          <div key={idx} className="space-y-1">
+            {!collapsed && (
+              <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                {group.heading}
+              </div>
+            )}
+            {group.items.map((item) => {
+              const isActive =
+                pathname === item.href ||
+                (item.href !== '/dashboard' &&
+                  item.href !== '/admin' &&
+                  pathname.startsWith(item.href));
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
+                    isActive
+                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  }`}
+                  title={collapsed ? item.label : undefined}
+                >
+                  <span className="text-base shrink-0">{item.icon}</span>
+                  {!collapsed && <span className="truncate">{item.label}</span>}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
-      {/* Theme toggle */}
-      <div className="p-3 border-t border-border">
-        <button onClick={toggleTheme} className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all duration-200">
-          <span className="text-lg">{theme === 'dark' ? '☀️' : '🌙'}</span>
+      {/* Theme Toggle & Logged in as Footer */}
+      <div className="p-3 border-t border-slate-800 bg-slate-950 space-y-2">
+        <button
+          onClick={toggleTheme}
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-all"
+        >
+          <span className="text-sm">{theme === 'dark' ? '☀️' : '🌙'}</span>
           {!collapsed && <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>}
         </button>
+
+        {!collapsed && (
+          <div className="px-3 py-2 bg-slate-900 rounded-lg text-xs border border-slate-800 text-slate-400">
+            <div className="text-[10px] uppercase font-bold text-slate-500">Logged in as:</div>
+            <div className="font-semibold text-white truncate mt-0.5">
+              {user?.name || 'User'} <span className="text-blue-400 font-mono">({user?.role || 'MEMBER'})</span>
+            </div>
+          </div>
+        )}
       </div>
     </aside>
-  )
+  );
 }

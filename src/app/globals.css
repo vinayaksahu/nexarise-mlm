@@ -130,5 +130,18 @@ body {
 }
 
 
-select, option { background-color: var(--color-surface); color: inherit; }
-.dark select, .dark option { background-color: #1e293b; color: #f8fafc; }
+select, option {
+  background-color: var(--color-surface);
+  color: #0f172a;
+}
+.dark select, .dark option {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+input, select, textarea {
+  color: #0f172a;
+}
+.dark input, .dark select, .dark textarea {
+  color: #f8fafc;
+}
