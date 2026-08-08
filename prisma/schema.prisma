@@ -1,0 +1,365 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  FINANCE
+  SUPPORT
+  VIEWER
+  USER
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+  INACTIVE
+}
+
+enum InvestmentStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum TransactionType {
+  DEPOSIT
+  INVESTMENT
+  SELF_ROI
+  LEVEL_INCOME
+  REWARD
+  P2P_SENT
+  P2P_RECEIVED
+  WITHDRAWAL
+  WITHDRAWAL_FEE
+  REFUND
+  ADMIN_CREDIT
+  ADMIN_DEBIT
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum DepositStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PROCESSING
+  PAID
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING
+  RESOLVED
+  CLOSED
+}
+
+model User {
+  id                 String     @id @default(uuid())
+  username           String     @unique
+  email              String     @unique
+  name               String
+  mobile             String?
+  passwordHash       String
+  transactionPinHash String?
+  referralCode       String     @unique @default(cuid())
+  sponsorId          String?
+  sponsor            User?      @relation("SponsorDownlines", fields: [sponsorId], references: [id])
+  downlines          User[]     @relation("SponsorDownlines")
+  role               Role       @default(USER)
+  status             UserStatus @default(ACTIVE)
+  isTestUser         Boolean    @default(false)
+  emailVerified      Boolean    @default(false)
+  createdAt          DateTime
+  updatedAt          DateTime
+
+  investments                   Investment[]
+  wallet                        Wallet?
+  ledgerEntries                 LedgerEntry[]
+  deposits                      Deposit[]
+  withdrawals                   Withdrawal[]
+  p2pSent                       P2PTransfer[]            @relation("P2PSender")
+  p2pReceived                   P2PTransfer[]            @relation("P2PReceiver")
+  roiTransactions               RoiTransaction[]
+  levelIncomeTransactions       LevelIncomeTransaction[] @relation("BeneficiaryUser")
+  levelIncomeTransactionsSource LevelIncomeTransaction[] @relation("SourceUser")
+  rewardTransactions            RewardTransaction[]
+  businessVolume                BusinessVolume?
+  notifications                 Notification[]
+  auditLogs                     AuditLog[]
+  supportTickets                SupportTicket[]
+  securityEvents                SecurityEvent[]
+
+  @@index([email])
+  @@index([username])
+  @@index([referralCode])
+  @@index([sponsorId])
+}
+
+model BusinessPlanVersion {
+  id          String   @id @default(uuid())
+  version     Int      @unique @default(autoincrement())
+  config      Json
+  isActive    Boolean  @default(false)
+  createdAt   DateTime
+  createdById String?
+
+  investments Investment[]
+}
+
+model Investment {
+  id            String               @id @default(uuid())
+  userId        String
+  user          User                 @relation(fields: [userId], references: [id])
+  amount        Decimal              @db.Decimal(20, 8)
+  status        InvestmentStatus
+  planVersionId String?
+  planVersion   BusinessPlanVersion? @relation(fields: [planVersionId], references: [id])
+  startDate     DateTime
+  endDate       DateTime?
+  lastRoiDate   DateTime?
+  createdAt     DateTime
+
+  roiTransactions RoiTransaction[]
+
+  @@index([userId, status])
+  @@index([status])
+}
+
+model Wallet {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id])
+  availableBalance Decimal  @default(0) @db.Decimal(20, 8)
+  roiIncome        Decimal  @default(0) @db.Decimal(20, 8)
+  levelIncome      Decimal  @default(0) @db.Decimal(20, 8)
+  rewardIncome     Decimal  @default(0) @db.Decimal(20, 8)
+  totalIncome      Decimal  @default(0) @db.Decimal(20, 8)
+  totalWithdrawals Decimal  @default(0) @db.Decimal(20, 8)
+  createdAt        DateTime
+  updatedAt        DateTime
+}
+
+model LedgerEntry {
+  id              String            @id @default(uuid())
+  userId          String
+  user            User              @relation(fields: [userId], references: [id])
+  amount          Decimal           @db.Decimal(20, 8)
+  type            TransactionType
+  status          TransactionStatus
+  balanceBefore   Decimal           @db.Decimal(20, 8)
+  balanceAfter    Decimal           @db.Decimal(20, 8)
+  referenceKey    String            @unique
+  relatedEntityId String?
+  description     String?
+  createdAt       DateTime
+
+  @@index([userId, createdAt])
+  @@index([referenceKey])
+}
+
+model Deposit {
+  id            String        @id @default(uuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  amount        Decimal       @db.Decimal(20, 8)
+  method        String
+  status        DepositStatus
+  proofUrl      String?
+  adminNote     String?
+  processedAt   DateTime?
+  processedById String?
+  createdAt     DateTime
+
+  @@index([status])
+  @@index([userId])
+}
+
+model Withdrawal {
+  id            String           @id @default(uuid())
+  userId        String
+  user          User             @relation(fields: [userId], references: [id])
+  amount        Decimal          @db.Decimal(20, 8)
+  fee           Decimal          @default(0) @db.Decimal(20, 8)
+  netAmount     Decimal          @db.Decimal(20, 8)
+  method        String?
+  status        WithdrawalStatus
+  adminNote     String?
+  processedAt   DateTime?
+  processedById String?
+  createdAt     DateTime
+
+  @@index([status])
+  @@index([userId])
+}
+
+model P2PTransfer {
+  id           String            @id @default(uuid())
+  senderId     String
+  sender       User              @relation("P2PSender", fields: [senderId], references: [id])
+  receiverId   String
+  receiver     User              @relation("P2PReceiver", fields: [receiverId], references: [id])
+  amount       Decimal           @db.Decimal(20, 8)
+  fee          Decimal           @default(0) @db.Decimal(20, 8)
+  netAmount    Decimal           @db.Decimal(20, 8)
+  referenceKey String            @unique
+  status       TransactionStatus
+  createdAt    DateTime
+
+  @@index([senderId])
+  @@index([receiverId])
+}
+
+model RoiTransaction {
+  id           String     @id @default(uuid())
+  investmentId String
+  investment   Investment @relation(fields: [investmentId], references: [id])
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+  amount       Decimal    @db.Decimal(20, 8)
+  earningDate  DateTime   @db.Date
+  referenceKey String     @unique
+  createdAt    DateTime
+
+  levelIncomeTransactions LevelIncomeTransaction[]
+
+  @@unique([investmentId, earningDate])
+  @@index([investmentId, earningDate])
+}
+
+model LevelIncomeTransaction {
+  id            String         @id @default(uuid())
+  beneficiaryId String
+  beneficiary   User           @relation("BeneficiaryUser", fields: [beneficiaryId], references: [id])
+  sourceUserId  String
+  sourceUser    User           @relation("SourceUser", fields: [sourceUserId], references: [id])
+  sourceRoiId   String
+  sourceRoi     RoiTransaction @relation(fields: [sourceRoiId], references: [id])
+  level         Int
+  percentage    Decimal        @db.Decimal(5, 2)
+  amount        Decimal        @db.Decimal(20, 8)
+  referenceKey  String         @unique
+  createdAt     DateTime
+}
+
+model RewardDefinition {
+  id               String   @id @default(uuid())
+  businessRequired Decimal  @db.Decimal(20, 8)
+  rewardAmount     Decimal  @db.Decimal(20, 8)
+  name             String
+  isActive         Boolean  @default(true)
+  sortOrder        Int      @default(0)
+  createdAt        DateTime
+
+  rewardTransactions RewardTransaction[]
+}
+
+model RewardTransaction {
+  id                 String           @id @default(uuid())
+  userId             String
+  user               User             @relation(fields: [userId], references: [id])
+  rewardDefinitionId String
+  rewardDefinition   RewardDefinition @relation(fields: [rewardDefinitionId], references: [id])
+  amount             Decimal          @db.Decimal(20, 8)
+  referenceKey       String           @unique
+  strongLeg          Decimal          @db.Decimal(20, 8)
+  weakLeg            Decimal          @db.Decimal(20, 8)
+  createdAt          DateTime
+
+  @@unique([userId, rewardDefinitionId])
+}
+
+model BusinessVolume {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id])
+  totalBusiness  Decimal  @default(0) @db.Decimal(20, 8)
+  directBusiness Decimal  @default(0) @db.Decimal(20, 8)
+  strongLeg      Decimal  @default(0) @db.Decimal(20, 8)
+  weakLeg        Decimal  @default(0) @db.Decimal(20, 8)
+  updatedAt      DateTime
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  type      String
+  isRead    Boolean  @default(false)
+  createdAt DateTime
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  adminId   String?
+  admin     User?    @relation(fields: [adminId], references: [id])
+  action    String
+  target    String?
+  oldValue  String?
+  newValue  String?
+  ip        String?
+  createdAt DateTime
+}
+
+model SupportTicket {
+  id        String       @id @default(uuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id])
+  category  String
+  subject   String
+  message   String
+  status    TicketStatus
+  adminNote String?
+  createdAt DateTime
+  updatedAt DateTime
+}
+
+model SecurityEvent {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  event     String
+  ip        String?
+  userAgent String?
+  details   String?
+  createdAt DateTime
+}
+
+model CronJobLog {
+  id             String    @id @default(uuid())
+  jobName        String
+  status         String
+  startedAt      DateTime
+  completedAt    DateTime?
+  processedCount Int       @default(0)
+  errorMessage   String?
+}
+
+model PaymentMethod {
+  id        String   @id @default(uuid())
+  name      String
+  type      String
+  details   Json?
+  isActive  Boolean  @default(true)
+  createdAt DateTime
+}
