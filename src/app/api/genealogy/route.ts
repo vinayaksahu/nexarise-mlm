@@ -62,8 +62,33 @@ export async function GET() {
   }
 
   try {
+    const rootUser = await db.user.findUnique({
+      where: { id: session.userId },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        referralCode: true,
+        status: true,
+        createdAt: true,
+      }
+    })
+
+    const rootInvestments = await db.investment.aggregate({
+      where: { userId: session.userId, status: 'ACTIVE' },
+      _sum: { amount: true }
+    })
+    const rootActiveInvestment = new Decimal(rootInvestments._sum.amount?.toString() || 0).toNumber()
+
     const tree = await buildTree(session.userId, 1)
-    return NextResponse.json({ tree })
+
+    return NextResponse.json({
+      root: rootUser ? {
+        ...rootUser,
+        activeInvestment: rootActiveInvestment
+      } : null,
+      tree
+    })
   } catch (error) {
     console.error('Genealogy GET error:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
