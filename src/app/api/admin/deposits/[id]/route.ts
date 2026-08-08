@@ -44,6 +44,7 @@ export async function PATCH(
       updatedDeposit = await db.$transaction(async (tx) => {
         let wallet = await tx.wallet.findUnique({
           where: { userId: deposit.userId },
+          select: { id: true, availableBalance: true },
         })
         
         if (!wallet) {
@@ -51,15 +52,10 @@ export async function PATCH(
             data: {
               userId: deposit.userId,
               availableBalance: 0,
-              p2pBalance: 0,
-              roiIncome: 0,
-              levelIncome: 0,
-              rewardIncome: 0,
-              totalIncome: 0,
-              totalWithdrawals: 0,
               createdAt: new Date(),
               updatedAt: new Date(),
-            }
+            },
+            select: { id: true, availableBalance: true },
           })
         }
         

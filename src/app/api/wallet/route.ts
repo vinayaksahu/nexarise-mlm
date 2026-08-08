@@ -9,12 +9,42 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const wallet = await db.wallet.findUnique({
-      where: { userId: session.userId },
-    })
+    let wallet: any
+    try {
+      wallet = await db.wallet.findUnique({
+        where: { userId: session.userId },
+      })
+    } catch (e) {
+      // Fallback if p2pBalance column is not yet in the DB schema
+      wallet = await db.wallet.findUnique({
+        where: { userId: session.userId },
+        select: {
+          id: true,
+          userId: true,
+          availableBalance: true,
+          roiIncome: true,
+          levelIncome: true,
+          rewardIncome: true,
+          totalIncome: true,
+          totalWithdrawals: true,
+          createdAt: true,
+          updatedAt: true,
+        }
+      })
+      if (wallet) {
+        wallet.p2pBalance = 0
+      }
+    }
 
     if (!wallet) {
-      return NextResponse.json({ error: 'Wallet not found' }, { status: 404 })
+      wallet = await db.wallet.create({
+        data: {
+          userId: session.userId,
+          availableBalance: 0,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+      })
     }
 
     return NextResponse.json({ wallet })
