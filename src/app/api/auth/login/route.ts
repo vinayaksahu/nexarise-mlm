@@ -33,11 +33,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid login credentials' }, { status: 401 });
     }
 
-    if (user.status === 'SUSPENDED' || user.status === 'BANNED') {
+    const userIsAdmin = ADMIN_ROLES.includes(user.role);
+
+    // Admin accounts can NEVER be suspended or blocked
+    if (userIsAdmin && (user.status === 'SUSPENDED' || user.status === 'BANNED')) {
+      await db.user.update({
+        where: { id: user.id },
+        data: { status: 'ACTIVE' }
+      });
+    } else if (!userIsAdmin && (user.status === 'SUSPENDED' || user.status === 'BANNED')) {
       return NextResponse.json({ error: 'Account is suspended or banned. Please contact support.' }, { status: 403 });
     }
-
-    const userIsAdmin = ADMIN_ROLES.includes(user.role);
 
     // Enforce Portal Isolation: Admins can ONLY log in via /admin/login
     if (isAdminPortal && !userIsAdmin) {

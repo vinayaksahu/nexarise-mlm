@@ -22,6 +22,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    if (['SUPER_ADMIN', 'ADMIN', 'FINANCE', 'SUPPORT', 'VIEWER'].includes(user.role) && (status === 'SUSPENDED' || status === 'BANNED')) {
+      return NextResponse.json({ error: 'Admin accounts cannot be suspended' }, { status: 400 });
+    }
+
     let targetStatus = status;
     if (status === 'ACTIVE') {
       const hasActiveInvestment = await db.investment.findFirst({

@@ -165,10 +165,12 @@ export default function AdminUsersPage() {
                           {effectiveStatus === 'ACTIVE' ? 'Invest' : 'Activate'}
                         </Button>
 
-                        {u.status === 'SUSPENDED' ? (
-                          <Button variant="outline" size="sm" onClick={() => handleStatusChange(u.id, 'ACTIVE')}>Unsuspend</Button>
-                        ) : (
-                          <Button variant="danger" size="sm" onClick={() => handleStatusChange(u.id, 'SUSPENDED')}>Suspend</Button>
+                        {!['SUPER_ADMIN', 'ADMIN', 'FINANCE', 'SUPPORT', 'VIEWER'].includes(u.role) && (
+                          u.status === 'SUSPENDED' ? (
+                            <Button variant="outline" size="sm" onClick={() => handleStatusChange(u.id, 'ACTIVE')}>Unsuspend</Button>
+                          ) : (
+                            <Button variant="danger" size="sm" onClick={() => handleStatusChange(u.id, 'SUSPENDED')}>Suspend</Button>
+                          )
                         )}
                       </div>
                     </td>
