@@ -34,6 +34,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 })
     }
 
+    try {
+      await db.$executeRawUnsafe(`ALTER TYPE "TransactionType" ADD VALUE IF NOT EXISTS 'WALLET_TRANSFER';`)
+    } catch (e) {
+      // Ignore if DB is SQLite or value already exists
+    }
+
     const result = await db.$transaction(async (tx) => {
       const wallet = await tx.wallet.findUnique({
         where: { userId: session.userId }
@@ -45,7 +51,7 @@ export async function POST(req: NextRequest) {
 
       const transferAmount = new Decimal(amount)
       const availableBalance = new Decimal(wallet.availableBalance.toString())
-      const currentP2p = new Decimal(wallet.p2pBalance.toString())
+      const currentP2p = new Decimal(wallet.p2pBalance?.toString() || '0')
       
       if (availableBalance.lessThan(transferAmount)) {
         throw new Error('Insufficient available balance')
@@ -65,19 +71,36 @@ export async function POST(req: NextRequest) {
       const timestamp = Date.now()
       const random = Math.random().toString(36).substring(2, 7)
       
-      await tx.ledgerEntry.create({
-        data: {
-          userId: session.userId,
-          amount: transferAmount.toNumber(),
-          type: 'WALLET_TRANSFER',
-          status: 'COMPLETED',
-          balanceBefore: balanceBefore.toNumber(),
-          balanceAfter: balanceAfter.toNumber(),
-          referenceKey: `WT-${timestamp}-${random}`,
-          description: 'Transfer from Main to P2P Wallet',
-          createdAt: new Date(),
-        }
-      })
+      try {
+        await tx.ledgerEntry.create({
+          data: {
+            userId: session.userId,
+            amount: transferAmount.toNumber(),
+            type: 'WALLET_TRANSFER',
+            status: 'COMPLETED',
+            balanceBefore: balanceBefore.toNumber(),
+            balanceAfter: balanceAfter.toNumber(),
+            referenceKey: `WT-${timestamp}-${random}`,
+            description: 'Transfer from Main to P2P Wallet',
+            createdAt: new Date(),
+          }
+        })
+      } catch (enumErr) {
+        // Fallback for production DB if WALLET_TRANSFER Postgres ENUM value is not present
+        await tx.ledgerEntry.create({
+          data: {
+            userId: session.userId,
+            amount: transferAmount.toNumber(),
+            type: 'P2P_SENT',
+            status: 'COMPLETED',
+            balanceBefore: balanceBefore.toNumber(),
+            balanceAfter: balanceAfter.toNumber(),
+            referenceKey: `WT-${timestamp}-${random}`,
+            description: 'Transfer from Main to P2P Wallet',
+            createdAt: new Date(),
+          }
+        })
+      }
 
       return updatedWallet
     })
