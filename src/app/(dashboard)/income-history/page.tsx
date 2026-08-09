@@ -18,7 +18,7 @@ interface Transaction {
 export default function IncomeHistoryPage() {
   const [filter, setFilter] = useState('All');
   const [loading, setLoading] = useState(true);
-  const [wallet, setWallet] = useState({ roiIncome: 0, levelIncome: 0, rewardIncome: 0 });
+  const [wallet, setWallet] = useState({ availableBalance: 0, roiIncome: 0, levelIncome: 0, rewardIncome: 0 });
   const [entries, setEntries] = useState<Transaction[]>([]);
 
   useEffect(() => {
@@ -62,7 +62,11 @@ export default function IncomeHistoryPage() {
     <div className="space-y-6 animate-fade-in">
       <h1 className="text-2xl font-bold">Income History</h1>
       
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
+        <Card>
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Main Wallet Balance</CardTitle></CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold truncate text-emerald-600 dark:text-emerald-400">${Number(wallet.availableBalance || 0).toFixed(2)}</CardContent>
+        </Card>
         <Card>
           <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Total ROI</CardTitle></CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold truncate">${Number(wallet.roiIncome).toFixed(2)}</CardContent>
@@ -71,7 +75,7 @@ export default function IncomeHistoryPage() {
           <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Total Level Income</CardTitle></CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold truncate">${Number(wallet.levelIncome).toFixed(2)}</CardContent>
         </Card>
-        <Card className="col-span-2 sm:col-span-1">
+        <Card>
           <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Total Reward Income</CardTitle></CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold truncate">${Number(wallet.rewardIncome).toFixed(2)}</CardContent>
         </Card>
