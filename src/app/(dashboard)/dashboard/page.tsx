@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -452,9 +453,9 @@ export default function DashboardPage() {
       </Card>
 
       {/* New Investment / Activate Account Modal Popup */}
-      {showInvestModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5 text-left text-white relative">
+      {showInvestModal && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-[99999] overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5 text-left text-white relative z-[100000] my-auto">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
                 <span>📈 New Investment</span>
@@ -513,7 +514,8 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
