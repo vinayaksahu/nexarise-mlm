@@ -81,38 +81,50 @@ export default function AdminUsersPage() {
                 <th className="p-4 text-left">Sponsor</th>
                 <th className="p-4 text-left">Status</th>
                 <th className="p-4 text-left">Directs</th>
-                <th className="p-4 text-left">Investment</th>
+                <th className="p-4 text-left">Active Invest</th>
+                <th className="p-4 text-left">Total Invest</th>
                 <th className="p-4 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {users.map(u => (
-                <tr key={u.id} className="border-b">
-                  <td className="p-4">
-                    <div className="font-medium">{u.name}</div>
-                    <div className="text-sm text-gray-500">@{u.username}</div>
-                  </td>
-                  <td className="p-4">
-                    <div>{u.email}</div>
-                    <div className="text-sm text-gray-500">{u.referralCode}</div>
-                  </td>
-                  <td className="p-4">{u.sponsor?.username || '-'}</td>
-                  <td className="p-4">
-                    <Badge variant={u.status === 'ACTIVE' ? 'success' : 'danger'}>
-                      {u.status}
-                    </Badge>
-                  </td>
-                  <td className="p-4">{u._count?.downlines || 0}</td>
-                  <td className="p-4">${u.activeInvestmentsSum?.toFixed(2)}</td>
-                  <td className="p-4 space-x-2">
-                    {u.status === 'ACTIVE' ? (
-                      <Button variant="danger" size="sm" onClick={() => handleStatusChange(u.id, 'SUSPENDED')}>Suspend</Button>
-                    ) : (
-                      <Button variant="primary" size="sm" onClick={() => handleStatusChange(u.id, 'ACTIVE')}>Activate</Button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+              {users.map(u => {
+                const effectiveStatus = u.status === 'SUSPENDED' 
+                  ? 'SUSPENDED' 
+                  : u.status === 'BANNED' 
+                  ? 'BANNED' 
+                  : (u.status === 'ACTIVE' && (u.activeInvestmentsSum > 0 || u.totalInvestmentSum > 0)) 
+                  ? 'ACTIVE' 
+                  : 'INACTIVE';
+
+                return (
+                  <tr key={u.id} className="border-b">
+                    <td className="p-4">
+                      <div className="font-medium">{u.name}</div>
+                      <div className="text-sm text-gray-500">@{u.username}</div>
+                    </td>
+                    <td className="p-4">
+                      <div>{u.email}</div>
+                      <div className="text-sm text-gray-500">{u.referralCode}</div>
+                    </td>
+                    <td className="p-4">{u.sponsor?.username || '-'}</td>
+                    <td className="p-4">
+                      <Badge variant={effectiveStatus === 'ACTIVE' ? 'success' : effectiveStatus === 'SUSPENDED' ? 'danger' : 'warning'}>
+                        {effectiveStatus}
+                      </Badge>
+                    </td>
+                    <td className="p-4">{u._count?.downlines || 0}</td>
+                    <td className="p-4 font-semibold text-emerald-500">${(u.activeInvestmentsSum || 0).toFixed(2)}</td>
+                    <td className="p-4 font-semibold text-indigo-400">${(u.totalInvestmentSum || 0).toFixed(2)}</td>
+                    <td className="p-4 space-x-2">
+                      {u.status === 'SUSPENDED' ? (
+                        <Button variant="primary" size="sm" onClick={() => handleStatusChange(u.id, 'ACTIVE')}>Activate</Button>
+                      ) : (
+                        <Button variant="danger" size="sm" onClick={() => handleStatusChange(u.id, 'SUSPENDED')}>Suspend</Button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

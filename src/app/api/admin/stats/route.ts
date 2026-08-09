@@ -23,8 +23,13 @@ export async function GET() {
       rewardsPaidResult,
       totalBusinessResult
     ] = await Promise.all([
-      db.user.count({ where: { role: 'USER' } }),
-      db.user.count({ where: { role: 'USER', status: 'ACTIVE' } }),
+      db.user.count(),
+      db.user.count({
+        where: {
+          status: 'ACTIVE',
+          investments: { some: { status: 'ACTIVE' } }
+        }
+      }),
       db.investment.aggregate({ _sum: { amount: true } }),
       db.investment.aggregate({ where: { status: 'ACTIVE' }, _sum: { amount: true } }),
       db.deposit.aggregate({ where: { status: 'APPROVED' }, _sum: { amount: true } }),
@@ -37,20 +42,23 @@ export async function GET() {
       db.businessVolume.aggregate({ _sum: { totalBusiness: true } })
     ])
 
+    const totalInv = Number(totalInvestmentResult._sum.amount || 0)
+    const totalBus = Number(totalBusinessResult._sum.totalBusiness || 0)
+
     return NextResponse.json({
       stats: {
         totalUsers,
         activeUsers,
-        totalInvestment: totalInvestmentResult._sum.amount || 0,
-        activeInvestment: activeInvestmentResult._sum.amount || 0,
-        totalDeposits: totalDepositsResult._sum.amount || 0,
+        totalInvestment: totalInv,
+        activeInvestment: Number(activeInvestmentResult._sum.amount || 0),
+        totalDeposits: Number(totalDepositsResult._sum.amount || 0),
         pendingDeposits,
-        totalWithdrawals: totalWithdrawalsResult._sum.amount || 0,
+        totalWithdrawals: Number(totalWithdrawalsResult._sum.amount || 0),
         pendingWithdrawals,
-        roiDistributed: roiDistributedResult._sum.amount || 0,
-        levelIncome: levelIncomeResult._sum.amount || 0,
-        rewardsPaid: rewardsPaidResult._sum.amount || 0,
-        totalBusiness: totalBusinessResult._sum.totalBusiness || 0
+        roiDistributed: Number(roiDistributedResult._sum.amount || 0),
+        levelIncome: Number(levelIncomeResult._sum.amount || 0),
+        rewardsPaid: Number(rewardsPaidResult._sum.amount || 0),
+        totalBusiness: totalBus > 0 ? totalBus : totalInv
       }
     })
   } catch (error: any) {

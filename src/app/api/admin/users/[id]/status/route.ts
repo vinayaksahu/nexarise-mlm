@@ -22,9 +22,18 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    let targetStatus = status;
+    if (status === 'ACTIVE') {
+      const hasActiveInvestment = await db.investment.findFirst({
+        where: { userId: id, status: 'ACTIVE' }
+      });
+      // If user has no active investment, status becomes INACTIVE instead of ACTIVE
+      targetStatus = hasActiveInvestment ? 'ACTIVE' : 'INACTIVE';
+    }
+
     await db.user.update({
       where: { id },
-      data: { status }
+      data: { status: targetStatus }
     });
 
     await db.auditLog.create({

@@ -45,8 +45,7 @@ export async function GET(request: NextRequest) {
             select: { username: true }
           },
           investments: {
-            where: { status: 'ACTIVE' },
-            select: { amount: true }
+            select: { amount: true, status: true }
           }
         }
       }),
@@ -54,10 +53,16 @@ export async function GET(request: NextRequest) {
     ]);
 
     const mappedUsers = users.map(user => {
-      const activeInvestmentsSum = user.investments.reduce((sum, inv) => sum + Number(inv.amount), 0);
+      const activeInvestmentsSum = user.investments
+        .filter(inv => inv.status === 'ACTIVE')
+        .reduce((sum, inv) => sum + Number(inv.amount), 0);
+      const totalInvestmentSum = user.investments
+        .reduce((sum, inv) => sum + Number(inv.amount), 0);
+
       return {
         ...user,
         activeInvestmentsSum,
+        totalInvestmentSum,
       };
     });
 
