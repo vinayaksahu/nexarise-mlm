@@ -5,7 +5,16 @@ import { getSession } from '@/lib/auth'
 export async function GET() {
   try {
     const session = await getSession()
-    if (!session || !['SUPER_ADMIN', 'ADMIN', 'FINANCE'].includes(session.role)) {
+    if (!session?.userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const user = await db.user.findUnique({
+      where: { id: session.userId },
+      select: { role: true }
+    })
+
+    if (!user || !['SUPER_ADMIN', 'ADMIN', 'FINANCE', 'SUPPORT', 'VIEWER'].includes(user.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -24,12 +33,7 @@ export async function GET() {
       totalBusinessResult
     ] = await Promise.all([
       db.user.count(),
-      db.user.count({
-        where: {
-          status: 'ACTIVE',
-          investments: { some: { status: 'ACTIVE' } }
-        }
-      }),
+      db.user.count({ where: { status: 'ACTIVE' } }),
       db.investment.aggregate({ _sum: { amount: true } }),
       db.investment.aggregate({ where: { status: 'ACTIVE' }, _sum: { amount: true } }),
       db.deposit.aggregate({ where: { status: 'APPROVED' }, _sum: { amount: true } }),
