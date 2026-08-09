@@ -84,11 +84,15 @@ export default function DashboardPage() {
         <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
           Welcome back, {user?.name || 'User'}! 👋
         </h1>
-        {user?.status === 'ACTIVE' ? (
-          <span className="inline-block mt-2 px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Account Status: Active</span>
-        ) : (
-          <span className="inline-block mt-2 px-2.5 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Account Status: Inactive</span>
-        )}
+        {(() => {
+          const hasActiveInvestment = investments.some((inv: any) => inv.status === 'ACTIVE' && Number(inv.amount) > 0);
+          const isAccountActive = user?.status === 'ACTIVE' && hasActiveInvestment;
+          return isAccountActive ? (
+            <span className="inline-block mt-2 px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Account Status: Active</span>
+          ) : (
+            <span className="inline-block mt-2 px-2.5 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Account Status: Inactive</span>
+          );
+        })()}
         <p className="text-muted text-sm mt-1">Here is your live account overview and growth metrics.</p>
       </div>
 

@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
           passwordHash,
           referralCode: cleanUsername, // Referral code is user's chosen username!
           sponsorId,
+          status: 'INACTIVE',
           createdAt: new Date(),
           updatedAt: new Date(),
         },

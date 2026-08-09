@@ -92,7 +92,7 @@ model User {
   sponsor            User?      @relation("SponsorDownlines", fields: [sponsorId], references: [id])
   downlines          User[]     @relation("SponsorDownlines")
   role               Role       @default(USER)
-  status             UserStatus @default(ACTIVE)
+  status             UserStatus @default(INACTIVE)
   isTestUser         Boolean    @default(false)
   emailVerified      Boolean    @default(false)
   createdAt          DateTime
