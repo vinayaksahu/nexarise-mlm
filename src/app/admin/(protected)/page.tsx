@@ -24,9 +24,15 @@ export default function AdminDashboardPage() {
     async function fetchStats() {
       try {
         const res = await fetch('/api/admin/stats', { cache: 'no-store' })
-        const data = await res.json()
-        if (data.stats) {
-          setStats(data.stats)
+        if (res.ok) {
+          const data = await res.json()
+          if (data.stats) {
+            setStats(data.stats)
+          } else if (data.totalUsers !== undefined) {
+            setStats(data)
+          }
+        } else {
+          console.error('Failed to fetch admin stats, status:', res.status)
         }
       } catch (error) {
         console.error('Failed to fetch admin stats:', error)
