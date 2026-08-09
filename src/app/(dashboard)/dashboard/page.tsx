@@ -295,7 +295,7 @@ export default function DashboardPage() {
           </Card>
         </Link>
 
-        <Link href="/p2p">
+        <Link href="/transactions?type=P2P_SENT">
           <Card className="h-full hover:border-red-500/50 transition-all cursor-pointer">
             <CardContent className="p-3 sm:p-4">
               <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
@@ -308,7 +308,7 @@ export default function DashboardPage() {
           </Card>
         </Link>
 
-        <Link href="/p2p">
+        <Link href="/transactions?type=P2P_RECEIVED">
           <Card className="h-full hover:border-cyan-500/50 transition-all cursor-pointer">
             <CardContent className="p-3 sm:p-4">
               <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">

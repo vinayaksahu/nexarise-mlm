@@ -11,19 +11,36 @@ export async function GET(request: NextRequest) {
 
     const url = new URL(request.url)
     const page = parseInt(url.searchParams.get('page') || '1', 10)
-    const limit = parseInt(url.searchParams.get('limit') || '20', 10)
+    const limit = parseInt(url.searchParams.get('limit') || '50', 10)
+    const typeParam = url.searchParams.get('type')
     const skip = (page - 1) * limit
+
+    const where: any = { userId: session.userId }
+    if (typeParam && typeParam !== 'ALL' && typeParam !== 'All') {
+      const upper = typeParam.toUpperCase().replace(/\s+/g, '_')
+      if (upper === 'DEPOSIT') {
+        where.type = { in: ['DEPOSIT', 'DEPOSIT_TO_P2P'] }
+      } else if (upper === 'REWARD' || upper === 'REWARD_INCOME') {
+        where.type = { in: ['REWARD', 'REWARD_INCOME'] }
+      } else if (upper === 'P2P_SENT') {
+        where.type = { in: ['P2P_SENT', 'P2P_TRANSFER_SENT'] }
+      } else if (upper === 'P2P_RECEIVED') {
+        where.type = { in: ['P2P_RECEIVED', 'P2P_TRANSFER_RECEIVED'] }
+      } else if (upper === 'WITHDRAWAL') {
+        where.type = { in: ['WITHDRAWAL', 'REFUND'] }
+      } else {
+        where.type = upper
+      }
+    }
 
     const [entries, total] = await Promise.all([
       db.ledgerEntry.findMany({
-        where: { userId: session.userId },
+        where,
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
       }),
-      db.ledgerEntry.count({
-        where: { userId: session.userId },
-      }),
+      db.ledgerEntry.count({ where }),
     ])
 
     return NextResponse.json({

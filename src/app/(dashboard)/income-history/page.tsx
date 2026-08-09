@@ -37,7 +37,7 @@ export default function IncomeHistoryPage() {
         }
         
         if (txData.entries) {
-          const incomeTypes = ['SELF_ROI', 'LEVEL_INCOME', 'REWARD_INCOME'];
+          const incomeTypes = ['SELF_ROI', 'LEVEL_INCOME', 'REWARD', 'REWARD_INCOME'];
           setEntries(txData.entries.filter((tx: Transaction) => incomeTypes.includes(tx.type)));
         }
       } catch (error) {
@@ -50,10 +50,10 @@ export default function IncomeHistoryPage() {
   }, []);
 
   const typeMap: Record<string, string[]> = {
-    'All': ['SELF_ROI', 'LEVEL_INCOME', 'REWARD_INCOME'],
+    'All': ['SELF_ROI', 'LEVEL_INCOME', 'REWARD', 'REWARD_INCOME'],
     'Self ROI': ['SELF_ROI'],
     'Level Income': ['LEVEL_INCOME'],
-    'Reward Income': ['REWARD_INCOME']
+    'Reward Income': ['REWARD', 'REWARD_INCOME']
   };
 
   const filteredEntries = entries.filter(entry => typeMap[filter]?.includes(entry.type));
@@ -115,7 +115,7 @@ export default function IncomeHistoryPage() {
                 <tbody>
                   {filteredEntries.map(entry => (
                     <tr key={entry.id} className="border-b border-border/50 hover:bg-gray-50 dark:hover:bg-slate-800/50">
-                      <td className="py-2.5 px-3 text-xs text-muted">{new Date(entry.createdAt).toLocaleDateString()}</td>
+                      <td className="py-2.5 px-3 text-xs text-muted">{new Date(entry.createdAt).toLocaleString()}</td>
                       <td className="py-2.5 px-3"><Badge variant="default">{entry.type}</Badge></td>
                       <td className="py-2.5 px-3 font-semibold text-green-600 dark:text-green-400">+${Number(entry.amount).toFixed(2)}</td>
                       <td className="py-2.5 px-3">${Number(entry.balanceBefore).toFixed(2)}</td>
