@@ -18,17 +18,29 @@ export async function distributeLevelIncome(
       where: { id: currentUserId },
       select: { 
         sponsorId: true,
-        sponsor: { select: { id: true, status: true } }
+        sponsor: { 
+          select: { 
+            id: true, 
+            status: true,
+            investments: {
+              where: { status: 'ACTIVE' },
+              select: { id: true, amount: true }
+            }
+          } 
+        }
       },
     })
     
     if (!user?.sponsorId) break // No more upline
     
     const sponsorId = user.sponsorId
-    const sponsorStatus = user.sponsor?.status
+    const sponsor = user.sponsor
+    
+    // Check if sponsor is active (status === 'ACTIVE' && has active investment > 0)
+    const hasActiveInv = (sponsor?.investments || []).some((inv: any) => Number(inv.amount) > 0)
+    const sponsorIsActive = sponsor?.status === 'ACTIVE' && hasActiveInv
 
-    // Skip if sponsor is not active
-    if (sponsorStatus !== 'ACTIVE') {
+    if (!sponsorIsActive) {
       currentUserId = sponsorId
       continue
     }
@@ -41,7 +53,7 @@ export async function distributeLevelIncome(
       continue
     }
     
-    // Check if sponsor qualifies (has enough direct referrals for this level)
+    // Check if sponsor qualifies (has enough direct referrals for this level if required)
     if (config.requireDirectReferralsForLevelIncome) {
       const minRequired = config.minDirectReferralsForLevel[level] || 0
       if (minRequired > 0) {
@@ -50,9 +62,20 @@ export async function distributeLevelIncome(
         })
         if (directCount < minRequired) {
           currentUserId = sponsorId
-          continue // Skip this level, sponsor doesn't qualify
+          continue
         }
       }
+    }
+    
+    const referenceKey = `LVL-${sourceRoiId}-L${level + 1}`
+
+    // Check duplicate referenceKey
+    const existing = await tx.levelIncomeTransaction.findUnique({
+      where: { referenceKey }
+    })
+    if (existing) {
+      currentUserId = sponsorId
+      continue
     }
     
     // Get sponsor's wallet
@@ -68,7 +91,6 @@ export async function distributeLevelIncome(
     
     const balanceBefore = new Decimal(wallet.availableBalance.toString())
     const balanceAfter = balanceBefore.plus(amount)
-    const referenceKey = `LVL-${sourceRoiId}-L${level + 1}`
     
     // Create level income transaction
     await tx.levelIncomeTransaction.create({

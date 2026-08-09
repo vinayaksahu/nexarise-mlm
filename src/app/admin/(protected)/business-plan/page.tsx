@@ -6,29 +6,40 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 
 export default function AdminBusinessPlanPage() {
+  const defaultLevelIncomes = [30, 20, 10, 5, 5, 5, 5, 2.5, 2.5, 2.5, 2.5];
   const [config, setConfig] = useState({
-    dailyRoiPercent: 0,
-    durationDays: 0,
-    minInvestment: 0,
-    maxInvestment: 0,
-    withdrawalFeePercent: 0,
-    p2pFeePercent: 0,
+    dailyRoiPercentage: 1,
+    roiDurationDays: 200,
+    minInvestment: 5,
+    maxInvestment: 10000,
+    withdrawalFeePercentage: 5,
+    p2pFeePercentage: 0,
     showP2pFee: false,
-    showWithdrawalFee: false,
-    levelIncomes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    showWithdrawalFee: true,
+    levelIncomePercentages: defaultLevelIncomes,
+    maxLevels: 11,
   });
   const [msg, setMsg] = useState({ text: '', type: '' as 'success' | 'error' | '' });
 
   const fetchActivePlan = async () => {
     try {
-      const res = await fetch('/api/admin/business-plan/active'); // Assuming an endpoint exists
+      const res = await fetch('/api/admin/business-plan/active');
       if (res.ok) {
         const data = await res.json();
         if (data.plan && data.plan.config) {
+          const cfg = data.plan.config;
+          const levelPcts = cfg.levelIncomePercentages || cfg.levelIncomes || defaultLevelIncomes;
           setConfig({
-            ...config,
-            ...data.plan.config,
-            levelIncomes: data.plan.config.levelIncomes || config.levelIncomes,
+            dailyRoiPercentage: cfg.dailyRoiPercentage ?? cfg.dailyRoiPercent ?? 1,
+            roiDurationDays: cfg.roiDurationDays ?? cfg.durationDays ?? 200,
+            minInvestment: cfg.minInvestment ?? 5,
+            maxInvestment: cfg.maxInvestment ?? 10000,
+            withdrawalFeePercentage: cfg.withdrawalFeePercentage ?? cfg.withdrawalFeePercent ?? 5,
+            p2pFeePercentage: cfg.p2pFeePercentage ?? cfg.p2pFeePercent ?? 0,
+            showP2pFee: cfg.showP2pFee ?? false,
+            showWithdrawalFee: cfg.showWithdrawalFee ?? true,
+            levelIncomePercentages: levelPcts,
+            maxLevels: levelPcts.length,
           });
         }
       }
@@ -43,14 +54,26 @@ export default function AdminBusinessPlanPage() {
 
   const handleSave = async () => {
     setMsg({ text: '', type: '' });
+
+    // Validate non-negative percentages
+    if (config.levelIncomePercentages.some(p => typeof p !== 'number' || isNaN(p) || p < 0)) {
+      setMsg({ text: '⚠️ Level income percentages cannot be negative or invalid.', type: 'error' });
+      return;
+    }
+
     try {
+      const payload = {
+        ...config,
+        levelIncomes: config.levelIncomePercentages, // Backwards compatibility
+      };
+
       const res = await fetch('/api/admin/business-plan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(config),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
-        setMsg({ text: '✅ New business plan version activated!', type: 'success' });
+        setMsg({ text: '🎉 New business plan version activated successfully!', type: 'success' });
         fetchActivePlan();
       } else {
         setMsg({ text: 'Failed to update business plan.', type: 'error' });
@@ -71,24 +94,24 @@ export default function AdminBusinessPlanPage() {
         </div>
       )}
 
-      <Card className="p-6 max-w-2xl space-y-6">
+      <Card className="p-6 max-w-3xl space-y-6">
         <div>
-          <h2 className="text-lg font-semibold mb-4">Investment Settings</h2>
+          <h2 className="text-lg font-semibold mb-4">Investment & Fee Settings</h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Daily ROI (%)</label>
               <Input 
                 type="number" step="0.1"
-                value={config.dailyRoiPercent} 
-                onChange={e => setConfig({...config, dailyRoiPercent: parseFloat(e.target.value)})}
+                value={config.dailyRoiPercentage} 
+                onChange={e => setConfig({...config, dailyRoiPercentage: parseFloat(e.target.value) || 0})}
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Duration (Days)</label>
               <Input 
                 type="number" 
-                value={config.durationDays} 
-                onChange={e => setConfig({...config, durationDays: parseInt(e.target.value)})}
+                value={config.roiDurationDays} 
+                onChange={e => setConfig({...config, roiDurationDays: parseInt(e.target.value) || 0})}
               />
             </div>
             <div>
@@ -96,7 +119,7 @@ export default function AdminBusinessPlanPage() {
               <Input 
                 type="number" 
                 value={config.minInvestment} 
-                onChange={e => setConfig({...config, minInvestment: parseFloat(e.target.value)})}
+                onChange={e => setConfig({...config, minInvestment: parseFloat(e.target.value) || 0})}
               />
             </div>
             <div>
@@ -104,23 +127,23 @@ export default function AdminBusinessPlanPage() {
               <Input 
                 type="number" 
                 value={config.maxInvestment} 
-                onChange={e => setConfig({...config, maxInvestment: parseFloat(e.target.value)})}
+                onChange={e => setConfig({...config, maxInvestment: parseFloat(e.target.value) || 0})}
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Withdrawal Fee (%)</label>
               <Input 
                 type="number" step="0.1"
-                value={config.withdrawalFeePercent} 
-                onChange={e => setConfig({...config, withdrawalFeePercent: parseFloat(e.target.value)})}
+                value={config.withdrawalFeePercentage} 
+                onChange={e => setConfig({...config, withdrawalFeePercentage: parseFloat(e.target.value) || 0})}
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">P2P Fee (%)</label>
               <Input 
                 type="number" step="0.1"
-                value={config.p2pFeePercent} 
-                onChange={e => setConfig({...config, p2pFeePercent: parseFloat(e.target.value)})}
+                value={config.p2pFeePercentage} 
+                onChange={e => setConfig({...config, p2pFeePercentage: parseFloat(e.target.value) || 0})}
               />
             </div>
             <div className="flex items-center space-x-2">
@@ -143,18 +166,18 @@ export default function AdminBusinessPlanPage() {
         </div>
 
         <div>
-          <h2 className="text-lg font-semibold mb-4">Level Income Percentages (L1 - L10)</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-            {config.levelIncomes.map((perc, idx) => (
-              <div key={idx}>
-                <label className="block text-sm font-medium mb-1">Level {idx + 1}</label>
+          <h2 className="text-lg font-semibold mb-4">Level Income Commission Percentages (L1 - L11)</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+            {config.levelIncomePercentages.map((perc, idx) => (
+              <div key={idx} className="p-2 border rounded-xl bg-slate-900/30">
+                <label className="block text-xs font-semibold mb-1 text-slate-300">Level {idx + 1}</label>
                 <Input 
-                  type="number" step="0.1"
+                  type="number" step="0.1" min="0"
                   value={perc} 
                   onChange={e => {
-                    const newLevels = [...config.levelIncomes];
+                    const newLevels = [...config.levelIncomePercentages];
                     newLevels[idx] = parseFloat(e.target.value) || 0;
-                    setConfig({...config, levelIncomes: newLevels});
+                    setConfig({...config, levelIncomePercentages: newLevels});
                   }}
                 />
               </div>
@@ -163,7 +186,9 @@ export default function AdminBusinessPlanPage() {
         </div>
 
         <div className="flex justify-end pt-4">
-          <Button onClick={handleSave}>Save as New Version</Button>
+          <Button onClick={handleSave} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold">
+            Save as New Plan Version
+          </Button>
         </div>
       </Card>
     </div>
