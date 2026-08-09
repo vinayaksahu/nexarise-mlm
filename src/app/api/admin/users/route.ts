@@ -52,19 +52,27 @@ export async function GET(request: NextRequest) {
       db.user.count({ where })
     ]);
 
-    const mappedUsers = users.map(user => {
-      const activeInvestmentsSum = user.investments
-        .filter(inv => inv.status === 'ACTIVE')
+    const mappedUsers = await Promise.all(users.map(async (user) => {
+      const selfInvestmentSum = user.investments
         .reduce((sum, inv) => sum + Number(inv.amount), 0);
-      const totalInvestmentSum = user.investments
-        .reduce((sum, inv) => sum + Number(inv.amount), 0);
+
+      // Compute downline / team investment sum
+      const downlines = await db.user.findMany({
+        where: { sponsorId: user.id },
+        select: {
+          investments: { select: { amount: true } }
+        }
+      });
+
+      const directTeamSum = downlines.reduce((sum, d) => 
+        sum + d.investments.reduce((s, i) => s + Number(i.amount), 0), 0);
 
       return {
         ...user,
-        activeInvestmentsSum,
-        totalInvestmentSum,
+        selfInvestmentSum,
+        teamInvestmentSum: directTeamSum,
       };
-    });
+    }));
 
     const totalPages = Math.ceil(totalCount / limit);
 
