@@ -33,8 +33,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid login credentials' }, { status: 401 });
     }
 
-    if (user.status !== 'ACTIVE') {
-      return NextResponse.json({ error: 'Account is suspended or inactive' }, { status: 403 });
+    if (user.status === 'SUSPENDED' || user.status === 'BANNED') {
+      return NextResponse.json({ error: 'Account is suspended or banned. Please contact support.' }, { status: 403 });
     }
 
     const userIsAdmin = ADMIN_ROLES.includes(user.role);
