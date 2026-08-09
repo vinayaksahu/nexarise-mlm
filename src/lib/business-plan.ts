@@ -20,6 +20,8 @@ export interface BusinessConfig {
   minDirectReferralsForLevel: number[]
   showP2pFee?: boolean
   showWithdrawalFee?: boolean
+  depositAddress?: string
+  depositQrUrl?: string
 }
 
 let cachedConfig: { config: BusinessConfig; fetchedAt: number } | null = null
@@ -38,6 +40,12 @@ export async function getBusinessConfig(): Promise<BusinessConfig> {
       const config = plan.config as unknown as BusinessConfig
       config.p2pFeePercentage = 0
       config.showP2pFee = false
+      if (!config.depositAddress) {
+        config.depositAddress = '0x1234567890abcdef1234567890abcdef12345678'
+      }
+      if (!config.depositQrUrl) {
+        config.depositQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(config.depositAddress)}`
+      }
       cachedConfig = { config, fetchedAt: Date.now() }
       return config
     }
@@ -66,6 +74,8 @@ export async function getBusinessConfig(): Promise<BusinessConfig> {
     minDirectReferralsForLevel: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     showP2pFee: false,
     showWithdrawalFee: true,
+    depositAddress: '0x1234567890abcdef1234567890abcdef12345678',
+    depositQrUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=0x1234567890abcdef1234567890abcdef12345678',
   }
 
   return defaultConfig

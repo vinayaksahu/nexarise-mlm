@@ -16,12 +16,21 @@ export default function DepositsPage() {
   const [messageType, setMessageType] = useState<'success' | 'error'>('success');
   const [showPopup, setShowPopup] = useState(false);
 
+  const [config, setConfig] = useState<any>(null);
+
   const fetchDeposits = async () => {
     try {
-      const res = await fetch('/api/deposits');
-      if (res.ok) {
-        const data = await res.json();
+      const [resDep, resPlan] = await Promise.all([
+        fetch('/api/deposits'),
+        fetch('/api/business-plan')
+      ]);
+      if (resDep.ok) {
+        const data = await resDep.json();
         setDeposits(Array.isArray(data) ? data : []);
+      }
+      if (resPlan.ok) {
+        const planData = await resPlan.json();
+        setConfig(planData);
       }
     } catch (err) {
       console.error('Failed to fetch deposits:', err);
@@ -89,32 +98,45 @@ export default function DepositsPage() {
       <h1 className="text-2xl font-bold">Deposits</h1>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
-        <Card>
-          <CardHeader className="p-3 sm:p-4 pb-1">
-            <CardTitle className="text-sm flex items-center justify-between">
-              <span>USDT (BEP-20)</span>
-              <Badge variant="info">BEP-20</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-3 sm:p-4 pt-1 space-y-2">
-            <p className="text-xs font-mono text-slate-300 break-all bg-slate-900/50 p-2 rounded border border-slate-700">
-              0x1234567890abcdef1234567890abcdef12345678
-            </p>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full text-xs" 
-              onClick={() => {
-                navigator.clipboard.writeText('0x1234567890abcdef1234567890abcdef12345678');
-                setMessage('Deposit address copied to clipboard!');
-                setMessageType('success');
-                setShowPopup(true);
-              }}
-            >
-              📋 Copy Deposit Address
-            </Button>
-          </CardContent>
-        </Card>
+        {(() => {
+          const depAddr = config?.depositAddress || '0x1234567890abcdef1234567890abcdef12345678';
+          const qrUrl = config?.depositQrUrl || `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(depAddr)}`;
+          return (
+            <Card className="sm:col-span-2 lg:col-span-1">
+              <CardHeader className="p-3 sm:p-4 pb-1">
+                <CardTitle className="text-sm flex items-center justify-between">
+                  <span>USDT (BEP-20) Payment</span>
+                  <Badge variant="info">BEP-20</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-3 sm:p-4 pt-1 space-y-3 text-center">
+                <div className="bg-white p-2 rounded-xl inline-block border border-slate-700 shadow-md">
+                  <img 
+                    src={qrUrl} 
+                    alt="Deposit QR Code" 
+                    className="w-36 h-36 mx-auto rounded-lg object-contain"
+                  />
+                </div>
+                <p className="text-xs font-mono text-slate-300 break-all bg-slate-900/80 p-2.5 rounded-lg border border-slate-700">
+                  {depAddr}
+                </p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full text-xs py-2" 
+                  onClick={() => {
+                    navigator.clipboard.writeText(depAddr);
+                    setMessage('Deposit address copied to clipboard!');
+                    setMessageType('success');
+                    setShowPopup(true);
+                  }}
+                >
+                  📋 Copy Deposit Address
+                </Button>
+              </CardContent>
+            </Card>
+          );
+        })()}
       </div>
 
       <Card>
@@ -178,7 +200,7 @@ export default function DepositsPage() {
                         <Badge variant={statusVariant(d.status)}>{d.status}</Badge>
                       </td>
                       <td className="py-2.5 px-3 text-xs text-muted">
-                        {new Date(d.createdAt).toLocaleDateString()}
+                        {new Date(d.createdAt).toLocaleString()}
                       </td>
                     </tr>
                   ))

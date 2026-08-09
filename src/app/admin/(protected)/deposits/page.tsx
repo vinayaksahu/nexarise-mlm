@@ -134,7 +134,7 @@ export default function AdminDepositsPage() {
                         {d.status}
                       </Badge>
                     </td>
-                    <td className="p-4 text-xs text-slate-400">{new Date(d.createdAt).toLocaleDateString()}</td>
+                    <td className="p-4 text-xs text-slate-400">{new Date(d.createdAt).toLocaleString()}</td>
                     <td className="p-4">
                       <div className="flex items-center gap-2">
                         {d.proofUrl && (
