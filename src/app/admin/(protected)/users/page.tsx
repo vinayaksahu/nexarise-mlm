@@ -155,14 +155,14 @@ export default function AdminUsersPage() {
                         <Button 
                           variant="primary" 
                           size="sm" 
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+                          className={effectiveStatus === 'ACTIVE' ? "bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3" : "bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3"}
                           onClick={() => {
                             setActivateUser(u);
                             setInvestAmount('50');
                             setInvestError(null);
                           }}
                         >
-                          ⚡ Activate User
+                          {effectiveStatus === 'ACTIVE' ? 'Invest' : 'Activate'}
                         </Button>
 
                         {u.status === 'SUSPENDED' ? (
