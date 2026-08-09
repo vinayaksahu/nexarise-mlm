@@ -10,7 +10,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { amount, pin } = await req.json()
+    const body = await req.json()
+    const { amount, pin, type, direction, from } = body || {}
+
+    // Strictly reject P2P -> Main transfers on server/API side
+    if (type === 'P2P_TO_MAIN' || direction === 'P2P_TO_MAIN' || from === 'p2p') {
+      return NextResponse.json({ error: 'P2P Wallet funds cannot be transferred back to Main Wallet.' }, { status: 400 })
+    }
 
     if (!pin) {
       return NextResponse.json({ error: 'PIN is required' }, { status: 400 })
@@ -30,8 +36,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid PIN' }, { status: 400 })
     }
 
-    if (!amount || Number(amount) <= 0) {
-      return NextResponse.json({ error: 'Invalid amount' }, { status: 400 })
+    if (!amount || Number(amount) <= 0 || isNaN(Number(amount))) {
+      return NextResponse.json({ error: 'Amount must be greater than 0' }, { status: 400 })
     }
 
     try {
