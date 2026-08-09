@@ -94,7 +94,7 @@ export default function WalletPage() {
         <Card>
           <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
             <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
-              Available Balance
+              Main Wallet Balance
             </CardTitle>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 truncate">
