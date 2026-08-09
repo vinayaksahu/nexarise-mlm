@@ -68,26 +68,26 @@ export async function POST(request: NextRequest) {
     const investment = await db.$transaction(async (tx) => {
       const wallet = await tx.wallet.findUnique({
         where: { userId: session.userId },
-        select: { availableBalance: true },
+        select: { p2pBalance: true },
       })
       
       if (!wallet) {
         throw new Error('Wallet not found')
       }
       
-      const balance = new Decimal(wallet.availableBalance.toString())
+      const balance = new Decimal(wallet.p2pBalance?.toString() || '0')
       if (balance.lessThan(investmentAmount)) {
-        throw new Error('Insufficient balance')
+        throw new Error('Insufficient P2P Wallet balance')
       }
       
       const balanceBefore = balance
       const balanceAfter = balance.minus(investmentAmount)
       
-      // Update wallet
+      // Update wallet (deduct from P2P Wallet)
       await tx.wallet.update({
         where: { userId: session.userId },
-        data: { availableBalance: balanceAfter.toNumber() },
-        select: { id: true, availableBalance: true },
+        data: { p2pBalance: balanceAfter.toNumber() },
+        select: { id: true, p2pBalance: true },
       })
       
       // Create Investment
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(investment, { status: 201 })
   } catch (error: any) {
     console.error('Create investment error:', error)
-    if (error.message === 'Insufficient balance') {
+    if (error.message && error.message.includes('Insufficient')) {
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })

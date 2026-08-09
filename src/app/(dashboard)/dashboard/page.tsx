@@ -470,12 +470,12 @@ export default function DashboardPage() {
 
             <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs space-y-1">
               <div className="flex justify-between text-slate-300">
-                <span>Main Wallet Balance:</span>
-                <span className="font-bold text-emerald-400">${Number(wallet?.availableBalance || 0).toFixed(2)}</span>
+                <span>P2P Wallet Balance:</span>
+                <span className="font-bold text-emerald-400">${Number(wallet?.p2pBalance || 0).toFixed(2)}</span>
               </div>
-              {Number(wallet?.availableBalance || 0) < Number(config?.minInvestment || 5) && (
+              {Number(wallet?.p2pBalance || 0) < Number(config?.minInvestment || 5) && (
                 <p className="text-[11px] text-amber-400 mt-1 font-medium">
-                  ⚠️ Low balance. You can deposit funds via Deposit section.
+                  ⚠️ Low balance. You can deposit funds via <Link href="/deposits" className="underline font-semibold text-emerald-400 hover:text-emerald-300">Deposit section</Link>.
                 </p>
               )}
             </div>

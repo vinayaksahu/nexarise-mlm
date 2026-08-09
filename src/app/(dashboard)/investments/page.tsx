@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 export default function InvestmentsPage() {
   const [amount, setAmount] = useState('');
   const [investments, setInvestments] = useState<any[]>([]);
+  const [wallet, setWallet] = useState<any>(null);
   const [config, setConfig] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -21,9 +23,10 @@ export default function InvestmentsPage() {
   
   const loadInvestments = async () => {
     try {
-      const [invRes, planRes] = await Promise.all([
+      const [invRes, planRes, walletRes] = await Promise.all([
         fetch('/api/investments'),
-        fetch('/api/business-plan')
+        fetch('/api/business-plan'),
+        fetch('/api/wallet')
       ]);
       if (invRes.ok) {
         const invData = await invRes.json();
@@ -32,6 +35,10 @@ export default function InvestmentsPage() {
       if (planRes.ok) {
         const planData = await planRes.json();
         setConfig(planData);
+      }
+      if (walletRes.ok) {
+        const wData = await walletRes.json();
+        setWallet(wData.wallet);
       }
     } catch (e) {
       console.error(e);
@@ -148,6 +155,17 @@ export default function InvestmentsPage() {
       <Card>
         <CardHeader className="p-4 sm:p-6"><CardTitle>New Investment</CardTitle></CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0 space-y-4">
+          <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs space-y-1">
+            <div className="flex justify-between text-slate-300">
+              <span>P2P Wallet Balance:</span>
+              <span className="font-bold text-emerald-400">${Number(wallet?.p2pBalance || 0).toFixed(2)}</span>
+            </div>
+            {Number(wallet?.p2pBalance || 0) < Number(config?.minInvestment || 5) && (
+              <p className="text-[11px] text-amber-400 mt-1 font-medium">
+                ⚠️ Low balance. You can deposit funds via <Link href="/deposits" className="underline font-semibold text-emerald-400 hover:text-emerald-300">Deposit section</Link>.
+              </p>
+            )}
+          </div>
           <Input 
             type="number" 
             className="w-full text-sm py-2.5"
