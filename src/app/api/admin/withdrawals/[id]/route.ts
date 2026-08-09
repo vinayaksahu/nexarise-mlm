@@ -27,9 +27,19 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       return NextResponse.json({ error: 'Withdrawal not found' }, { status: 404 })
     }
 
+    if (withdrawal.status === 'REJECTED') {
+      return NextResponse.json({ error: 'Withdrawal is already rejected' }, { status: 400 })
+    }
+    if (withdrawal.status === 'PAID') {
+      return NextResponse.json({ error: 'Withdrawal is already paid' }, { status: 400 })
+    }
+    if (withdrawal.status === 'APPROVED' && status === 'APPROVED') {
+      return NextResponse.json({ error: 'Withdrawal is already approved' }, { status: 400 })
+    }
+
     let updatedWithdrawal
 
-    if (status === 'REJECTED' && ['PENDING', 'APPROVED'].includes(withdrawal.status)) {
+    if (status === 'REJECTED') {
       updatedWithdrawal = await db.$transaction(async (tx) => {
         const wd = await tx.withdrawal.update({
           where: { id },
@@ -54,7 +64,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
         await tx.wallet.update({
           where: { userId: withdrawal.userId },
-          data: { availableBalance: balanceAfterDec.toString() },
+          data: { availableBalance: balanceAfterDec.toNumber() },
           select: { id: true, availableBalance: true },
         })
 
@@ -62,10 +72,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
           data: {
             userId: withdrawal.userId,
             type: 'REFUND',
-            amount: amountDec.toString(),
+            amount: amountDec.toNumber(),
             status: 'COMPLETED',
-            balanceBefore: balanceBeforeDec.toString(),
-            balanceAfter: balanceAfterDec.toString(),
+            balanceBefore: balanceBeforeDec.toNumber(),
+            balanceAfter: balanceAfterDec.toNumber(),
             referenceKey: `RFD-WD-${id}`,
             description: `Refund for rejected withdrawal #${id}`,
             createdAt: new Date(),
@@ -74,7 +84,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
         return wd
       })
-    } else if (['APPROVED', 'PAID'].includes(status)) {
+    } else if (status === 'APPROVED' || status === 'PAID') {
       updatedWithdrawal = await db.withdrawal.update({
         where: { id },
         data: {
@@ -85,7 +95,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         }
       })
     } else {
-       return NextResponse.json({ error: 'Invalid state transition' }, { status: 400 })
+      return NextResponse.json({ error: 'Invalid state transition' }, { status: 400 })
     }
 
     await logAudit({

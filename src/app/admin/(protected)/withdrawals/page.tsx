@@ -77,33 +77,35 @@ export default function AdminWithdrawalsPage() {
                 <th className="p-4 text-left">Amount</th>
                 <th className="p-4 text-left">Fee</th>
                 <th className="p-4 text-left">Net</th>
+                <th className="p-4 text-left">Receiving Address / Method</th>
                 <th className="p-4 text-left">Status</th>
-                <th className="p-4 text-left">Date</th>
+                <th className="p-4 text-left">Date / Time</th>
                 <th className="p-4 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
               {withdrawals.map(w => (
                 <tr key={w.id} className="border-b">
-                  <td className="p-4 text-sm">{w.id.substring(0, 8)}</td>
+                  <td className="p-4 text-sm font-mono">{w.id.substring(0, 8)}</td>
                   <td className="p-4">
-                    <div>{w.user?.name}</div>
-                    <div className="text-sm text-gray-500">@{w.user?.username}</div>
+                    <div className="font-semibold">{w.user?.name || 'User'}</div>
+                    <div className="text-xs text-gray-500">@{w.user?.username || 'user'}</div>
                   </td>
-                  <td className="p-4">${Number(w.amount).toFixed(2)}</td>
-                  <td className="p-4">${Number(w.fee).toFixed(2)}</td>
-                  <td className="p-4 font-bold">${Number(w.netAmount).toFixed(2)}</td>
-                  <td className="p-4"><Badge>{w.status}</Badge></td>
-                  <td className="p-4">{new Date(w.createdAt).toLocaleDateString()}</td>
+                  <td className="p-4 font-semibold">${Number(w.amount).toFixed(2)}</td>
+                  <td className="p-4 text-xs text-slate-400">${Number(w.fee).toFixed(2)}</td>
+                  <td className="p-4 font-bold text-emerald-500">${Number(w.netAmount).toFixed(2)}</td>
+                  <td className="p-4 text-xs font-mono break-all max-w-[200px]">{w.method || 'USDT (BEP-20)'}</td>
+                  <td className="p-4"><Badge variant={w.status === 'APPROVED' || w.status === 'PAID' ? 'success' : w.status === 'PENDING' ? 'warning' : 'danger'}>{w.status}</Badge></td>
+                  <td className="p-4 text-xs text-slate-400">{new Date(w.createdAt).toLocaleString()}</td>
                   <td className="p-4 space-x-2">
                     {w.status === 'PENDING' && (
                       <>
-                        <Button size="sm" onClick={() => handleAction(w.id, 'approve')}>Approve</Button>
+                        <Button size="sm" variant="primary" onClick={() => handleAction(w.id, 'approve')}>Approve</Button>
                         <Button size="sm" variant="danger" onClick={() => setSelectedWithdrawalId(w.id)}>Reject</Button>
                       </>
                     )}
                     {w.status === 'APPROVED' && (
-                      <Button size="sm" onClick={() => handleAction(w.id, 'paid')}>Mark Paid</Button>
+                      <Button size="sm" variant="primary" onClick={() => handleAction(w.id, 'paid')}>Mark Paid</Button>
                     )}
                   </td>
                 </tr>

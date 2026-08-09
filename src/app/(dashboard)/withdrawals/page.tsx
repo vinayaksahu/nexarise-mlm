@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 export default function WithdrawalsPage() {
   const [amount, setAmount] = useState('');
   const [method, setMethod] = useState('USDT (BEP-20)');
+  const [walletAddress, setWalletAddress] = useState('');
   const [config, setConfig] = useState<any>(null);
   const [wallet, setWallet] = useState<any>(null);
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
@@ -55,12 +56,23 @@ export default function WithdrawalsPage() {
       return;
     }
 
+    if (!walletAddress.trim()) {
+      setMessage('Please enter your receiving wallet address');
+      setMessageType('error');
+      setShowPopup(true);
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const res = await fetch('/api/withdrawals', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: Number(amount), method }),
+        body: JSON.stringify({ 
+          amount: Number(amount), 
+          method,
+          walletAddress: walletAddress.trim()
+        }),
       });
 
       const data = await res.json();
@@ -69,6 +81,7 @@ export default function WithdrawalsPage() {
         setMessage('Withdrawal request submitted successfully! Your request is pending admin approval.');
         setMessageType('success');
         setAmount('');
+        setWalletAddress('');
         fetchData();
       } else {
         setMessage(data.error || 'Failed to submit withdrawal request');
@@ -99,7 +112,8 @@ export default function WithdrawalsPage() {
       <Card>
         <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4"><CardTitle>Withdrawal Information</CardTitle></CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0 space-y-1">
-          <p className="text-sm">Available Balance: <span className="font-bold text-emerald-600 dark:text-emerald-400">${wallet?.availableBalance ? Number(wallet.availableBalance).toFixed(2) : '0.00'}</span></p>
+          <p className="text-sm">Available Main Wallet Balance: <span className="font-bold text-emerald-600 dark:text-emerald-400">${wallet?.availableBalance ? Number(wallet.availableBalance).toFixed(2) : '0.00'}</span></p>
+          <p className="text-sm text-slate-400 text-xs">Note: Withdrawals are funded strictly from Main Wallet balance.</p>
           <p className="text-sm">Min Withdrawal: <span className="font-medium">${config?.minWithdrawal || 5}</span></p>
           {config?.showWithdrawalFee && <p className="text-sm">Fee: <span className="font-medium">{feePercent}%</span></p>}
         </CardContent>
@@ -108,7 +122,20 @@ export default function WithdrawalsPage() {
       <Card>
         <CardHeader className="p-4 sm:p-6"><CardTitle>Request Withdrawal</CardTitle></CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0 space-y-4">
-          <Input type="number" className="w-full text-sm py-2.5" placeholder="Amount (USDT)" value={amount} onChange={e => setAmount(e.target.value)} />
+          <Input 
+            type="number" 
+            className="w-full text-sm py-2.5" 
+            placeholder="Amount (USDT)" 
+            value={amount} 
+            onChange={e => setAmount(e.target.value)} 
+          />
+          <Input 
+            type="text" 
+            className="w-full text-sm py-2.5 font-mono" 
+            placeholder="USDT (BEP-20) Receiving Wallet Address (0x...)" 
+            value={walletAddress} 
+            onChange={e => setWalletAddress(e.target.value)} 
+          />
           {config?.showWithdrawalFee && (
             <p className="text-sm text-muted">Fee: ${fee.toFixed(2)} | Net Amount: <span className="font-semibold text-gray-900 dark:text-white">${netAmount.toFixed(2)}</span></p>
           )}
@@ -132,6 +159,7 @@ export default function WithdrawalsPage() {
                   <th className="py-2.5 px-3">Amount</th>
                   <th className="py-2.5 px-3">Fee</th>
                   <th className="py-2.5 px-3">Net</th>
+                  <th className="py-2.5 px-3">Destination / Method</th>
                   <th className="py-2.5 px-3">Status</th>
                   <th className="py-2.5 px-3">Date</th>
                 </tr>
@@ -139,7 +167,7 @@ export default function WithdrawalsPage() {
               <tbody>
                 {withdrawals.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-6 text-center text-muted">
+                    <td colSpan={7} className="py-6 text-center text-muted">
                       <p className="text-2xl mb-1">📤</p>
                       <p className="text-sm">No withdrawal history yet.</p>
                     </td>
@@ -150,12 +178,13 @@ export default function WithdrawalsPage() {
                       <td className="py-2.5 px-3 font-mono text-xs">{w.id.substring(0, 8)}</td>
                       <td className="py-2.5 px-3 font-semibold">${Number(w.amount).toFixed(2)}</td>
                       <td className="py-2.5 px-3">${Number(w.fee).toFixed(2)}</td>
-                      <td className="py-2.5 px-3 font-bold">${Number(w.netAmount).toFixed(2)}</td>
+                      <td className="py-2.5 px-3 font-bold text-emerald-500">${Number(w.netAmount).toFixed(2)}</td>
+                      <td className="py-2.5 px-3 text-xs font-mono break-all max-w-[200px]">{w.method || 'USDT (BEP-20)'}</td>
                       <td className="py-2.5 px-3">
                         <Badge variant={statusVariant(w.status)}>{w.status}</Badge>
                       </td>
                       <td className="py-2.5 px-3 text-xs text-muted">
-                        {new Date(w.createdAt).toLocaleDateString()}
+                        {new Date(w.createdAt).toLocaleString()}
                       </td>
                     </tr>
                   ))

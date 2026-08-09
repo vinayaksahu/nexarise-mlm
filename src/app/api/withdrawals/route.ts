@@ -8,6 +8,7 @@ import { z } from 'zod'
 const withdrawalSchema = z.object({
   amount: z.number().positive(),
   method: z.string().min(1),
+  walletAddress: z.string().optional(),
 })
 
 export async function GET(request: NextRequest) {
@@ -43,7 +44,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid data' }, { status: 400 })
     }
     
-    const { amount, method } = result.data
+    const { amount, method, walletAddress } = result.data
+    const fullMethod = walletAddress ? `${method} - ${walletAddress}` : method
     const config = await getBusinessConfig()
     
     if (amount < config.minWithdrawal) {
@@ -91,7 +93,7 @@ export async function POST(request: NextRequest) {
           amount: withdrawalAmount.toNumber(),
           fee: fee.toNumber(),
           netAmount: netAmount.toNumber(),
-          method,
+          method: fullMethod,
           status: 'PENDING',
           createdAt: new Date(),
         },
