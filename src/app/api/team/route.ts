@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
 
     const directReferrals = await db.user.findMany({
       where: { sponsorId: session.userId },
+      orderBy: { createdAt: 'desc' },
       select: {
         id: true,
         username: true,
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
         createdAt: true,
         investments: {
           where: { status: 'ACTIVE' },
-          select: { amount: true }
+          select: { amount: true, status: true }
         }
       },
     })

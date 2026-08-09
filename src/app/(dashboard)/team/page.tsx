@@ -61,7 +61,10 @@ export default function TeamPage() {
   }
 
   const directs = team?.directReferrals || [];
-  const activeDirects = directs.filter((d: any) => d.status === 'ACTIVE').length;
+  const activeDirects = directs.filter((d: any) => {
+    const hasActiveInvestment = (d.investments || []).some((inv: any) => Number(inv.amount) > 0);
+    return d.status === 'ACTIVE' && hasActiveInvestment;
+  }).length;
   const businessVolume = team?.businessVolume || {};
 
   return (
@@ -174,23 +177,26 @@ export default function TeamPage() {
                 <tbody>
                   {directs.map((m: any, idx: number) => {
                     const activeInvSum = (m.investments || []).reduce((acc: number, curr: any) => acc + Number(curr.amount), 0);
+                    const isEffectiveActive = m.status === 'ACTIVE' && activeInvSum > 0;
+                    const effectiveStatus = isEffectiveActive ? 'ACTIVE' : (m.status === 'SUSPENDED' ? 'SUSPENDED' : 'INACTIVE');
+                    
                     return (
                       <tr key={m.id} className="border-b border-border/50 hover:bg-gray-50 dark:hover:bg-slate-800/50">
                         <td className="py-3 px-3 text-muted">{idx + 1}</td>
                         <td className="py-3 px-3 font-semibold text-gray-900 dark:text-white">{m.name}</td>
                         <td className="py-3 px-3 font-mono text-xs text-primary">@{m.username}</td>
                         <td className="py-3 px-3 text-muted text-xs">{m.email}</td>
-                        <td className="py-3 px-3 text-muted text-xs">{m.mobile || 'N/A'}</td>
+                        <td className="py-3 px-3 text-muted text-xs">{m.mobile || 'NA'}</td>
                         <td className="py-3 px-3 font-semibold text-emerald-600 dark:text-emerald-400">
                           ${activeInvSum.toFixed(2)}
                         </td>
                         <td className="py-3 px-3">
-                          <Badge variant={m.status === 'ACTIVE' ? 'success' : 'default'}>
-                            {m.status}
+                          <Badge variant={effectiveStatus === 'ACTIVE' ? 'success' : effectiveStatus === 'SUSPENDED' ? 'danger' : 'warning'}>
+                            {effectiveStatus}
                           </Badge>
                         </td>
                         <td className="py-3 px-3 text-xs text-muted">
-                          {new Date(m.createdAt).toLocaleDateString()}
+                          {new Date(m.createdAt).toLocaleString()}
                         </td>
                       </tr>
                     );
