@@ -74,7 +74,7 @@ export default function AdminInvestmentsPage() {
                     </td>
                     <td className="p-4 font-bold">${Number(inv.amount).toFixed(2)}</td>
                     <td className="p-4"><Badge>{inv.status}</Badge></td>
-                    <td className="p-4">{new Date(inv.startDate).toLocaleDateString()}</td>
+                    <td className="p-4">{new Date(inv.startDate).toLocaleString()}</td>
                     <td className="p-4">{inv.planVersion?.config?.dailyRoiPercent || 0}%</td>
                     <td className="p-4 text-green-600">${earnedRoi.toFixed(2)}</td>
                   </tr>
