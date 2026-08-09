@@ -116,116 +116,215 @@ export default function DashboardPage() {
       </Card>
 
       {/* Financial Stat Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
-        <Card className="sm:col-span-2 lg:col-span-2 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500/30">
-          <CardContent className="p-3 sm:p-4">
-            <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
-              Total Available Balance (Main + P2P)
-            </p>
-            <p className="text-xl sm:text-3xl font-bold truncate mt-0.5 text-emerald-600 dark:text-emerald-400">
-              ${((Number(wallet?.availableBalance || 0)) + (Number(wallet?.p2pBalance || 0))).toFixed(2)}
-            </p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+        <Link href="/wallet" className="sm:col-span-2 lg:col-span-2">
+          <Card className="h-full bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500/30 hover:border-emerald-500/60 transition-all cursor-pointer">
+            <CardContent className="p-3 sm:p-4">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center justify-between">
+                <span>Total Available Balance (Main + P2P)</span>
+                <span className="text-[10px] text-emerald-500">View Wallet →</span>
+              </p>
+              <p className="text-xl sm:text-3xl font-bold truncate mt-0.5 text-emerald-600 dark:text-emerald-400">
+                ${((Number(wallet?.availableBalance || 0)) + (Number(wallet?.p2pBalance || 0))).toFixed(2)}
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card>
-          <CardContent className="p-3 sm:p-4">
-            <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
-              Main Wallet Balance
-            </p>
-            <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-emerald-600 dark:text-emerald-400">
-              ${wallet?.availableBalance ? Number(wallet.availableBalance).toFixed(2) : '0.00'}
-            </p>
-          </CardContent>
-        </Card>
+        <Link href="/wallet">
+          <Card className="h-full hover:border-primary/50 transition-all cursor-pointer">
+            <CardContent className="p-3 sm:p-4">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+                Main Wallet Balance
+              </p>
+              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-emerald-600 dark:text-emerald-400">
+                ${wallet?.availableBalance ? Number(wallet.availableBalance).toFixed(2) : '0.00'}
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card>
-          <CardContent className="p-3 sm:p-4">
-            <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
-              P2P Balance
-            </p>
-            <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-cyan-600 dark:text-cyan-400">
-              ${wallet?.p2pBalance ? Number(wallet.p2pBalance).toFixed(2) : '0.00'}
-            </p>
-          </CardContent>
-        </Card>
+        <Link href="/p2p">
+          <Card className="h-full hover:border-cyan-500/50 transition-all cursor-pointer">
+            <CardContent className="p-3 sm:p-4">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+                P2P Balance
+              </p>
+              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-cyan-600 dark:text-cyan-400">
+                ${wallet?.p2pBalance ? Number(wallet.p2pBalance).toFixed(2) : '0.00'}
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card>
-          <CardContent className="p-3 sm:p-4">
-            <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
-              Total ROI Income
-            </p>
-            <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-primary dark:text-primary-light">
-              ${wallet?.roiIncome ? Number(wallet.roiIncome).toFixed(2) : '0.00'}
-            </p>
-          </CardContent>
-        </Card>
+        <Link href="/self-roi">
+          <Card className="h-full hover:border-primary/50 transition-all cursor-pointer">
+            <CardContent className="p-3 sm:p-4">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+                Today's ROI Income
+              </p>
+              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-emerald-500">
+                ${wallet?.todaysRoi ? Number(wallet.todaysRoi).toFixed(2) : '0.00'}
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card>
-          <CardContent className="p-3 sm:p-4">
-            <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
-              Total Level Income
-            </p>
-            <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-accent dark:text-accent-light">
-              ${wallet?.levelIncome ? Number(wallet.levelIncome).toFixed(2) : '0.00'}
-            </p>
-          </CardContent>
-        </Card>
+        <Link href="/self-roi">
+          <Card className="h-full hover:border-primary/50 transition-all cursor-pointer">
+            <CardContent className="p-3 sm:p-4">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+                Total ROI Income
+              </p>
+              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-primary dark:text-primary-light">
+                ${wallet?.roiIncome ? Number(wallet.roiIncome).toFixed(2) : '0.00'}
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card>
-          <CardContent className="p-3 sm:p-4">
-            <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
-              Total Reward Income
-            </p>
-            <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-amber-500">
-              ${wallet?.rewardIncome ? Number(wallet.rewardIncome).toFixed(2) : '0.00'}
-            </p>
-          </CardContent>
-        </Card>
+        <Link href="/level-income">
+          <Card className="h-full hover:border-accent/50 transition-all cursor-pointer">
+            <CardContent className="p-3 sm:p-4">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+                Total Level Income
+              </p>
+              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-accent dark:text-accent-light">
+                ${wallet?.levelIncome ? Number(wallet.levelIncome).toFixed(2) : '0.00'}
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card>
-          <CardContent className="p-3 sm:p-4">
-            <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
-              Total Earnings
-            </p>
-            <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-indigo-600 dark:text-indigo-400">
-              ${wallet?.totalIncome ? Number(wallet.totalIncome).toFixed(2) : '0.00'}
-            </p>
-          </CardContent>
-        </Card>
+        <Link href="/rewards">
+          <Card className="h-full hover:border-amber-500/50 transition-all cursor-pointer">
+            <CardContent className="p-3 sm:p-4">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+                Total Reward Income
+              </p>
+              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-amber-500">
+                ${wallet?.rewardIncome ? Number(wallet.rewardIncome).toFixed(2) : '0.00'}
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card>
-          <CardContent className="p-3 sm:p-4">
-            <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
-              Total Withdrawals
-            </p>
-            <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-gray-700 dark:text-gray-300">
-              ${wallet?.totalWithdrawals ? Number(wallet.totalWithdrawals).toFixed(2) : '0.00'}
-            </p>
-          </CardContent>
-        </Card>
+        <Link href="/transactions">
+          <Card className="h-full hover:border-indigo-500/50 transition-all cursor-pointer">
+            <CardContent className="p-3 sm:p-4">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+                Total Earnings
+              </p>
+              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-indigo-600 dark:text-indigo-400">
+                ${wallet?.totalIncome ? Number(wallet.totalIncome).toFixed(2) : '0.00'}
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card>
-          <CardContent className="p-3 sm:p-4">
-            <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
-              Direct Referrals
-            </p>
-            <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-blue-600 dark:text-blue-400">
-              {team?.directReferrals?.length || 0}
-            </p>
-          </CardContent>
-        </Card>
+        <Link href="/investments">
+          <Card className="h-full hover:border-emerald-500/50 transition-all cursor-pointer">
+            <CardContent className="p-3 sm:p-4">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+                Total Investments
+              </p>
+              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-emerald-500">
+                ${wallet?.totalInvestments ? Number(wallet.totalInvestments).toFixed(2) : '0.00'}
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card>
-          <CardContent className="p-3 sm:p-4">
-            <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
-              Total Business Volume
-            </p>
-            <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-purple-600 dark:text-purple-400">
-              ${team?.businessVolume?.totalBusiness ? Number(team.businessVolume.totalBusiness).toFixed(2) : '0.00'}
-            </p>
-          </CardContent>
-        </Card>
+        <Link href="/p2p">
+          <Card className="h-full hover:border-red-500/50 transition-all cursor-pointer">
+            <CardContent className="p-3 sm:p-4">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+                Total P2P Sent
+              </p>
+              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-red-500">
+                ${wallet?.totalP2pSent ? Number(wallet.totalP2pSent).toFixed(2) : '0.00'}
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/p2p">
+          <Card className="h-full hover:border-cyan-500/50 transition-all cursor-pointer">
+            <CardContent className="p-3 sm:p-4">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+                Total P2P Received
+              </p>
+              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-cyan-500">
+                ${wallet?.totalP2pReceived ? Number(wallet.totalP2pReceived).toFixed(2) : '0.00'}
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/withdrawals">
+          <Card className="h-full hover:border-gray-500/50 transition-all cursor-pointer">
+            <CardContent className="p-3 sm:p-4">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+                Total Withdrawals
+              </p>
+              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-gray-700 dark:text-gray-300">
+                ${wallet?.totalWithdrawals ? Number(wallet.totalWithdrawals).toFixed(2) : '0.00'}
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/team">
+          <Card className="h-full hover:border-blue-500/50 transition-all cursor-pointer">
+            <CardContent className="p-3 sm:p-4">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+                Direct Referrals
+              </p>
+              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-blue-600 dark:text-blue-400">
+                {team?.directReferrals?.length || 0}
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/team">
+          <Card className="h-full hover:border-purple-500/50 transition-all cursor-pointer">
+            <CardContent className="p-3 sm:p-4">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+                Total Team Business
+              </p>
+              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-purple-600 dark:text-purple-400">
+                ${team?.businessVolume?.totalBusiness ? Number(team.businessVolume.totalBusiness).toFixed(2) : '0.00'}
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/team">
+          <Card className="h-full hover:border-purple-500/50 transition-all cursor-pointer">
+            <CardContent className="p-3 sm:p-4">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+                Strong Leg Business
+              </p>
+              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-purple-500">
+                ${team?.businessVolume?.strongLeg ? Number(team.businessVolume.strongLeg).toFixed(2) : '0.00'}
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/team">
+          <Card className="h-full hover:border-amber-500/50 transition-all cursor-pointer">
+            <CardContent className="p-3 sm:p-4">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+                Weak Leg Business
+              </p>
+              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-amber-500">
+                ${team?.businessVolume?.weakLeg ? Number(team.businessVolume.weakLeg).toFixed(2) : '0.00'}
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       {/* Quick Action Banner */}
