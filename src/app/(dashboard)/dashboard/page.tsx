@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 
 export default function DashboardPage() {
@@ -15,49 +16,91 @@ export default function DashboardPage() {
   const [investments, setInvestments] = useState<any[]>([]);
   const [copied, setCopied] = useState(false);
   const [origin, setOrigin] = useState('');
+  const [config, setConfig] = useState<any>(null);
+  const [showInvestModal, setShowInvestModal] = useState(false);
+  const [investAmount, setInvestAmount] = useState('');
+  const [submittingInvest, setSubmittingInvest] = useState(false);
+  const [investMsg, setInvestMsg] = useState({ text: '', type: '' as 'success' | 'error' | '' });
+
+  async function loadData() {
+    try {
+      const [resUser, resWallet, resTeam, resTx, resInv, resPlan] = await Promise.all([
+        fetch('/api/auth/me'),
+        fetch('/api/wallet'),
+        fetch('/api/team'),
+        fetch('/api/transactions?limit=5'),
+        fetch('/api/investments'),
+        fetch('/api/business-plan'),
+      ]);
+
+      if (resUser.ok) {
+        const u = await resUser.json();
+        setUser(u.user);
+      }
+      if (resWallet.ok) {
+        const w = await resWallet.json();
+        setWallet(w.wallet);
+      }
+      if (resTeam.ok) {
+        const t = await resTeam.json();
+        setTeam(t);
+      }
+      if (resTx.ok) {
+        const tx = await resTx.json();
+        setTransactions(tx.entries || []);
+      }
+      if (resInv.ok) {
+        const inv = await resInv.json();
+        setInvestments(inv.investments || (Array.isArray(inv) ? inv : []));
+      }
+      if (resPlan.ok) {
+        const plan = await resPlan.json();
+        setConfig(plan);
+      }
+    } catch (err) {
+      console.error('Failed to load dashboard data:', err);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     setOrigin(window.location.origin);
-    
-    async function loadData() {
-      try {
-        const [resUser, resWallet, resTeam, resTx, resInv] = await Promise.all([
-          fetch('/api/auth/me'),
-          fetch('/api/wallet'),
-          fetch('/api/team'),
-          fetch('/api/transactions?limit=5'),
-          fetch('/api/investments'),
-        ]);
-
-        if (resUser.ok) {
-          const u = await resUser.json();
-          setUser(u.user);
-        }
-        if (resWallet.ok) {
-          const w = await resWallet.json();
-          setWallet(w.wallet);
-        }
-        if (resTeam.ok) {
-          const t = await resTeam.json();
-          setTeam(t);
-        }
-        if (resTx.ok) {
-          const tx = await resTx.json();
-          setTransactions(tx.entries || []);
-        }
-        if (resInv.ok) {
-          const inv = await resInv.json();
-          setInvestments(inv.investments || []);
-        }
-      } catch (err) {
-        console.error('Failed to load dashboard data:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
     loadData();
   }, []);
+
+  const handleDashboardInvest = async () => {
+    setInvestMsg({ text: '', type: '' });
+    if (!investAmount || Number(investAmount) <= 0) {
+      setInvestMsg({ text: 'Please enter a valid investment amount.', type: 'error' });
+      return;
+    }
+
+    setSubmittingInvest(true);
+    try {
+      const res = await fetch('/api/investments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: Number(investAmount) })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setInvestMsg({ text: `🎉 Investment of $${Number(investAmount).toFixed(2)} successful! Account activated!`, type: 'success' });
+        setInvestAmount('');
+        await loadData();
+        setTimeout(() => {
+          setShowInvestModal(false);
+          setInvestMsg({ text: '', type: '' });
+        }, 1800);
+      } else {
+        setInvestMsg({ text: data.error || 'Investment failed', type: 'error' });
+      }
+    } catch (e: any) {
+      setInvestMsg({ text: 'Error processing investment. Please try again.', type: 'error' });
+    } finally {
+      setSubmittingInvest(false);
+    }
+  };
 
   const refCode = user?.referralCode || '';
   const refLink = `${origin}/register?ref=${refCode}`;
@@ -84,15 +127,27 @@ export default function DashboardPage() {
         <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
           Welcome back, {user?.name || 'User'}! 👋
         </h1>
-        {(() => {
-          const hasActiveInvestment = investments.some((inv: any) => inv.status === 'ACTIVE' && Number(inv.amount) > 0);
-          const isAccountActive = user?.status === 'ACTIVE' && hasActiveInvestment;
-          return isAccountActive ? (
-            <span className="inline-block mt-2 px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Account Status: Active</span>
-          ) : (
-            <span className="inline-block mt-2 px-2.5 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Account Status: Inactive</span>
-          );
-        })()}
+        <div className="flex flex-wrap items-center gap-2 mt-2">
+          {(() => {
+            const hasActiveInvestment = investments.some((inv: any) => inv.status === 'ACTIVE' && Number(inv.amount) > 0);
+            const isAccountActive = user?.status === 'ACTIVE' && hasActiveInvestment;
+            return isAccountActive ? (
+              <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Account Status: Active</span>
+            ) : (
+              <>
+                <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Account Status: Inactive</span>
+                <Button 
+                  size="sm" 
+                  variant="primary" 
+                  className="text-xs py-1 px-3 shadow-md hover:scale-105 transition-transform" 
+                  onClick={() => setShowInvestModal(true)}
+                >
+                  ⚡ Activate Account
+                </Button>
+              </>
+            );
+          })()}
+        </div>
         <p className="text-muted text-sm mt-1">Here is your live account overview and growth metrics.</p>
       </div>
 
@@ -395,6 +450,71 @@ export default function DashboardPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* New Investment / Activate Account Modal Popup */}
+      {showInvestModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5 text-left text-white relative">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <span>📈 New Investment</span>
+              </h2>
+              <button 
+                onClick={() => { setShowInvestModal(false); setInvestMsg({ text: '', type: '' }); }}
+                className="text-slate-400 hover:text-white font-bold text-lg p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs space-y-1">
+              <div className="flex justify-between text-slate-300">
+                <span>Main Wallet Balance:</span>
+                <span className="font-bold text-emerald-400">${Number(wallet?.availableBalance || 0).toFixed(2)}</span>
+              </div>
+              {Number(wallet?.availableBalance || 0) < Number(config?.minInvestment || 5) && (
+                <p className="text-[11px] text-amber-400 mt-1 font-medium">
+                  ⚠️ Low balance. You can deposit funds via Deposit section.
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs text-slate-400 font-medium mb-1.5">Investment Amount</label>
+                <Input 
+                  type="number" 
+                  className="w-full text-base py-3 bg-slate-950 border-slate-700 text-white placeholder:text-slate-500 rounded-xl"
+                  placeholder={`Amount ($${config?.minInvestment || 5} - $${config?.maxInvestment || 1000})`} 
+                  value={investAmount} 
+                  onChange={(e: any) => setInvestAmount(e.target.value)} 
+                />
+              </div>
+
+              <p className="text-sm text-slate-300">
+                Expected ROI: <span className="font-bold text-emerald-400">${(Number(investAmount || 0) * (config?.totalRoiPercentage ? (config.totalRoiPercentage/100) : 2)).toFixed(2)}</span> ({config?.totalRoiPercentage || 200}%)
+              </p>
+
+              {investMsg.text && (
+                <div className={`p-3 rounded-xl text-xs font-medium ${investMsg.type === 'success' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30'}`}>
+                  {investMsg.text}
+                </div>
+              )}
+
+              <div className="flex gap-2 pt-2">
+                <Button 
+                  onClick={handleDashboardInvest} 
+                  disabled={submittingInvest} 
+                  variant="primary" 
+                  className="w-full py-3 text-sm font-semibold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg"
+                >
+                  {submittingInvest ? 'Processing Investment...' : 'Submit Investment'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
