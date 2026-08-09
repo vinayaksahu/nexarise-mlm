@@ -98,8 +98,12 @@ export async function checkAndClaimEligibleRewards(userId: string) {
     if (claimedSet.has(reward.id)) continue
 
     const requiredBus = new Decimal(reward.businessRequired.toString())
-    // 40% strong leg + 60% weak leg rule, OR total business rule
-    if (totalBusiness.gte(requiredBus)) {
+    const halfRequired = requiredBus.div(2)
+
+    // 50/50 two-leg business rule: Strong Leg >= 50% AND Weak Leg >= 50% AND Total Business >= required
+    const qualifies = totalBusiness.gte(requiredBus) && strongLeg.gte(halfRequired) && weakLeg.gte(halfRequired)
+
+    if (qualifies) {
       // User qualifies for this reward!
       const rewardAmt = new Decimal(reward.rewardAmount.toString())
       const referenceKey = `RWD-${userId}-${reward.id}`

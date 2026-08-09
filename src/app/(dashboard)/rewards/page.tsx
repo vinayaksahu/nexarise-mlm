@@ -109,25 +109,26 @@ export default function RewardsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Rank Reward Slabs</CardTitle>
-          <CardDescription>Achieve required business volume to claim cash bonuses directly to your wallet.</CardDescription>
+          <CardDescription>Achieve required business volume with 50/50 two-leg balance to claim cash bonuses directly to your wallet.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {rewards.map((r: any) => {
             const req = Number(r.businessRequired);
+            const halfReq = req / 2;
             const amt = Number(r.rewardAmount);
             const isClaimed = claimedSet.has(r.id);
-            const isQualified = totalBus >= req;
+            const isQualified = totalBus >= req && strongLeg >= halfReq && weakLeg >= halfReq;
             const pct = Math.min(100, Math.round((totalBus / req) * 100));
 
             return (
               <div key={r.id} className="p-4 bg-gray-50 dark:bg-slate-900 border border-border rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex-1 space-y-1.5 w-full">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-gray-900 dark:text-white text-base">{r.name}</span>
+                    <span className="font-semibold text-gray-900 dark:text-white text-base">{r.name} Rank</span>
                     <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Bonus: ${fmt(amt)}</span>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-muted">
-                    <span>Target Volume: ${fmt(req)}</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-muted gap-1">
+                    <span>Target: ${fmt(req)} (Min Strong: ${fmt(halfReq)} | Min Weak: ${fmt(halfReq)})</span>
                     <span>{pct}% ({fmt(totalBus)} / ${fmt(req)})</span>
                   </div>
                   <div className="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-2">
@@ -147,6 +148,58 @@ export default function RewardsPage() {
               </div>
             );
           })}
+        </CardContent>
+      </Card>
+
+      {/* Claimed Rewards History */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Claimed Rewards History</CardTitle>
+          <CardDescription>History of milestone cash bonuses credited to your Main Wallet.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {claimedRewards.length === 0 ? (
+            <div className="text-center py-8 text-muted">
+              <p className="text-3xl mb-1">🎁</p>
+              <p className="text-sm font-medium">No claimed rewards yet.</p>
+              <p className="text-xs text-muted mt-1">Claimed milestone bonuses will appear here once achieved.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+              <table className="w-full text-left text-sm min-w-[650px]">
+                <thead>
+                  <tr className="border-b border-border text-muted">
+                    <th className="py-2.5 px-3">Rank</th>
+                    <th className="py-2.5 px-3">Reward Amount</th>
+                    <th className="py-2.5 px-3">Required Business</th>
+                    <th className="py-2.5 px-3">Date & Time</th>
+                    <th className="py-2.5 px-3">Ref Key</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {claimedRewards.map((c: any) => (
+                    <tr key={c.id} className="border-b border-border/50 hover:bg-gray-50 dark:hover:bg-slate-800/50">
+                      <td className="py-2.5 px-3 font-semibold text-gray-900 dark:text-white">
+                        <Badge variant="success">{c.rewardDefinition?.name || 'Rank Reward'}</Badge>
+                      </td>
+                      <td className="py-2.5 px-3 font-semibold text-emerald-600 dark:text-emerald-400">
+                        +${fmt(c.amount)}
+                      </td>
+                      <td className="py-2.5 px-3 text-muted">
+                        ${fmt(c.rewardDefinition?.businessRequired)}
+                      </td>
+                      <td className="py-2.5 px-3 text-xs text-muted">
+                        {new Date(c.createdAt).toLocaleString()}
+                      </td>
+                      <td className="py-2.5 px-3 font-mono text-xs text-muted">
+                        {c.referenceKey || '-'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
