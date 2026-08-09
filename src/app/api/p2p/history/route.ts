@@ -23,7 +23,12 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: 'desc' }
     })
 
-    return NextResponse.json(history)
+    const enrichedHistory = history.map(h => ({
+      ...h,
+      type: h.senderId === session.userId ? 'P2P_SENT' : 'P2P_RECEIVED'
+    }))
+
+    return NextResponse.json({ transactions: enrichedHistory })
   } catch (error) {
     console.error('P2P History Error:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })

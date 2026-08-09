@@ -7,6 +7,8 @@ import { Card } from '@/components/ui/card';
 export default function AdminRewardsPage() {
   const [rewards, setRewards] = useState<any[]>([]);
   const [triggering, setTriggering] = useState(false);
+  const [msg, setMsg] = useState({ text: '', type: '' as 'success' | 'error' | '' });
+  const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
     fetchRewards();
@@ -24,20 +26,23 @@ export default function AdminRewardsPage() {
     }
   };
 
-  const handleTriggerRewards = async () => {
-    if (!confirm('Are you sure you want to trigger system-wide rewards calculation? This might take a while.')) return;
-    
+  const handleTriggerRewards = () => {
+    setShowConfirm(true);
+  };
+
+  const executeRewardsTrigger = async () => {
     setTriggering(true);
+    setMsg({ text: '', type: '' });
     try {
       const res = await fetch('/api/rewards', { method: 'POST' });
       if (res.ok) {
-        alert('Rewards processed successfully!');
+        setMsg({ text: '🎉 Rewards processed successfully!', type: 'success' });
       } else {
-        alert('Failed to process rewards.');
+        setMsg({ text: 'Failed to process rewards.', type: 'error' });
       }
     } catch (e) {
       console.error(e);
-      alert('Error triggering rewards.');
+      setMsg({ text: 'Error triggering rewards.', type: 'error' });
     } finally {
       setTriggering(false);
     }
@@ -51,6 +56,25 @@ export default function AdminRewardsPage() {
           {triggering ? 'Processing...' : 'Trigger Rewards Calculation'}
         </Button>
       </div>
+
+      {msg.text && (
+        <div className={`p-4 rounded-md ${msg.type === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'}`}>
+          {msg.text}
+        </div>
+      )}
+
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+          <Card className="p-6 max-w-md w-full space-y-4 bg-white dark:bg-slate-900 border border-slate-700 animate-fade-in">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">⚠️ Confirm Action</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">Are you sure you want to trigger system-wide rewards calculation? This might take a while.</p>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setShowConfirm(false)}>Cancel</Button>
+              <Button onClick={() => { setShowConfirm(false); executeRewardsTrigger(); }}>Confirm</Button>
+            </div>
+          </Card>
+        </div>
+      )}
 
       <Card>
         <div className="overflow-x-auto">

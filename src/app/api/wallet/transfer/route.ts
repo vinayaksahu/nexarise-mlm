@@ -10,12 +10,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    try {
-      await db.$executeRawUnsafe('ALTER TABLE "Wallet" ADD COLUMN IF NOT EXISTS "p2pBalance" DECIMAL(20, 8) NOT NULL DEFAULT 0;')
-    } catch (e) {
-      // Ignore if table/column already updated
-    }
-
     const { amount, pin } = await req.json()
 
     if (!pin) {

@@ -9,14 +9,16 @@ export default function SelfROIPage() {
   const [wallet, setWallet] = useState<any>(null);
   const [investments, setInvestments] = useState<any[]>([]);
   const [roiTxs, setRoiTxs] = useState<any[]>([]);
+  const [config, setConfig] = useState<any>(null);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [resWallet, resInv, resTx] = await Promise.all([
+        const [resWallet, resInv, resTx, resConfig] = await Promise.all([
           fetch('/api/wallet'),
           fetch('/api/investments'),
           fetch('/api/transactions?limit=20'),
+          fetch('/api/business-plan'),
         ]);
 
         if (resWallet.ok) {
@@ -29,8 +31,12 @@ export default function SelfROIPage() {
         }
         if (resTx.ok) {
           const tx = await resTx.json();
-          const filtered = (tx.transactions || []).filter((t: any) => t.type === 'SELF_ROI');
+          const filtered = (tx.entries || []).filter((t: any) => t.type === 'SELF_ROI');
           setRoiTxs(filtered);
+        }
+        if (resConfig.ok) {
+          const cfg = await resConfig.json();
+          setConfig(cfg);
         }
       } catch (err) {
         console.error('Failed to load ROI data:', err);
@@ -70,7 +76,7 @@ export default function SelfROIPage() {
         </Card>
         <Card>
           <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Daily ROI Rate</CardTitle></CardHeader>
-          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 truncate">1.0% / day</CardContent>
+          <CardContent className="p-3 sm:p-4 pt-0 text-lg sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 truncate">{config?.dailyRoiPercentage ?? 1}% / day</CardContent>
         </Card>
         <Card>
           <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2"><CardTitle className="text-[11px] sm:text-xs text-muted truncate">Active Capital</CardTitle></CardHeader>

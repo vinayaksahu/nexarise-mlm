@@ -30,7 +30,7 @@ export default function WalletPage() {
         }
         if (resTx.ok) {
           const tx = await resTx.json();
-          setTransactions(tx.transactions || []);
+          setTransactions(tx.entries || []);
         }
       } catch (err) {
         console.error('Failed to load wallet data:', err);

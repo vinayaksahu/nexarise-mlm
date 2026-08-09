@@ -11,6 +11,16 @@ export default function SupportPage() {
   const [category, setCategory] = useState('Investment');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+  const [submitMsg, setSubmitMsg] = useState({ text: '', type: '' as 'success' | 'error' | '' });
+
+  useEffect(() => {
+    if (submitMsg.text) {
+      const timer = setTimeout(() => {
+        setSubmitMsg({ text: '', type: '' });
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [submitMsg]);
 
   const fetchTickets = async () => {
     try {
@@ -38,9 +48,9 @@ export default function SupportPage() {
         setSubject('');
         setMessage('');
         fetchTickets();
-        alert('Ticket created successfully');
+        setSubmitMsg({ text: 'Ticket created successfully! 🎉', type: 'success' });
       } else {
-        alert('Failed to create ticket');
+        setSubmitMsg({ text: 'Failed to create ticket. Please try again.', type: 'error' });
       }
     } catch (e) {
       console.error(e);
@@ -54,6 +64,11 @@ export default function SupportPage() {
       <Card>
         <CardHeader className="p-4 sm:p-6"><CardTitle>Create New Ticket</CardTitle></CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
+          {submitMsg.text && (
+            <div className={`p-3 rounded-md mb-4 text-sm font-medium ${submitMsg.type === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'}`}>
+              {submitMsg.text}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1">Category</label>

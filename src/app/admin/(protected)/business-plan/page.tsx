@@ -17,6 +17,7 @@ export default function AdminBusinessPlanPage() {
     showWithdrawalFee: false,
     levelIncomes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   });
+  const [msg, setMsg] = useState({ text: '', type: '' as 'success' | 'error' | '' });
 
   const fetchActivePlan = async () => {
     try {
@@ -41,6 +42,7 @@ export default function AdminBusinessPlanPage() {
   }, []);
 
   const handleSave = async () => {
+    setMsg({ text: '', type: '' });
     try {
       const res = await fetch('/api/admin/business-plan', {
         method: 'POST',
@@ -48,19 +50,27 @@ export default function AdminBusinessPlanPage() {
         body: JSON.stringify(config),
       });
       if (res.ok) {
-        alert('New business plan version activated!');
+        setMsg({ text: '✅ New business plan version activated!', type: 'success' });
         fetchActivePlan();
       } else {
-        alert('Failed to update business plan.');
+        setMsg({ text: 'Failed to update business plan.', type: 'error' });
       }
     } catch (e) {
       console.error(e);
+      setMsg({ text: 'Failed to update business plan.', type: 'error' });
     }
   };
 
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Business Plan Editor</h1>
+      
+      {msg.text && (
+        <div className={`p-4 rounded-md ${msg.type === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'}`}>
+          {msg.text}
+        </div>
+      )}
+
       <Card className="p-6 max-w-2xl space-y-6">
         <div>
           <h2 className="text-lg font-semibold mb-4">Investment Settings</h2>

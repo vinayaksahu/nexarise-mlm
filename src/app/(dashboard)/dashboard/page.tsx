@@ -43,7 +43,7 @@ export default function DashboardPage() {
         }
         if (resTx.ok) {
           const tx = await resTx.json();
-          setTransactions(tx.transactions || []);
+          setTransactions(tx.entries || []);
         }
         if (resInv.ok) {
           const inv = await resInv.json();

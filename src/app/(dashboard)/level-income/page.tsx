@@ -29,7 +29,7 @@ export default function LevelIncomePage() {
         }
         if (resTx.ok) {
           const tx = await resTx.json();
-          const filtered = (tx.transactions || []).filter((t: any) => t.type === 'LEVEL_INCOME');
+          const filtered = (tx.entries || []).filter((t: any) => t.type === 'LEVEL_INCOME');
           setLevelTxs(filtered);
         }
       } catch (err) {
