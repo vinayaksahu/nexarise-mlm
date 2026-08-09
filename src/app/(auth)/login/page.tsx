@@ -47,7 +47,7 @@ export default function LoginPage() {
       <div className="text-center mb-8">
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4 pulse-glow shadow-lg">N</div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Welcome Back</h1>
-        <p className="text-slate-400 mt-2 text-sm">Sign in to your NexaRise member account</p>
+        <p className="text-slate-400 mt-2 text-sm">Sign in to your NexaRise account</p>
       </div>
       
       <Card variant="glass" hover={false}>
@@ -81,16 +81,13 @@ export default function LoginPage() {
               onChange={(e) => setForm(p => ({ ...p, password: e.target.value }))} 
               required 
             />
-            <div className="flex justify-between items-center text-xs">
-              <Link href="/admin/login" className="text-slate-400 hover:text-slate-200 underline">
-                Admin Portal Login
-              </Link>
+            <div className="flex justify-end text-xs">
               <Link href="/forgot-password" className="text-primary hover:text-primary-light transition-colors font-medium">
                 Forgot password?
               </Link>
             </div>
             <Button type="submit" loading={loading} className="w-full" size="lg">
-              {loading ? 'Authenticating...' : 'Sign In as Member'}
+              {loading ? 'Authenticating...' : 'Sign In'}
             </Button>
           </form>
           <p className="text-center text-xs text-slate-400 mt-6">
