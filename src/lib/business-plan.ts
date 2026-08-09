@@ -36,6 +36,8 @@ export async function getBusinessConfig(): Promise<BusinessConfig> {
     })
     if (plan) {
       const config = plan.config as unknown as BusinessConfig
+      config.p2pFeePercentage = 0
+      config.showP2pFee = false
       cachedConfig = { config, fetchedAt: Date.now() }
       return config
     }

@@ -44,9 +44,9 @@ export default function P2PPage() {
   }, []);
 
   const numAmount = Number(amount) || 0;
-  const feePercent = config?.p2pFeePercentage ?? 2;
-  const fee = numAmount * (feePercent / 100);
-  const netReceived = numAmount - fee;
+  const feePercent = 0;
+  const fee = 0;
+  const netReceived = numAmount;
 
   const handleTransfer = async () => {
     setMessage('');

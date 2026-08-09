@@ -67,9 +67,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Cannot transfer to yourself' }, { status: 400 })
     }
 
-    // Fetch business config (defaults to 0 fee per financial spec)
+    // Fetch business config (no fee on P2P transfer per business rule)
     const config = await getBusinessConfig()
-    const p2pFeePercentage = new Decimal(config?.p2pFeePercentage ?? 0)
+    const p2pFeePercentage = new Decimal(0)
     const minP2pTransfer = new Decimal(config?.minP2pTransfer ?? 1)
 
     const transferAmount = new Decimal(amount)
