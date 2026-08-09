@@ -84,12 +84,7 @@ export default function DashboardPage() {
         <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
           Welcome back, {user?.name || 'User'}! 👋
         </h1>
-        {((user?.status === 'ACTIVE' && (
-          investments.some((inv: any) => inv.status === 'ACTIVE') ||
-          investments.length > 0 ||
-          Number(team?.businessVolume?.totalBusiness || 0) > 0 ||
-          Number(wallet?.availableBalance || 0) > 0
-        ))) ? (
+        {user?.status === 'ACTIVE' ? (
           <span className="inline-block mt-2 px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Account Status: Active</span>
         ) : (
           <span className="inline-block mt-2 px-2.5 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Account Status: Inactive</span>
@@ -120,12 +115,23 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Financial Stat Cards Grid (Clean 2-column grid on mobile) */}
+      {/* Financial Stat Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
+        <Card className="sm:col-span-2 lg:col-span-2 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500/30">
+          <CardContent className="p-3 sm:p-4">
+            <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+              Total Available Balance (Main + P2P)
+            </p>
+            <p className="text-xl sm:text-3xl font-bold truncate mt-0.5 text-emerald-600 dark:text-emerald-400">
+              ${((Number(wallet?.availableBalance || 0)) + (Number(wallet?.p2pBalance || 0))).toFixed(2)}
+            </p>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardContent className="p-3 sm:p-4">
             <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
-              Available Balance
+              Main Wallet Balance
             </p>
             <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-emerald-600 dark:text-emerald-400">
               ${wallet?.availableBalance ? Number(wallet.availableBalance).toFixed(2) : '0.00'}

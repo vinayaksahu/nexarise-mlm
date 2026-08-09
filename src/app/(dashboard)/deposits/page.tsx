@@ -90,11 +90,29 @@ export default function DepositsPage() {
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
         <Card>
-          <CardHeader className="p-3 sm:p-4">
-            <CardTitle className="text-sm">USDT (BEP-20)</CardTitle>
+          <CardHeader className="p-3 sm:p-4 pb-1">
+            <CardTitle className="text-sm flex items-center justify-between">
+              <span>USDT (BEP-20)</span>
+              <Badge variant="info">BEP-20</Badge>
+            </CardTitle>
           </CardHeader>
-          <CardContent className="p-3 sm:p-4 pt-0 text-xs break-all">
-            Address: 0x1234567890abcdef1234567890abcdef12345678
+          <CardContent className="p-3 sm:p-4 pt-1 space-y-2">
+            <p className="text-xs font-mono text-slate-300 break-all bg-slate-900/50 p-2 rounded border border-slate-700">
+              0x1234567890abcdef1234567890abcdef12345678
+            </p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full text-xs" 
+              onClick={() => {
+                navigator.clipboard.writeText('0x1234567890abcdef1234567890abcdef12345678');
+                setMessage('Deposit address copied to clipboard!');
+                setMessageType('success');
+                setShowPopup(true);
+              }}
+            >
+              📋 Copy Deposit Address
+            </Button>
           </CardContent>
         </Card>
       </div>

@@ -21,12 +21,15 @@ export async function GET(request: NextRequest) {
     const investments = await db.investment.findMany({
       where: {
         status: 'ACTIVE',
+        user: { status: 'ACTIVE' },
         OR: [
           { lastRoiDate: { lt: today } },
           { lastRoiDate: null }
         ]
       },
-      take: 50,
+      include: {
+        user: { select: { id: true, status: true } }
+      }
     })
 
     let processedCount = 0

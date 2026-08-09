@@ -16,12 +16,23 @@ export async function distributeLevelIncome(
     // Find sponsor (upline)
     const user = await tx.user.findUnique({
       where: { id: currentUserId },
-      select: { sponsorId: true },
+      select: { 
+        sponsorId: true,
+        sponsor: { select: { id: true, status: true } }
+      },
     })
     
     if (!user?.sponsorId) break // No more upline
     
     const sponsorId = user.sponsorId
+    const sponsorStatus = user.sponsor?.status
+
+    // Skip if sponsor is not active
+    if (sponsorStatus !== 'ACTIVE') {
+      currentUserId = sponsorId
+      continue
+    }
+
     const percentage = new Decimal(percentages[level])
     const amount = roiAmount.mul(percentage).div(100)
     

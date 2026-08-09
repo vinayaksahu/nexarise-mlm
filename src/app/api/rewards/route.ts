@@ -10,10 +10,28 @@ export async function GET() {
   }
 
   try {
-    const rewards = await db.rewardDefinition.findMany({
+    let rewards = await db.rewardDefinition.findMany({
       where: { isActive: true },
       orderBy: { sortOrder: 'asc' }
     })
+
+    if (rewards.length === 0) {
+      const defaultRewards = [
+        { name: 'Silver', businessRequired: 500, rewardAmount: 50, sortOrder: 1 },
+        { name: 'Gold', businessRequired: 2500, rewardAmount: 250, sortOrder: 2 },
+        { name: 'Platinum', businessRequired: 10000, rewardAmount: 1000, sortOrder: 3 },
+        { name: 'Diamond', businessRequired: 50000, rewardAmount: 5000, sortOrder: 4 },
+      ]
+      for (const r of defaultRewards) {
+        await db.rewardDefinition.create({
+          data: { ...r, isActive: true, createdAt: new Date() }
+        })
+      }
+      rewards = await db.rewardDefinition.findMany({
+        where: { isActive: true },
+        orderBy: { sortOrder: 'asc' }
+      })
+    }
 
     const claimedRewards = await db.rewardTransaction.findMany({
       where: { userId: session.userId },

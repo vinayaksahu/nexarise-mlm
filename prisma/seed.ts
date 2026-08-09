@@ -83,18 +83,12 @@ async function main() {
   })
   console.log(`✅ Business Plan v${businessPlan.version} created`)
 
-  // 3. Create Reward Definitions (Slab-based)
+  // 3. Create Reward Definitions (4 Rank Slabs)
   const rewards = [
-    { name: 'Star', businessRequired: 200, rewardAmount: 25, sortOrder: 1 },
-    { name: 'Silver Star', businessRequired: 500, rewardAmount: 75, sortOrder: 2 },
-    { name: 'Gold Star', businessRequired: 1000, rewardAmount: 200, sortOrder: 3 },
-    { name: 'Platinum', businessRequired: 2500, rewardAmount: 500, sortOrder: 4 },
-    { name: 'Diamond', businessRequired: 5000, rewardAmount: 1200, sortOrder: 5 },
-    { name: 'Blue Diamond', businessRequired: 10000, rewardAmount: 2500, sortOrder: 6 },
-    { name: 'Crown Diamond', businessRequired: 25000, rewardAmount: 7500, sortOrder: 7 },
-    { name: 'Royal Crown', businessRequired: 50000, rewardAmount: 15000, sortOrder: 8 },
-    { name: 'Ambassador', businessRequired: 100000, rewardAmount: 35000, sortOrder: 9 },
-    { name: 'Crown Ambassador', businessRequired: 250000, rewardAmount: 100000, sortOrder: 10 },
+    { name: 'Silver', businessRequired: 500, rewardAmount: 50, sortOrder: 1 },
+    { name: 'Gold', businessRequired: 2500, rewardAmount: 250, sortOrder: 2 },
+    { name: 'Platinum', businessRequired: 10000, rewardAmount: 1000, sortOrder: 3 },
+    { name: 'Diamond', businessRequired: 50000, rewardAmount: 5000, sortOrder: 4 },
   ]
 
   for (const reward of rewards) {

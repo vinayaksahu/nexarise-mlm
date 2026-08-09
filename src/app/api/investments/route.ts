@@ -102,6 +102,12 @@ export async function POST(request: NextRequest) {
         },
       })
       
+      // Update User status to ACTIVE if inactive
+      await tx.user.update({
+        where: { id: session.userId },
+        data: { status: 'ACTIVE' },
+      })
+      
       // Create LedgerEntry
       await tx.ledgerEntry.create({
         data: {
