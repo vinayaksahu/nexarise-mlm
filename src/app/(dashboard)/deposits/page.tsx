@@ -57,7 +57,7 @@ export default function DepositsPage() {
       const data = await res.json();
 
       if (res.ok) {
-        setMessage('Deposit request submitted successfully! Your request is pending admin approval.');
+        setMessage('Deposit request submitted successfully! Upon admin approval, funds will be credited directly to your P2P Wallet.');
         setMessageType('success');
         setAmount('');
         setProofUrl('');

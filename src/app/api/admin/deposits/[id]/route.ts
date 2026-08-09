@@ -44,7 +44,7 @@ export async function PATCH(
       updatedDeposit = await db.$transaction(async (tx) => {
         let wallet = await tx.wallet.findUnique({
           where: { userId: deposit.userId },
-          select: { id: true, availableBalance: true },
+          select: { id: true, p2pBalance: true },
         })
         
         if (!wallet) {
@@ -52,14 +52,15 @@ export async function PATCH(
             data: {
               userId: deposit.userId,
               availableBalance: 0,
+              p2pBalance: 0,
               createdAt: new Date(),
               updatedAt: new Date(),
             },
-            select: { id: true, availableBalance: true },
+            select: { id: true, p2pBalance: true },
           })
         }
         
-        const balanceBefore = new Decimal(wallet.availableBalance.toString())
+        const balanceBefore = new Decimal(wallet.p2pBalance?.toString() || '0')
         const depositAmount = new Decimal(deposit.amount.toString())
         const balanceAfter = balanceBefore.plus(depositAmount)
         
@@ -75,8 +76,8 @@ export async function PATCH(
         
         await tx.wallet.update({
           where: { userId: deposit.userId },
-          data: { availableBalance: balanceAfter.toNumber() },
-          select: { id: true, availableBalance: true },
+          data: { p2pBalance: balanceAfter.toNumber() },
+          select: { id: true, p2pBalance: true },
         })
         
         await tx.ledgerEntry.create({
