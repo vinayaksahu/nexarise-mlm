@@ -84,7 +84,7 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer =
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
 
-  const userRole = user?.role || 'USER';
+  const userRole = user?.role || (isAdmin ? 'SUPER_ADMIN' : 'USER');
 
   // Filter admin nav groups based on permissions
   const filteredAdminNavGroups = adminNavGroups.map(group => ({

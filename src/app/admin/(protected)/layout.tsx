@@ -24,7 +24,7 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
 
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-slate-950 overflow-x-hidden">
-      <Sidebar isAdmin />
+      <Sidebar isAdmin user={user} />
       <div className="flex-1 flex flex-col min-h-screen min-w-0">
         <Header user={user} isAdmin />
         <main className="flex-1 pt-4 lg:pt-6 pb-24 lg:pb-6 px-3 sm:px-6">
