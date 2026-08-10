@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/components/theme-provider';
+import { hasPermission } from '@/lib/permissions';
 
 interface SidebarProps {
   isAdmin?: boolean;
@@ -54,25 +55,26 @@ const adminNavGroups = [
   {
     heading: 'CORE',
     items: [
-      { label: 'Admin Dashboard', href: '/admin', icon: '📊' },
+      { label: 'Admin Dashboard', href: '/admin', icon: '📊', permission: 'dashboard.view' },
     ],
   },
   {
     heading: 'MANAGEMENT',
     items: [
-      { label: 'User Management', href: '/admin/users', icon: '👥' },
-      { label: 'Deposit Approvals', href: '/admin/deposits', icon: '📥' },
-      { label: 'Deposit Methods', href: '/admin/payment-methods', icon: '💳' },
-      { label: 'Withdrawal Payouts', href: '/admin/withdrawals', icon: '📤' },
-      { label: 'System Investments', href: '/admin/investments', icon: '💰' },
+      { label: 'User Management', href: '/admin/users', icon: '👥', permission: 'users.view' },
+      { label: 'Deposit Approvals', href: '/admin/deposits', icon: '📥', permission: 'deposits.view' },
+      { label: 'Deposit Methods', href: '/admin/payment-methods', icon: '💳', permission: 'deposit_methods.view' },
+      { label: 'Withdrawal Payouts', href: '/admin/withdrawals', icon: '📤', permission: 'withdrawals.view' },
+      { label: 'System Investments', href: '/admin/investments', icon: '💰', permission: 'investments.view' },
     ],
   },
   {
     heading: 'SYSTEM & PLAN',
     items: [
-      { label: 'Business Plan Editor', href: '/admin/business-plan', icon: '📋' },
-      { label: 'Reward Slabs', href: '/admin/rewards', icon: '🎁' },
-      { label: 'Audit & Security Logs', href: '/admin/audit', icon: '📜' },
+      { label: 'Business Plan Editor', href: '/admin/business-plan', icon: '📋', permission: 'plan.view' },
+      { label: 'Reward Slabs', href: '/admin/rewards', icon: '🎁', permission: 'rewards.view' },
+      { label: 'Audit & Security Logs', href: '/admin/audit', icon: '📜', permission: 'audit_logs.view' },
+      { label: 'Admin Roles & Staff', href: '/admin/administrators', icon: '🛡️', permission: 'admins.manage' },
     ],
   },
 ];
@@ -81,7 +83,16 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer =
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
-  const navGroups = isAdmin ? adminNavGroups : userNavGroups;
+
+  const userRole = user?.role || 'USER';
+
+  // Filter admin nav groups based on permissions
+  const filteredAdminNavGroups = adminNavGroups.map(group => ({
+    ...group,
+    items: group.items.filter(item => hasPermission(userRole, item.permission as any))
+  })).filter(group => group.items.length > 0);
+
+  const navGroups = isAdmin ? filteredAdminNavGroups : userNavGroups;
 
   const baseClasses = isMobileDrawer
     ? 'flex flex-col h-full bg-white dark:bg-slate-900 text-gray-800 dark:text-slate-300 w-full overflow-hidden'

@@ -6,7 +6,7 @@ import { invalidateConfigCache } from '@/lib/business-plan';
 export async function POST(request: NextRequest) {
   try {
     const session = await getSession();
-    if (!session || !['SUPER_ADMIN', 'ADMIN'].includes(session.role)) {
+    if (!session || !['SUPER_ADMIN', 'ADMIN', 'PLAN_EDITOR'].includes(session.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
