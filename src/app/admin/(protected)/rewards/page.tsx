@@ -65,7 +65,7 @@ export default function AdminRewardsPage() {
 
       {showConfirm && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <Card className="p-6 max-w-md w-full space-y-4 bg-white dark:bg-slate-900 border border-slate-700 animate-fade-in">
+          <Card className="p-6 max-w-md w-full space-y-4 bg-white dark:bg-slate-900 border border-border dark:border-slate-700 animate-fade-in">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white">⚠️ Confirm Action</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300">Are you sure you want to trigger system-wide rewards calculation? This might take a while.</p>
             <div className="flex justify-end space-x-2">

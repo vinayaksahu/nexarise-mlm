@@ -455,37 +455,37 @@ export default function DashboardPage() {
       {/* New Investment / Activate Account Modal Popup */}
       {showInvestModal && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-[99999] overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5 text-left text-white relative z-[100000] my-auto">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700/80 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5 text-left text-gray-900 dark:text-white relative z-[100000] my-auto">
+            <div className="flex items-center justify-between border-b border-gray-200 dark:border-slate-800 pb-3">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <span>📈 New Investment</span>
               </h2>
               <button 
                 onClick={() => { setShowInvestModal(false); setInvestMsg({ text: '', type: '' }); }}
-                className="text-slate-400 hover:text-white font-bold text-lg p-1"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-white font-bold text-lg p-1"
               >
                 ✕
               </button>
             </div>
 
             <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs space-y-1">
-              <div className="flex justify-between text-slate-300">
+              <div className="flex justify-between text-gray-700 dark:text-slate-300">
                 <span>P2P Wallet Balance:</span>
-                <span className="font-bold text-emerald-400">${Number(wallet?.p2pBalance || 0).toFixed(2)}</span>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400">${Number(wallet?.p2pBalance || 0).toFixed(2)}</span>
               </div>
               {Number(wallet?.p2pBalance || 0) < Number(config?.minInvestment || 5) && (
-                <p className="text-[11px] text-amber-400 mt-1 font-medium">
-                  ⚠️ Low balance. You can deposit funds via <Link href="/deposits" className="underline font-semibold text-emerald-400 hover:text-emerald-300">Deposit section</Link>.
+                <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1 font-medium">
+                  ⚠️ Low balance. You can deposit funds via <Link href="/deposits" className="underline font-semibold text-emerald-600 dark:text-emerald-400 hover:underline">Deposit section</Link>.
                 </p>
               )}
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs text-slate-400 font-medium mb-1.5">Investment Amount</label>
+                <label className="block text-xs text-gray-500 dark:text-slate-400 font-medium mb-1.5">Investment Amount</label>
                 <Input 
                   type="number" 
-                  className="w-full text-base py-3 bg-slate-950 border-slate-700 text-white placeholder:text-slate-500 rounded-xl"
+                  className="w-full text-base py-3 bg-white dark:bg-slate-950 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 rounded-xl"
                   placeholder={`Amount ($${config?.minInvestment || 5} - $${config?.maxInvestment || 1000})`} 
                   value={investAmount} 
                   onChange={(e: any) => setInvestAmount(e.target.value)} 

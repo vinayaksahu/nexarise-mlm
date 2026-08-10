@@ -190,32 +190,32 @@ export default function AdminUsersPage() {
       {/* Activate User / Investment Modal */}
       {mounted && activateUser && require('react-dom').createPortal(
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-[99999] backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-700 text-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5 animate-fade-in">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5 animate-fade-in">
+            <div className="flex justify-between items-center border-b border-gray-200 dark:border-slate-800 pb-3">
               <div>
                 <h3 className="text-lg font-bold flex items-center gap-2">
                   <span>⚡ Activate Account / Create Investment</span>
                 </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Target User: <strong className="text-emerald-400">{activateUser.name}</strong> (@{activateUser.username})
+                <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
+                  Target User: <strong className="text-emerald-600 dark:text-emerald-400">{activateUser.name}</strong> (@{activateUser.username})
                 </p>
               </div>
               <button 
                 onClick={() => setActivateUser(null)} 
-                className="text-slate-400 hover:text-white text-lg font-bold"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-white text-lg font-bold"
               >
                 ✕
               </button>
             </div>
 
             {investError && (
-              <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-xs">
+              <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-600 dark:text-red-400 text-xs">
                 ⚠️ {investError}
               </div>
             )}
 
             <div className="space-y-3">
-              <label className="block text-xs font-semibold text-slate-300">
+              <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300">
                 Investment Amount (USDT)
               </label>
               <Input 
@@ -223,10 +223,10 @@ export default function AdminUsersPage() {
                 value={investAmount}
                 onChange={(e) => setInvestAmount(e.target.value)}
                 placeholder="Enter amount (e.g. 50, 100, 500)"
-                className="w-full text-base py-3 bg-slate-950 border-slate-700 text-white"
+                className="w-full text-base py-3 bg-white dark:bg-slate-950 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white"
               />
-              <p className="text-[11px] text-slate-400">
-                Minimum: $5 (Multiples of $5). Submitting will create an active investment and mark this user account as <strong className="text-emerald-400">ACTIVE</strong>.
+              <p className="text-[11px] text-gray-500 dark:text-slate-400">
+                Minimum: $5 (Multiples of $5). Submitting will create an active investment and mark this user account as <strong className="text-emerald-600 dark:text-emerald-400">ACTIVE</strong>.
               </p>
             </div>
 

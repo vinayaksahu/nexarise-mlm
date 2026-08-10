@@ -255,7 +255,7 @@ export default function P2PPage() {
       {/* Quick Set / Update PIN Modal */}
       {showPinModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <Card className="p-6 max-w-md w-full space-y-4 bg-white dark:bg-slate-900 border border-slate-700 animate-fade-in">
+          <Card className="p-6 max-w-md w-full space-y-4 bg-white dark:bg-slate-900 border border-border dark:border-slate-700 animate-fade-in">
             <div className="flex justify-between items-center border-b border-slate-700 pb-3">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <span>🔑 Set Transaction PIN</span>

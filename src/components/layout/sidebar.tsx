@@ -84,15 +84,15 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer =
   const navGroups = isAdmin ? adminNavGroups : userNavGroups;
 
   const baseClasses = isMobileDrawer
-    ? 'flex flex-col h-full bg-slate-900 text-slate-300 w-full overflow-hidden'
-    : `hidden lg:flex flex-col h-screen sticky top-0 bg-slate-900 text-slate-300 border-r border-slate-800 transition-all duration-300 ${
+    ? 'flex flex-col h-full bg-white dark:bg-slate-900 text-gray-800 dark:text-slate-300 w-full overflow-hidden'
+    : `hidden lg:flex flex-col h-screen sticky top-0 bg-white dark:bg-slate-900 text-gray-800 dark:text-slate-300 border-r border-gray-200 dark:border-slate-800 transition-all duration-300 ${
         collapsed ? 'w-20' : 'w-64'
       }`;
 
   return (
     <aside className={baseClasses}>
       {/* Brand Header */}
-      <div className="flex items-center h-16 px-4 border-b border-slate-800 bg-slate-950 shrink-0">
+      <div className="flex items-center h-16 px-4 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950 shrink-0">
         <Link
           href={isAdmin ? '/admin' : '/dashboard'}
           className="flex items-center gap-2.5"
@@ -104,15 +104,15 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer =
             className="w-8 h-8 object-contain shrink-0 drop-shadow"
           />
           {(!collapsed || isMobileDrawer) && (
-            <span className="text-lg font-bold tracking-tight text-white">
-              Nexa<span className="text-blue-500">Rise</span>
+            <span className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
+              Nexa<span className="text-blue-600 dark:text-blue-500">Rise</span>
             </span>
           )}
         </Link>
         {!isMobileDrawer && (
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="hidden lg:flex ml-auto text-slate-400 hover:text-white transition-colors p-1.5 rounded-md hover:bg-slate-800"
+            className="hidden lg:flex ml-auto text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-slate-800"
             title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
           >
             {collapsed ? '➔' : '☰'}
@@ -121,7 +121,7 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer =
         {onCloseMobile && (
           <button
             onClick={onCloseMobile}
-            className="ml-auto text-slate-400 hover:text-white transition-colors p-1.5 rounded-md hover:bg-slate-800 font-bold"
+            className="ml-auto text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-slate-800 font-bold"
             title="Close Drawer"
           >
             ✕
@@ -134,7 +134,7 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer =
         {navGroups.map((group, idx) => (
           <div key={idx} className="space-y-1">
             {(!collapsed || isMobileDrawer) && (
-              <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+              <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-1">
                 {group.heading}
               </div>
             )}
@@ -152,7 +152,7 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer =
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
                     isActive
                       ? 'bg-blue-600 text-white font-semibold shadow-sm'
-                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                      : 'text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'
                   }`}
                   title={collapsed && !isMobileDrawer ? item.label : undefined}
                 >
@@ -166,10 +166,10 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer =
       </nav>
 
       {/* Theme Toggle Footer */}
-      <div className="p-3 border-t border-slate-800 bg-slate-950 shrink-0">
+      <div className="p-3 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950 shrink-0">
         <button
           onClick={toggleTheme}
-          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-xs font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-all"
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-xs font-medium text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white transition-all"
         >
           <span className="text-sm">{theme === 'dark' ? '☀️' : '🌙'}</span>
           {(!collapsed || isMobileDrawer) && (

@@ -175,13 +175,13 @@ export default function AdminDepositsPage() {
       {/* Reject Modal */}
       {selectedDepositId && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <Card className="p-6 max-w-md w-full space-y-4 bg-slate-900 border border-slate-700">
-            <h3 className="text-lg font-bold text-white">Reject Deposit</h3>
+          <Card className="p-6 max-w-md w-full space-y-4 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-white">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Reject Deposit</h3>
             <Input 
               placeholder="Reason for rejection (optional)" 
               value={adminNote}
               onChange={(e) => setAdminNote(e.target.value)}
-              className="w-full text-sm"
+              className="w-full text-sm bg-white dark:bg-slate-950 border-gray-300 dark:border-slate-800 text-gray-900 dark:text-white"
             />
             <div className="flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setSelectedDepositId(null)}>Cancel</Button>
@@ -200,17 +200,17 @@ export default function AdminDepositsPage() {
       {/* Proof Modal */}
       {selectedProof && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <Card className="p-6 max-w-lg w-full space-y-4 bg-slate-900 border border-slate-700 animate-fade-in">
-            <div className="flex justify-between items-center border-b border-slate-700 pb-3">
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+          <Card className="p-6 max-w-lg w-full space-y-4 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-white animate-fade-in">
+            <div className="flex justify-between items-center border-b border-gray-200 dark:border-slate-700 pb-3">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <span>🧾 Deposit Proof Details</span>
               </h3>
-              <button onClick={() => setSelectedProof(null)} className="text-slate-400 hover:text-white font-bold">✕</button>
+              <button onClick={() => setSelectedProof(null)} className="text-gray-400 hover:text-gray-600 dark:hover:text-white font-bold">✕</button>
             </div>
 
             <div className="space-y-2">
-              <p className="text-xs text-slate-400 font-medium">Transaction Hash / Proof Data:</p>
-              <div className="p-3 bg-slate-950 border border-slate-800 rounded-lg text-xs font-mono break-all text-emerald-400">
+              <p className="text-xs text-gray-500 dark:text-slate-400 font-medium">Transaction Hash / Proof Data:</p>
+              <div className="p-3 bg-gray-50 dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-lg text-xs font-mono break-all text-emerald-600 dark:text-emerald-400">
                 {selectedProof}
               </div>
             </div>

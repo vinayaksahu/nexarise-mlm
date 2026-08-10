@@ -45,12 +45,12 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 h-16 bg-slate-950 text-white border-b border-slate-800 flex items-center justify-between px-3 sm:px-6 shadow-md">
+      <header className="sticky top-0 z-40 h-16 bg-white dark:bg-slate-950 text-gray-900 dark:text-white border-b border-gray-200 dark:border-slate-800 flex items-center justify-between px-3 sm:px-6 shadow-xs transition-colors">
         {/* Left Controls: Hamburger Menu & Mobile Brand Logo (hidden on desktop lg:hidden) */}
         <div className="flex items-center gap-3">
           <button
             onClick={() => setMobileDrawerOpen(true)}
-            className="lg:hidden text-slate-300 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition-colors text-lg"
+            className="lg:hidden text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-lg"
             title="Open Navigation Menu"
           >
             ☰
@@ -61,8 +61,8 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
               alt="NexaRise Logo"
               className="w-7 h-7 object-contain shrink-0"
             />
-            <span className="text-base font-bold text-white tracking-tight">
-              Nexa<span className="text-blue-500">Rise</span>
+            <span className="text-base font-bold text-gray-900 dark:text-white tracking-tight">
+              Nexa<span className="text-blue-600 dark:text-blue-500">Rise</span>
             </span>
           </Link>
         </div>
@@ -72,7 +72,7 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
           {/* Dark/Light Mode Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-lg text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
             title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
             {theme === 'dark' ? '☀️' : '🌙'}
@@ -82,7 +82,7 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
           <div className="relative">
             <button
               onClick={() => setNotifOpen(!notifOpen)}
-              className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors relative"
+              className="p-2 rounded-lg text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors relative"
               title="Notifications"
             >
               🔔
@@ -130,12 +130,12 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
             <div className="relative">
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-slate-800 transition-colors"
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
               >
                 <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-sm flex items-center justify-center shadow">
                   {user.name?.charAt(0).toUpperCase()}
                 </div>
-                <span className="hidden sm:block text-xs font-semibold text-slate-200">
+                <span className="hidden sm:block text-xs font-semibold text-gray-800 dark:text-slate-200">
                   {user.name} ▾
                 </span>
               </button>
@@ -181,7 +181,7 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
             className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
             onClick={() => setMobileDrawerOpen(false)}
           />
-          <div className="relative flex-1 flex flex-col max-w-xs w-full bg-slate-900 z-50 h-full">
+          <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white dark:bg-slate-900 z-50 h-full">
             <Sidebar
               isAdmin={isAdmin}
               user={user}
