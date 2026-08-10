@@ -75,12 +75,6 @@ const adminNavGroups = [
       { label: 'Audit & Security Logs', href: '/admin/audit', icon: '📜' },
     ],
   },
-  {
-    heading: 'USER PANEL',
-    items: [
-      { label: 'Back to User Dashboard', href: '/dashboard', icon: '⬅️' },
-    ],
-  },
 ];
 
 export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer = false }: SidebarProps) {

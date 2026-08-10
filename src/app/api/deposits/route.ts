@@ -54,6 +54,14 @@ export async function POST(request: NextRequest) {
     
     const { amount, method, proofUrl } = result.data
 
+    // Check if active payment methods exist
+    const activeMethodsCount = await db.paymentMethod.count({
+      where: { isActive: true }
+    })
+    if (activeMethodsCount === 0) {
+      return NextResponse.json({ error: 'Deposit payment methods are currently unavailable' }, { status: 400 })
+    }
+
     const deposit = await db.deposit.create({
       data: {
         userId: session.userId,
@@ -61,7 +69,7 @@ export async function POST(request: NextRequest) {
         method,
         proofUrl,
         status: 'PENDING',
-          createdAt: new Date(),
+        createdAt: new Date(),
       },
     })
 

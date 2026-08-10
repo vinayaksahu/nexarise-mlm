@@ -29,13 +29,11 @@ export default function DepositsPage() {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error'>('success');
   const [showPopup, setShowPopup] = useState(false);
-  const [config, setConfig] = useState<any>(null);
 
   const fetchDepositsAndMethods = async () => {
     try {
-      const [resDep, resPlan, resMethods] = await Promise.all([
+      const [resDep, resMethods] = await Promise.all([
         fetch('/api/deposits'),
-        fetch('/api/business-plan'),
         fetch('/api/payment-methods')
       ]);
 
@@ -43,18 +41,18 @@ export default function DepositsPage() {
         const data = await resDep.json();
         setDeposits(Array.isArray(data) ? data : []);
       }
-      if (resPlan.ok) {
-        const planData = await resPlan.json();
-        setConfig(planData);
-      }
+
       if (resMethods.ok) {
         const methodsData = await resMethods.json();
-        const methodsList: PaymentMethod[] = methodsData.methods || [];
-        setPaymentMethods(methodsList);
+        // Server endpoint only returns isActive: true methods
+        const activeMethods: PaymentMethod[] = (methodsData.methods || []).filter((m: PaymentMethod) => m.isActive);
+        setPaymentMethods(activeMethods);
 
-        if (methodsList.length > 0) {
-          const defaultMethod = methodsList.find(m => m.isDefault) || methodsList[0];
+        if (activeMethods.length > 0) {
+          const defaultMethod = activeMethods.find(m => m.isDefault) || activeMethods[0];
           setSelectedMethodId(defaultMethod.id);
+        } else {
+          setSelectedMethodId('');
         }
       }
     } catch (err) {
@@ -68,15 +66,14 @@ export default function DepositsPage() {
 
   const selectedMethod = paymentMethods.find(m => m.id === selectedMethodId) || paymentMethods[0];
 
-  // Fallback if no dynamic payment methods exist in DB
-  const fallbackAddress = config?.depositAddress || '0x1234567890abcdef1234567890abcdef12345678';
-  const displayAddress = selectedMethod?.walletAddress || fallbackAddress;
-  const displayNetwork = selectedMethod?.network || 'BEP-20';
-  const displayName = selectedMethod ? `${selectedMethod.name} (${selectedMethod.network})` : 'USDT (BEP-20)';
-  const displayQr = selectedMethod?.qrCodeUrl || config?.depositQrUrl || `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(displayAddress)}`;
-  const displayInstructions = selectedMethod?.instructions || '';
-
   const handleDeposit = async () => {
+    if (paymentMethods.length === 0 || !selectedMethod) {
+      setMessage('Deposit payment methods are currently unavailable');
+      setMessageType('error');
+      setShowPopup(true);
+      return;
+    }
+
     if (!amount || Number(amount) <= 0) {
       setMessage('Please enter a valid deposit amount');
       setMessageType('error');
@@ -87,9 +84,7 @@ export default function DepositsPage() {
     setIsSubmitting(true);
     setMessage('');
 
-    const formattedMethodString = selectedMethod 
-      ? `${selectedMethod.name} (${selectedMethod.network}) - ${selectedMethod.walletAddress}`
-      : 'USDT (BEP-20)';
+    const formattedMethodString = `${selectedMethod.name} (${selectedMethod.network}) - ${selectedMethod.walletAddress}`;
 
     try {
       const res = await fetch('/api/deposits', {
@@ -141,83 +136,99 @@ export default function DepositsPage() {
         </p>
       </div>
 
-      {/* Dynamic Payment Method Selector Tabs/Cards */}
-      {paymentMethods.length > 1 && (
-        <div className="space-y-2">
-          <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Select Payment Network</label>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            {paymentMethods.map(pm => (
-              <button
-                key={pm.id}
-                onClick={() => setSelectedMethodId(pm.id)}
-                className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between ${
-                  selectedMethodId === pm.id 
-                    ? 'bg-indigo-600/10 border-indigo-500 ring-1 ring-indigo-500/50' 
-                    : 'bg-card border-border hover:border-border/80'
-                }`}
-              >
-                <div className="flex items-center justify-between w-full">
-                  <span className="text-xs font-bold text-gray-900 dark:text-white">{pm.name}</span>
-                  <Badge variant="default" className="text-[10px] bg-indigo-500/20 text-indigo-400 border-indigo-500/30">
-                    {pm.network}
-                  </Badge>
-                </div>
-                {pm.isDefault && (
-                  <span className="text-[10px] text-emerald-400 font-medium mt-1">⭐ Default</span>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-      
-      {/* Prominent Payment Details Card */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
-        <Card className="sm:col-span-2 lg:col-span-1 border-indigo-500/30">
-          <CardHeader className="p-3 sm:p-4 pb-1">
-            <CardTitle className="text-sm flex items-center justify-between">
-              <span>{displayName} Payment</span>
-              <Badge variant="info">{displayNetwork}</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-3 sm:p-4 pt-1 space-y-3 text-center">
-            <div className="bg-white p-2.5 rounded-xl inline-block border border-slate-700 shadow-md">
-              <img 
-                src={displayQr} 
-                alt={`${displayName} Deposit QR Code`} 
-                className="w-36 h-36 mx-auto rounded-lg object-contain"
-              />
-            </div>
-
-            <div className="space-y-1 text-left">
-              <label className="text-[11px] text-slate-400 font-medium">Deposit Address ({displayNetwork})</label>
-              <p className="text-xs font-mono text-slate-200 break-all bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
-                {displayAddress}
-              </p>
-            </div>
-
-            {displayInstructions && (
-              <p className="text-[11px] text-slate-400 bg-slate-900/40 p-2 rounded-lg border border-slate-800 text-left">
-                ℹ️ {displayInstructions}
-              </p>
-            )}
-
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full text-xs py-2 font-medium" 
-              onClick={() => {
-                navigator.clipboard.writeText(displayAddress);
-                setMessage(`${displayNetwork} deposit address copied to clipboard!`);
-                setMessageType('success');
-                setShowPopup(true);
-              }}
-            >
-              📋 Copy Deposit Address
-            </Button>
+      {paymentMethods.length === 0 ? (
+        <Card className="border-amber-500/30 bg-amber-500/10">
+          <CardContent className="p-6 text-center space-y-2">
+            <p className="text-3xl">⚠️</p>
+            <p className="text-base font-bold text-gray-900 dark:text-white">Deposit Payment Methods Unavailable</p>
+            <p className="text-xs text-muted max-w-md mx-auto">
+              Deposit payment methods are currently being updated by administration. Please check back shortly or contact support.
+            </p>
           </CardContent>
         </Card>
-      </div>
+      ) : (
+        <>
+          {/* Payment Network Selector Tabs */}
+          {paymentMethods.length > 1 && (
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Select Payment Network</label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                {paymentMethods.map(pm => (
+                  <button
+                    key={pm.id}
+                    onClick={() => setSelectedMethodId(pm.id)}
+                    className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between ${
+                      selectedMethodId === pm.id 
+                        ? 'bg-indigo-600/10 border-indigo-500 ring-1 ring-indigo-500/50' 
+                        : 'bg-card border-border hover:border-border/80'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span className="text-xs font-bold text-gray-900 dark:text-white">{pm.name}</span>
+                      <Badge variant="default" className="text-[10px] bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border-indigo-500/30">
+                        {pm.network}
+                      </Badge>
+                    </div>
+                    {pm.isDefault && (
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium mt-1">⭐ Default</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Active Payment Method Card */}
+          {selectedMethod && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
+              <Card className="sm:col-span-2 lg:col-span-1 border-indigo-500/30">
+                <CardHeader className="p-3 sm:p-4 pb-1">
+                  <CardTitle className="text-sm flex items-center justify-between">
+                    <span>{selectedMethod.name} ({selectedMethod.network}) Payment</span>
+                    <Badge variant="info">{selectedMethod.network}</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-3 sm:p-4 pt-1 space-y-3 text-center">
+                  <div className="bg-white p-2.5 rounded-xl inline-block border border-gray-200 dark:border-slate-700 shadow-md">
+                    <img 
+                      src={selectedMethod.qrCodeUrl || `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(selectedMethod.walletAddress)}`} 
+                      alt={`${selectedMethod.name} Deposit QR Code`} 
+                      className="w-36 h-36 mx-auto rounded-lg object-contain"
+                    />
+                  </div>
+
+                  <div className="space-y-1 text-left">
+                    <label className="text-[11px] text-gray-500 dark:text-slate-400 font-medium">Deposit Address ({selectedMethod.network})</label>
+                    <p className="text-xs font-mono text-gray-900 dark:text-slate-200 break-all bg-gray-100 dark:bg-slate-900/90 p-2.5 rounded-lg border border-gray-200 dark:border-slate-800">
+                      {selectedMethod.walletAddress}
+                    </p>
+                  </div>
+
+                  {selectedMethod.instructions && (
+                    <p className="text-[11px] text-gray-600 dark:text-slate-400 bg-gray-50 dark:bg-slate-900/40 p-2 rounded-lg border border-gray-200 dark:border-slate-800 text-left">
+                      ℹ️ {selectedMethod.instructions}
+                    </p>
+                  )}
+
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full text-xs py-2 font-medium" 
+                    onClick={() => {
+                      navigator.clipboard.writeText(selectedMethod.walletAddress);
+                      setMessage(`${selectedMethod.network} deposit address copied to clipboard!`);
+                      setMessageType('success');
+                      setShowPopup(true);
+                    }}
+                  >
+                    📋 Copy Deposit Address
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </>
+      )}
 
       {/* Deposit Request Form */}
       <Card>
@@ -229,18 +240,19 @@ export default function DepositsPage() {
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-2 space-y-4">
           <div>
-            <label className="block text-xs text-slate-400 font-medium mb-1">Deposit Amount ($)</label>
+            <label className="block text-xs text-gray-700 dark:text-slate-400 font-medium mb-1">Deposit Amount ($)</label>
             <Input 
               type="number" 
               className="w-full text-sm py-2.5" 
               placeholder="Amount ($)" 
               value={amount} 
               onChange={e => setAmount(e.target.value)} 
+              disabled={paymentMethods.length === 0}
             />
           </div>
 
           <div>
-            <label className="block text-xs text-slate-400 font-medium mb-1">Payment Method & Network</label>
+            <label className="block text-xs text-gray-700 dark:text-slate-400 font-medium mb-1">Payment Method & Network</label>
             {paymentMethods.length > 0 ? (
               <select 
                 className="w-full p-2.5 border border-input bg-transparent rounded-md text-sm dark:text-white dark:bg-slate-900" 
@@ -257,23 +269,28 @@ export default function DepositsPage() {
               <Input 
                 type="text" 
                 disabled 
-                value="USDT (BEP-20)"
-                className="w-full text-sm py-2.5 bg-slate-900" 
+                value="Deposit Payment Methods Unavailable"
+                className="w-full text-sm py-2.5 bg-gray-100 dark:bg-slate-900 text-gray-500" 
               />
             )}
           </div>
 
           <div>
-            <label className="block text-xs text-slate-400 font-medium mb-1">Proof URL (Transaction Hash / ID)</label>
+            <label className="block text-xs text-gray-700 dark:text-slate-400 font-medium mb-1">Proof URL (Transaction Hash / ID)</label>
             <Input 
               className="w-full text-sm py-2.5" 
               placeholder="Paste transaction hash or BSCScan/Explorer URL" 
               value={proofUrl}
               onChange={e => setProofUrl(e.target.value)}
+              disabled={paymentMethods.length === 0}
             />
           </div>
 
-          <Button onClick={handleDeposit} className="w-full sm:w-auto" disabled={isSubmitting}>
+          <Button 
+            onClick={handleDeposit} 
+            className="w-full sm:w-auto" 
+            disabled={isSubmitting || paymentMethods.length === 0}
+          >
             {isSubmitting ? 'Submitting...' : 'Submit Deposit Request'}
           </Button>
         </CardContent>
@@ -326,7 +343,7 @@ export default function DepositsPage() {
       {/* UI Popup / Toast */}
       {showPopup && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-sm w-full p-6 space-y-4 animate-fade-in border border-slate-700">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-sm w-full p-6 space-y-4 animate-fade-in border border-gray-200 dark:border-slate-700">
             <div className="text-center">
               <p className="text-4xl mb-2">
                 {messageType === 'success' ? '✅' : '❌'}

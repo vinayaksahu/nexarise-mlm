@@ -32,8 +32,8 @@ export async function GET() {
       rewardsPaidResult,
       totalBusinessResult
     ] = await Promise.all([
-      db.user.count().catch(err => { console.error('totalUsers error:', err); return 0; }),
-      db.user.count({ where: { status: 'ACTIVE' } }).catch(err => { console.error('activeUsers error:', err); return 0; }),
+      db.user.count({ where: { role: 'USER' } }).catch(err => { console.error('totalUsers error:', err); return 0; }),
+      db.user.count({ where: { role: 'USER', status: 'ACTIVE' } }).catch(err => { console.error('activeUsers error:', err); return 0; }),
       db.investment.aggregate({ _sum: { amount: true } }).catch(err => { console.error('totalInvestment error:', err); return { _sum: { amount: null } }; }),
       db.investment.aggregate({ where: { status: 'ACTIVE' }, _sum: { amount: true } }).catch(err => { console.error('activeInvestment error:', err); return { _sum: { amount: null } }; }),
       db.deposit.aggregate({ where: { status: 'APPROVED' }, _sum: { amount: true } }).catch(err => { console.error('totalDeposits error:', err); return { _sum: { amount: null } }; }),

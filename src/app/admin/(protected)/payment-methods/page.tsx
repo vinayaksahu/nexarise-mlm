@@ -230,7 +230,7 @@ export default function AdminPaymentMethodsPage() {
       </div>
 
       {toastMsg.text && (
-        <div className={`p-3.5 rounded-xl text-xs font-medium ${toastMsg.type === 'success' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30'}`}>
+        <div className={`p-3.5 rounded-xl text-xs font-medium ${toastMsg.type === 'success' ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30' : 'bg-red-500/20 text-red-700 dark:text-red-300 border border-red-500/30'}`}>
           {toastMsg.text}
         </div>
       )}
@@ -254,7 +254,7 @@ export default function AdminPaymentMethodsPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <CardTitle className="text-base font-bold text-gray-900 dark:text-white">{item.name}</CardTitle>
-                    <Badge variant="default" className="text-[10px] bg-indigo-500/20 text-indigo-400 border-indigo-500/30">
+                    <Badge variant="default" className="text-[10px] bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border-indigo-500/30">
                       {item.network}
                     </Badge>
                   </div>
@@ -264,7 +264,7 @@ export default function AdminPaymentMethodsPage() {
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
                   {item.isDefault && (
-                    <Badge variant="success" className="text-[10px] bg-emerald-500/20 text-emerald-400 border-emerald-500/30 font-semibold">
+                    <Badge variant="success" className="text-[10px] bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 font-semibold">
                       ⭐ Default
                     </Badge>
                   )}
@@ -276,7 +276,7 @@ export default function AdminPaymentMethodsPage() {
 
               <CardContent className="p-4 pt-2 space-y-3">
                 {/* QR Code Preview */}
-                <div className="flex justify-center bg-slate-900/50 p-3 rounded-xl border border-slate-800">
+                <div className="flex justify-center bg-gray-100 dark:bg-slate-900/50 p-3 rounded-xl border border-gray-200 dark:border-slate-800">
                   {item.qrCodeUrl ? (
                     <img 
                       src={item.qrCodeUrl} 
@@ -284,7 +284,7 @@ export default function AdminPaymentMethodsPage() {
                       className="w-36 h-36 object-contain rounded-lg bg-white p-1 shadow"
                     />
                   ) : (
-                    <div className="w-36 h-36 flex items-center justify-center text-xs text-muted bg-slate-900 rounded-lg">
+                    <div className="w-36 h-36 flex items-center justify-center text-xs text-muted bg-gray-200 dark:bg-slate-900 rounded-lg">
                       No QR Code
                     </div>
                   )}
@@ -292,9 +292,9 @@ export default function AdminPaymentMethodsPage() {
 
                 {/* Wallet Address & Copy */}
                 <div className="space-y-1">
-                  <label className="text-[11px] text-slate-400 font-medium">Deposit Address</label>
-                  <div className="flex items-center gap-2 p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs font-mono">
-                    <span className="truncate text-white flex-1">{item.walletAddress}</span>
+                  <label className="text-[11px] text-gray-500 dark:text-slate-400 font-medium">Deposit Address</label>
+                  <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-lg text-xs font-mono">
+                    <span className="truncate text-gray-900 dark:text-white flex-1">{item.walletAddress}</span>
                     <button 
                       onClick={() => copyToClipboard(item.walletAddress)} 
                       className="text-primary hover:text-primary-light font-bold text-xs p-1 shrink-0"
@@ -307,7 +307,7 @@ export default function AdminPaymentMethodsPage() {
 
                 {/* Instructions */}
                 {item.instructions && (
-                  <p className="text-[11px] text-slate-400 bg-slate-900/40 p-2 rounded-lg border border-slate-800/60">
+                  <p className="text-[11px] text-gray-600 dark:text-slate-400 bg-gray-50 dark:bg-slate-900/40 p-2 rounded-lg border border-gray-200 dark:border-slate-800/60">
                     ℹ️ {item.instructions}
                   </p>
                 )}
@@ -326,7 +326,7 @@ export default function AdminPaymentMethodsPage() {
                     <Button 
                       size="sm" 
                       variant="ghost" 
-                      className={`text-[11px] h-7 px-2.5 ${item.isActive ? 'text-amber-400 hover:text-amber-300' : 'text-emerald-400 hover:text-emerald-300'}`}
+                      className={`text-[11px] h-7 px-2.5 ${item.isActive ? 'text-amber-600 dark:text-amber-400 hover:text-amber-500' : 'text-emerald-600 dark:text-emerald-400 hover:text-emerald-500'}`}
                       onClick={() => toggleStatus(item)}
                     >
                       {item.isActive ? '⏸️ Deactivate' : '▶️ Activate'}
@@ -338,7 +338,7 @@ export default function AdminPaymentMethodsPage() {
                       <Button 
                         size="sm" 
                         variant="ghost" 
-                        className="text-[11px] h-7 px-2 text-indigo-400 hover:text-indigo-300"
+                        className="text-[11px] h-7 px-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-500"
                         onClick={() => setDefault(item)}
                         title="Set as default payment option"
                       >
@@ -348,7 +348,7 @@ export default function AdminPaymentMethodsPage() {
                     <Button 
                       size="sm" 
                       variant="ghost" 
-                      className="text-[11px] h-7 px-2 text-red-400 hover:text-red-300"
+                      className="text-[11px] h-7 px-2 text-red-600 dark:text-red-400 hover:text-red-500"
                       onClick={() => handleDelete(item)}
                       title="Delete"
                     >
@@ -364,15 +364,15 @@ export default function AdminPaymentMethodsPage() {
 
       {/* Add / Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-[99999] overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4 text-white relative my-auto">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 z-[99999] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4 text-gray-900 dark:text-white relative my-auto">
+            <div className="flex items-center justify-between border-b border-gray-200 dark:border-slate-800 pb-3">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <span>{editingItem ? '✏️ Edit Payment Method' : '➕ Add Payment Method'}</span>
               </h2>
               <button 
                 onClick={() => setShowModal(false)}
-                className="text-slate-400 hover:text-white font-bold text-lg p-1"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-white font-bold text-lg p-1"
               >
                 ✕
               </button>
@@ -381,50 +381,50 @@ export default function AdminPaymentMethodsPage() {
             <form onSubmit={handleSave} className="space-y-4 text-left">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Method Name</label>
+                  <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Method Name</label>
                   <Input 
                     type="text" 
                     value={formName}
                     onChange={(e) => setFormName(e.target.value)}
                     placeholder="e.g. USDT, USDC, BTC"
-                    className="bg-slate-950 border-slate-800 text-white text-xs"
+                    className="bg-white dark:bg-slate-950 border-gray-300 dark:border-slate-800 text-gray-900 dark:text-white text-xs"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Network</label>
+                  <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Network</label>
                   <Input 
                     type="text" 
                     value={formNetwork}
                     onChange={(e) => setFormNetwork(e.target.value)}
                     placeholder="e.g. BEP-20, TRC-20, ERC-20"
-                    className="bg-slate-950 border-slate-800 text-white text-xs"
+                    className="bg-white dark:bg-slate-950 border-gray-300 dark:border-slate-800 text-gray-900 dark:text-white text-xs"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Deposit Wallet Address</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Deposit Wallet Address</label>
                 <Input 
                   type="text" 
                   value={formAddress}
                   onChange={(e) => setFormAddress(e.target.value)}
                   placeholder="0x..."
-                  className="bg-slate-950 border-slate-800 text-white text-xs font-mono"
+                  className="bg-white dark:bg-slate-950 border-gray-300 dark:border-slate-800 text-gray-900 dark:text-white text-xs font-mono"
                   required
                 />
               </div>
 
               {/* QR Code Upload / Custom URL */}
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-slate-300">QR Code Image</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-slate-300">QR Code Image</label>
                 
                 <div className="flex items-center gap-3">
                   {formQrUrl ? (
-                    <img src={formQrUrl} alt="QR Preview" className="w-16 h-16 object-contain bg-white p-1 rounded-lg border border-slate-700 shrink-0" />
+                    <img src={formQrUrl} alt="QR Preview" className="w-16 h-16 object-contain bg-white p-1 rounded-lg border border-gray-300 dark:border-slate-700 shrink-0" />
                   ) : (
-                    <div className="w-16 h-16 bg-slate-950 border border-slate-800 rounded-lg flex items-center justify-center text-[10px] text-slate-500 shrink-0">
+                    <div className="w-16 h-16 bg-gray-100 dark:bg-slate-950 border border-gray-300 dark:border-slate-800 rounded-lg flex items-center justify-center text-[10px] text-gray-500 dark:text-slate-500 shrink-0">
                       Auto QR
                     </div>
                   )}
@@ -434,47 +434,47 @@ export default function AdminPaymentMethodsPage() {
                       type="file" 
                       accept="image/*"
                       onChange={handleFileUpload}
-                      className="block w-full text-xs text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer"
+                      className="block w-full text-xs text-gray-500 dark:text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer"
                     />
-                    <p className="text-[10px] text-slate-400">Upload custom QR image or leave empty for auto-generated QR.</p>
+                    <p className="text-[10px] text-gray-500 dark:text-slate-400">Upload custom QR image or leave empty for auto-generated QR.</p>
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Instructions (Optional)</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Instructions (Optional)</label>
                 <Input 
                   type="text" 
                   value={formInstructions}
                   onChange={(e) => setFormInstructions(e.target.value)}
                   placeholder="e.g. Send only USDT on BEP-20 network."
-                  className="bg-slate-950 border-slate-800 text-white text-xs"
+                  className="bg-white dark:bg-slate-950 border-gray-300 dark:border-slate-800 text-gray-900 dark:text-white text-xs"
                 />
               </div>
 
-              <div className="flex items-center justify-between p-3 bg-slate-950 rounded-xl border border-slate-800">
-                <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-300">
+              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-950 rounded-xl border border-gray-200 dark:border-slate-800">
+                <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-gray-700 dark:text-slate-300">
                   <input 
                     type="checkbox" 
                     checked={formIsDefault}
                     onChange={(e) => setFormIsDefault(e.target.checked)}
-                    className="rounded border-slate-700 text-indigo-600 focus:ring-indigo-500"
+                    className="rounded border-gray-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500"
                   />
                   <span>⭐ Set as Default Payment Method</span>
                 </label>
 
-                <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-300">
+                <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-gray-700 dark:text-slate-300">
                   <input 
                     type="checkbox" 
                     checked={formIsActive}
                     onChange={(e) => setFormIsActive(e.target.checked)}
-                    className="rounded border-slate-700 text-indigo-600 focus:ring-indigo-500"
+                    className="rounded border-gray-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500"
                   />
                   <span>Status: Active</span>
                 </label>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
+              <div className="flex justify-end gap-2 pt-2 border-t border-gray-200 dark:border-slate-800">
                 <Button type="button" variant="outline" size="sm" onClick={() => setShowModal(false)}>
                   Cancel
                 </Button>
