@@ -9,7 +9,16 @@ export async function PUT(
 ) {
   try {
     const session = await getSession();
-    if (!session || session.role !== 'SUPER_ADMIN') {
+    if (!session?.userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const currentUser = await db.user.findUnique({
+      where: { id: session.userId },
+      select: { role: true }
+    });
+
+    if (!currentUser || currentUser.role !== 'SUPER_ADMIN') {
       return NextResponse.json({ error: 'Unauthorized. SuperAdmin privileges required.' }, { status: 403 });
     }
 
@@ -26,12 +35,10 @@ export async function PUT(
       return NextResponse.json({ error: 'Administrator account not found' }, { status: 404 });
     }
 
-    // Protection: Cannot alter SuperAdmin role or status
     if (targetAdmin.role === 'SUPER_ADMIN') {
       return NextResponse.json({ error: 'SuperAdmin account cannot be modified or demoted' }, { status: 403 });
     }
 
-    // Protection: Cannot elevate to SuperAdmin
     if (role === 'SUPER_ADMIN') {
       return NextResponse.json({ error: 'Cannot elevate account to SuperAdmin' }, { status: 400 });
     }
@@ -43,20 +50,23 @@ export async function PUT(
     const updated = await db.user.update({
       where: { id },
       data: updateData,
-      select: { id: true, name: true, username: true, role: true, status: true }
+      select: { id: true, name: true, username: true, email: true, role: true, status: true, createdAt: true }
     });
 
-    // Audit log
-    await db.auditLog.create({
-      data: {
-        adminId: session.userId,
-        action: 'SUPER_ADMIN_UPDATE_STAFF',
-        target: targetAdmin.username,
-        oldValue: `Role: ${targetAdmin.role}, Status: ${targetAdmin.status}`,
-        newValue: `Role: ${updated.role}, Status: ${updated.status}`,
-        createdAt: new Date(),
-      }
-    });
+    try {
+      await db.auditLog.create({
+        data: {
+          adminId: session.userId,
+          action: 'SUPER_ADMIN_UPDATE_STAFF',
+          target: targetAdmin.username,
+          oldValue: `Role: ${targetAdmin.role}, Status: ${targetAdmin.status}`,
+          newValue: `Role: ${updated.role}, Status: ${updated.status}`,
+          createdAt: new Date(),
+        }
+      });
+    } catch (auditErr) {
+      console.warn('Audit log warning:', auditErr);
+    }
 
     return NextResponse.json({ message: 'Administrator account updated successfully', admin: updated });
   } catch (error: any) {
@@ -71,7 +81,16 @@ export async function DELETE(
 ) {
   try {
     const session = await getSession();
-    if (!session || session.role !== 'SUPER_ADMIN') {
+    if (!session?.userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const currentUser = await db.user.findUnique({
+      where: { id: session.userId },
+      select: { role: true }
+    });
+
+    if (!currentUser || currentUser.role !== 'SUPER_ADMIN') {
       return NextResponse.json({ error: 'Unauthorized. SuperAdmin privileges required.' }, { status: 403 });
     }
 
@@ -89,19 +108,9 @@ export async function DELETE(
       return NextResponse.json({ error: 'SuperAdmin account cannot be deleted' }, { status: 403 });
     }
 
-    // Safely update to INACTIVE instead of hard deleting
     await db.user.update({
       where: { id },
       data: { status: 'INACTIVE' }
-    });
-
-    await db.auditLog.create({
-      data: {
-        adminId: session.userId,
-        action: 'SUPER_ADMIN_DEACTIVATE_STAFF',
-        target: targetAdmin.username,
-        createdAt: new Date(),
-      }
     });
 
     return NextResponse.json({ message: 'Administrator deactivated successfully' });

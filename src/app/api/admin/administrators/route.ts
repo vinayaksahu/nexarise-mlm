@@ -6,14 +6,23 @@ import { ADMIN_ROLES } from '@/lib/permissions';
 export async function GET() {
   try {
     const session = await getSession();
-    if (!session || session.role !== 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized. SuperAdmin privileges required.' }, { status: 403 });
+    if (!session?.userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const currentUser = await db.user.findUnique({
+      where: { id: session.userId },
+      select: { role: true }
+    });
+
+    if (!currentUser || !['SUPER_ADMIN', 'ADMIN'].includes(currentUser.role)) {
+      return NextResponse.json({ error: 'Unauthorized. Admin privileges required.' }, { status: 403 });
     }
 
     const admins = await db.user.findMany({
       where: {
         role: {
-          in: ['SUPER_ADMIN', 'ADMIN', 'FINANCE', 'USER_MANAGER', 'PLAN_EDITOR', 'SUPPORT', 'VIEWER']
+          not: 'USER'
         }
       },
       orderBy: { createdAt: 'desc' },
@@ -38,7 +47,16 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const session = await getSession();
-    if (!session || session.role !== 'SUPER_ADMIN') {
+    if (!session?.userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const currentUser = await db.user.findUnique({
+      where: { id: session.userId },
+      select: { role: true }
+    });
+
+    if (!currentUser || currentUser.role !== 'SUPER_ADMIN') {
       return NextResponse.json({ error: 'Unauthorized. SuperAdmin privileges required.' }, { status: 403 });
     }
 
@@ -49,7 +67,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
     }
 
-    // Role safety check: Cannot create SUPER_ADMIN via API to protect root identity
     if (!ADMIN_ROLES.includes(role) || role === 'SUPER_ADMIN') {
       return NextResponse.json({ error: 'Invalid admin role. Cannot assign SuperAdmin.' }, { status: 400 });
     }
@@ -57,7 +74,6 @@ export async function POST(request: NextRequest) {
     const cleanUsername = username.toLowerCase().trim();
     const cleanEmail = email.toLowerCase().trim();
 
-    // Check duplicate
     const existing = await db.user.findFirst({
       where: {
         OR: [
@@ -96,15 +112,19 @@ export async function POST(request: NextRequest) {
     });
 
     // Audit Log
-    await db.auditLog.create({
-      data: {
-        adminId: session.userId,
-        action: 'SUPER_ADMIN_CREATE_STAFF',
-        target: newAdmin.username,
-        newValue: `Role: ${role}`,
-        createdAt: new Date(),
-      }
-    });
+    try {
+      await db.auditLog.create({
+        data: {
+          adminId: session.userId,
+          action: 'SUPER_ADMIN_CREATE_STAFF',
+          target: newAdmin.username,
+          newValue: `Role: ${role}`,
+          createdAt: new Date(),
+        }
+      });
+    } catch (auditErr) {
+      console.warn('Audit log creation warning:', auditErr);
+    }
 
     return NextResponse.json({ message: 'Administrator account created successfully', admin: newAdmin }, { status: 201 });
   } catch (error: any) {

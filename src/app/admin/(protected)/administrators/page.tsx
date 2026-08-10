@@ -22,7 +22,7 @@ const ROLE_DESCRIPTIONS: Record<string, string> = {
   FINANCE: 'Financial administration. Handles deposits, withdrawals, and financial reports.',
   USER_MANAGER: 'User operations. Manages users, accounts, activation, and support tickets.',
   PLAN_EDITOR: 'Business plan configuration. Edits ROI rates, Level Income percentages, and Rewards.',
-  SUPPORT: 'Support operator. View users and respond to help desk tickets.',
+  SUPPORT: 'Support operator. View users and respond to helpdesk tickets.',
   VIEWER: 'Read-only access for auditing dashboards and system stats.',
 };
 
@@ -42,6 +42,7 @@ export default function AdminAdministratorsPage() {
   const [msg, setMsg] = useState({ text: '', type: '' as 'success' | 'error' | '' });
 
   const fetchAdmins = async () => {
+    setLoading(true);
     try {
       const res = await fetch('/api/admin/administrators');
       if (res.ok) {
@@ -94,10 +95,13 @@ export default function AdminAdministratorsPage() {
           body: JSON.stringify({ role }),
         });
         const data = await res.json();
-        if (res.ok) {
+        if (res.ok && data.admin) {
+          setAdmins(prev => prev.map(a => a.id === data.admin.id ? data.admin : a));
           setMsg({ text: '🎉 Admin role updated successfully!', type: 'success' });
-          fetchAdmins();
-          setTimeout(() => setShowAddModal(false), 1200);
+          setTimeout(() => {
+            setShowAddModal(false);
+            setMsg({ text: '', type: '' });
+          }, 1000);
         } else {
           setMsg({ text: data.error || 'Failed to update admin account', type: 'error' });
         }
@@ -108,10 +112,13 @@ export default function AdminAdministratorsPage() {
           body: JSON.stringify({ name, username, email, password, role }),
         });
         const data = await res.json();
-        if (res.ok) {
+        if (res.ok && data.admin) {
+          setAdmins(prev => [data.admin, ...prev.filter(a => a.id !== data.admin.id)]);
           setMsg({ text: '🎉 New administrative staff account created successfully!', type: 'success' });
-          fetchAdmins();
-          setTimeout(() => setShowAddModal(false), 1200);
+          setTimeout(() => {
+            setShowAddModal(false);
+            setMsg({ text: '', type: '' });
+          }, 1000);
         } else {
           setMsg({ text: data.error || 'Failed to create admin account', type: 'error' });
         }
@@ -138,7 +145,12 @@ export default function AdminAdministratorsPage() {
         body: JSON.stringify({ status: newStatus }),
       });
       if (res.ok) {
-        fetchAdmins();
+        const data = await res.json();
+        if (data.admin) {
+          setAdmins(prev => prev.map(a => a.id === data.admin.id ? data.admin : a));
+        } else {
+          fetchAdmins();
+        }
       }
     } catch (err) {
       console.error('Toggle status error:', err);
@@ -228,6 +240,14 @@ export default function AdminAdministratorsPage() {
                     <td colSpan={6} className="p-8 text-center text-muted">
                       <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary mr-2" />
                       Loading staff records...
+                    </td>
+                  </tr>
+                ) : admins.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="p-8 text-center text-muted">
+                      <p className="text-2xl mb-1">🛡️</p>
+                      <p className="text-sm font-semibold">No administrative staff accounts found</p>
+                      <p className="text-xs mt-0.5">Click "Create Staff Admin" to add your first administrative staff member.</p>
                     </td>
                   </tr>
                 ) : (
