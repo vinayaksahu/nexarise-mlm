@@ -142,7 +142,7 @@ async function main() {
     { name: 'Bob Johnson', username: 'bob', email: 'bob@example.com', sponsorUsername: 'adam' },
     { name: 'Charles Brown', username: 'charles', email: 'charles@example.com', sponsorUsername: 'adam' },
     { name: 'David Lee', username: 'david', email: 'david@example.com', sponsorUsername: 'bob' },
-    { name: 'Eve Wilson', username: 'eve', email: 'nexarise6@gmail.com', sponsorUsername: 'adam' },
+    { name: 'Eve Wilson', username: 'eve', email: 'eve@example.com', sponsorUsername: 'adam' },
   ]
 
   for (const u of dummyUsersData) {
