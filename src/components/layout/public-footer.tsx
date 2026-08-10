@@ -8,7 +8,7 @@ export function PublicFooter() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <TrendingUp className="h-6 w-6 text-primary" />
+              <img src="/images/nexarise-emblem.png" alt="NexaRise Logo" className="h-6 w-6 object-contain shrink-0" />
               <span className="font-bold text-lg tracking-tight">NexaRise</span>
             </div>
             <p className="text-sm text-muted-foreground">

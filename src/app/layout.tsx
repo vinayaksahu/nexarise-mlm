@@ -15,6 +15,11 @@ export const metadata: Metadata = {
   },
   description: 'NexaRise is a premium investment platform. Build your network, earn daily ROI, and grow together.',
   keywords: ['investment', 'ROI', 'network', 'growth', 'income'],
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/apple-icon.png',
+  },
 }
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

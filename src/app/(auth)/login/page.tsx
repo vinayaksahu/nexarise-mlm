@@ -45,7 +45,11 @@ export default function LoginPage() {
   return (
     <div className="animate-fade-in max-w-md mx-auto py-8">
       <div className="text-center mb-8">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4 pulse-glow shadow-lg">N</div>
+        <img
+          src="/images/nexarise-emblem.png"
+          alt="NexaRise Logo"
+          className="w-20 h-20 object-contain mx-auto mb-4 drop-shadow-xl animate-pulse"
+        />
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Welcome Back</h1>
         <p className="text-slate-400 mt-2 text-sm">Sign in to your NexaRise account</p>
       </div>

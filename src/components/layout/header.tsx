@@ -56,9 +56,11 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
             ☰
           </button>
           <Link href={isAdmin ? '/admin' : '/dashboard'} className="flex items-center gap-1.5 lg:hidden">
-            <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow">
-              N
-            </div>
+            <img
+              src="/images/nexarise-emblem.png"
+              alt="NexaRise Logo"
+              className="w-7 h-7 object-contain shrink-0"
+            />
             <span className="text-base font-bold text-white tracking-tight">
               Nexa<span className="text-blue-500">Rise</span>
             </span>

@@ -29,7 +29,7 @@ export function PublicNav() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2">
-              <TrendingUp className="h-8 w-8 text-primary" />
+              <img src="/images/nexarise-emblem.png" alt="NexaRise Logo" className="h-8 w-8 object-contain shrink-0" />
               <span className="font-bold text-xl tracking-tight">NexaRise</span>
             </Link>
           </div>

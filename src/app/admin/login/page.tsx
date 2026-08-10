@@ -49,9 +49,11 @@ export default function AdminLoginPage() {
     <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 text-slate-100 animate-fade-in">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-600 via-indigo-600 to-slate-900 flex items-center justify-center text-white text-3xl font-extrabold mx-auto shadow-xl border border-slate-700">
-            🛡️
-          </div>
+          <img
+            src="/images/nexarise-emblem.png"
+            alt="NexaRise Logo"
+            className="w-20 h-20 object-contain mx-auto shadow-2xl drop-shadow-xl animate-pulse"
+          />
           <h1 className="text-3xl font-extrabold tracking-tight text-white">NexaRise Admin Portal</h1>
           <p className="text-xs text-slate-400 font-mono uppercase tracking-widest">
             Restricted Management Console

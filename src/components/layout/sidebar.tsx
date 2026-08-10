@@ -98,9 +98,11 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer =
           className="flex items-center gap-2.5"
           onClick={onCloseMobile}
         >
-          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
-            N
-          </div>
+          <img
+            src="/images/nexarise-emblem.png"
+            alt="NexaRise Logo"
+            className="w-8 h-8 object-contain shrink-0 drop-shadow"
+          />
           {(!collapsed || isMobileDrawer) && (
             <span className="text-lg font-bold tracking-tight text-white">
               Nexa<span className="text-blue-500">Rise</span>
