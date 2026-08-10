@@ -21,6 +21,17 @@ export async function GET(request: NextRequest) {
     const withdrawals = await db.withdrawal.findMany({
       where: { userId: session.userId },
       orderBy: { createdAt: 'desc' },
+      take: 100,
+      select: {
+        id: true,
+        amount: true,
+        fee: true,
+        netAmount: true,
+        method: true,
+        status: true,
+        adminNote: true,
+        createdAt: true,
+      }
     })
 
     return NextResponse.json(withdrawals)

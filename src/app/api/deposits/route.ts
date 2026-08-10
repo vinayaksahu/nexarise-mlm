@@ -19,6 +19,16 @@ export async function GET(request: NextRequest) {
     const deposits = await db.deposit.findMany({
       where: { userId: session.userId },
       orderBy: { createdAt: 'desc' },
+      take: 100,
+      select: {
+        id: true,
+        amount: true,
+        method: true,
+        proofUrl: true,
+        status: true,
+        adminNote: true,
+        createdAt: true,
+      }
     })
 
     return NextResponse.json(deposits)

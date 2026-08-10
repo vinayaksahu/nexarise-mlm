@@ -9,27 +9,28 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const directReferrals = await db.user.findMany({
-      where: { sponsorId: session.userId },
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        username: true,
-        name: true,
-        email: true,
-        mobile: true,
-        status: true,
-        createdAt: true,
-        investments: {
-          where: { status: 'ACTIVE' },
-          select: { amount: true, status: true }
-        }
-      },
-    })
-
-    const businessVolume = await db.businessVolume.findUnique({
-      where: { userId: session.userId },
-    })
+    const [directReferrals, businessVolume] = await Promise.all([
+      db.user.findMany({
+        where: { sponsorId: session.userId },
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          username: true,
+          name: true,
+          email: true,
+          mobile: true,
+          status: true,
+          createdAt: true,
+          investments: {
+            where: { status: 'ACTIVE' },
+            select: { amount: true, status: true }
+          }
+        },
+      }),
+      db.businessVolume.findUnique({
+        where: { userId: session.userId },
+      })
+    ])
 
     return NextResponse.json({
       directReferrals,

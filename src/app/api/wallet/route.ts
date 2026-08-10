@@ -9,48 +9,33 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    let wallet: any
-    try {
-      wallet = await db.wallet.findUnique({
-        where: { userId: session.userId },
-      })
-    } catch (e) {
-      // Fallback if p2pBalance column is not yet in the DB schema
-      wallet = await db.wallet.findUnique({
-        where: { userId: session.userId },
-        select: {
-          id: true,
-          userId: true,
-          availableBalance: true,
-          roiIncome: true,
-          levelIncome: true,
-          rewardIncome: true,
-          totalIncome: true,
-          totalWithdrawals: true,
-          createdAt: true,
-          updatedAt: true,
-        }
-      })
-      if (wallet) {
-        wallet.p2pBalance = 0
-      }
-    }
-
-    if (!wallet) {
-      wallet = await db.wallet.create({
-        data: {
-          userId: session.userId,
-          availableBalance: 0,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }
-      })
-    }
-
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
-    const [todaysRoiAgg, totalInvAgg, p2pSentAgg, p2pRecvAgg] = await Promise.all([
+    const [walletResult, todaysRoiAgg, totalInvAgg, p2pSentAgg, p2pRecvAgg] = await Promise.all([
+      db.wallet.findUnique({
+        where: { userId: session.userId },
+      }).catch(async () => {
+        const fallback = await db.wallet.findUnique({
+          where: { userId: session.userId },
+          select: {
+            id: true,
+            userId: true,
+            availableBalance: true,
+            roiIncome: true,
+            levelIncome: true,
+            rewardIncome: true,
+            totalIncome: true,
+            totalWithdrawals: true,
+            createdAt: true,
+            updatedAt: true,
+          }
+        })
+        if (fallback) {
+          (fallback as any).p2pBalance = 0
+        }
+        return fallback
+      }),
       db.roiTransaction.aggregate({
         where: { userId: session.userId, earningDate: { gte: today } },
         _sum: { amount: true }
@@ -68,6 +53,18 @@ export async function GET(request: NextRequest) {
         _sum: { netAmount: true }
       })
     ])
+
+    let wallet = walletResult
+    if (!wallet) {
+      wallet = await db.wallet.create({
+        data: {
+          userId: session.userId,
+          availableBalance: 0,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+      })
+    }
 
     const walletData = {
       ...wallet,
