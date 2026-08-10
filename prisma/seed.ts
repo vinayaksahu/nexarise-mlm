@@ -134,10 +134,60 @@ async function main() {
   })
   console.log('✅ Admin business volume record created')
 
-  console.log('\n🎉 Seed complete! Admin login:')
-  console.log('   Username: superadmin')
-  console.log('   Password: Admin@2026')
-  console.log('   Referral Code: NEXARISE')
+  // 6. Create Dummy Users (adam, bob, charles, david, eve)
+  const defaultUserPasswordHash = await bcrypt.hash('Password123', 10)
+
+  const dummyUsersData = [
+    { name: 'Adam Smith', username: 'adam', email: 'adam@example.com', sponsorUsername: 'superadmin' },
+    { name: 'Bob Johnson', username: 'bob', email: 'bob@example.com', sponsorUsername: 'adam' },
+    { name: 'Charles Brown', username: 'charles', email: 'charles@example.com', sponsorUsername: 'adam' },
+    { name: 'David Lee', username: 'david', email: 'david@example.com', sponsorUsername: 'bob' },
+    { name: 'Eve Wilson', username: 'eve', email: 'nexarise6@gmail.com', sponsorUsername: 'adam' },
+  ]
+
+  for (const u of dummyUsersData) {
+    let sponsorId: string | null = admin.id
+    if (u.sponsorUsername !== 'superadmin') {
+      const sponsorUser = await prisma.user.findFirst({ where: { username: u.sponsorUsername } })
+      if (sponsorUser) sponsorId = sponsorUser.id
+    }
+
+    const createdUser = await prisma.user.upsert({
+      where: { username: u.username },
+      update: { passwordHash: defaultUserPasswordHash, status: 'ACTIVE', emailVerified: true },
+      create: {
+        name: u.name,
+        username: u.username,
+        email: u.email,
+        passwordHash: defaultUserPasswordHash,
+        referralCode: u.username,
+        sponsorId,
+        role: 'USER',
+        status: 'ACTIVE',
+        emailVerified: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    })
+
+    await prisma.wallet.upsert({
+      where: { userId: createdUser.id },
+      update: {},
+      create: { userId: createdUser.id, createdAt: new Date(), updatedAt: new Date() },
+    })
+
+    await prisma.businessVolume.upsert({
+      where: { userId: createdUser.id },
+      update: {},
+      create: { userId: createdUser.id, updatedAt: new Date() },
+    })
+
+    console.log(`✅ Dummy user created: ${createdUser.username} (Password: Password123)`)
+  }
+
+  console.log('\n🎉 Seed complete! Logins:')
+  console.log('   Super Admin -> Username: superadmin | Password: Admin@2026')
+  console.log('   Dummy Users -> Username: adam, bob, charles, david, eve | Password: Password123')
 }
 
 main()
