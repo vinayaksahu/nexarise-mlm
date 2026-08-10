@@ -69,12 +69,13 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `OTP sent successfully to ${cleanEmail}.`,
-      // For easy testing when SMTP is not configured in dev/staging
-      ...(!isSmtpConfigured && process.env.NODE_ENV !== 'production' ? { devOtp: code } : {}),
+      message: `OTP generated for ${cleanEmail}.`,
+      // Show devOtp when SMTP is not configured so user can easily copy code during testing
+      ...(!isSmtpConfigured ? { devOtp: code } : {}),
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Send OTP Error:', error);
-    return NextResponse.json({ error: 'Failed to send OTP. Please try again.' }, { status: 500 });
+    const detail = error?.message || 'Failed to send OTP. Please try again.';
+    return NextResponse.json({ error: detail }, { status: 500 });
   }
 }
