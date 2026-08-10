@@ -373,3 +373,21 @@ model PaymentMethod {
   isActive  Boolean  @default(true)
   createdAt DateTime
 }
+
+enum OtpPurpose {
+  REGISTRATION
+  PASSWORD_RESET
+}
+
+model OtpToken {
+  id        String     @id @default(uuid())
+  email     String
+  code      String
+  purpose   OtpPurpose
+  expiresAt DateTime
+  used      Boolean    @default(false)
+  createdAt DateTime   @default(now())
+
+  @@index([email, purpose, used])
+}
+
