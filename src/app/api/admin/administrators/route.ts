@@ -19,12 +19,15 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized. Admin privileges required.' }, { status: 403 });
     }
 
+    const isSuperAdmin = currentUser.role === 'SUPER_ADMIN';
+
+    // Non-Superadmins MUST NOT see Superadmin accounts
+    const whereCondition: any = isSuperAdmin
+      ? { role: { not: 'USER' } }
+      : { role: { notIn: ['USER', 'SUPER_ADMIN'] }, username: { not: 'superadmin' } };
+
     const admins = await db.user.findMany({
-      where: {
-        role: {
-          not: 'USER'
-        }
-      },
+      where: whereCondition,
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
@@ -57,7 +60,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!currentUser || currentUser.role !== 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized. SuperAdmin privileges required.' }, { status: 403 });
+      return NextResponse.json({ error: 'Unauthorized. Insufficient admin privileges.' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -68,7 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!ADMIN_ROLES.includes(role) || role === 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'Invalid admin role. Cannot assign SuperAdmin.' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid admin role.' }, { status: 400 });
     }
 
     const cleanUsername = username.toLowerCase().trim();
@@ -116,7 +119,7 @@ export async function POST(request: NextRequest) {
       await db.auditLog.create({
         data: {
           adminId: session.userId,
-          action: 'SUPER_ADMIN_CREATE_STAFF',
+          action: 'CREATE_STAFF_ADMIN',
           target: newAdmin.username,
           newValue: `Role: ${role}`,
           createdAt: new Date(),

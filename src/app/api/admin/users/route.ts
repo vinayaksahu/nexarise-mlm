@@ -9,6 +9,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const isSuperAdminSession = session.role === 'SUPER_ADMIN';
+
     const searchParams = request.nextUrl.searchParams;
     const search = searchParams.get('search') || '';
     const status = searchParams.get('status') || '';
@@ -16,8 +18,9 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const skip = (page - 1) * limit;
 
+    // Strict filter: User management queries MUST ONLY fetch role: 'USER'
     const where: any = { role: 'USER' };
-    
+
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
@@ -26,7 +29,7 @@ export async function GET(request: NextRequest) {
         { referralCode: { contains: search, mode: 'insensitive' } },
       ];
     }
-    
+
     if (status) {
       where.status = status;
     }
@@ -42,7 +45,7 @@ export async function GET(request: NextRequest) {
             select: { downlines: true }
           },
           sponsor: {
-            select: { username: true }
+            select: { username: true, role: true }
           },
           investments: {
             select: { amount: true, status: true }
@@ -64,11 +67,18 @@ export async function GET(request: NextRequest) {
         }
       });
 
-      const directTeamSum = downlines.reduce((sum, d) => 
+      const directTeamSum = downlines.reduce((sum, d) =>
         sum + d.investments.reduce((s, i) => s + Number(i.amount), 0), 0);
+
+      // Sanitize sponsor username if sponsor is Superadmin and requesting user is NOT Superadmin
+      let sponsorUsername = user.sponsor?.username || null;
+      if (!isSuperAdminSession && (user.sponsor?.role === 'SUPER_ADMIN' || sponsorUsername === 'superadmin')) {
+        sponsorUsername = 'System';
+      }
 
       return {
         ...user,
+        sponsor: sponsorUsername ? { username: sponsorUsername } : null,
         selfInvestmentSum,
         teamInvestmentSum: directTeamSum,
       };

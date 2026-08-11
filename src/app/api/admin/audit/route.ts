@@ -1,26 +1,68 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { ADMIN_ROLES } from '@/lib/permissions';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getSession();
-    if (!session || !['SUPER_ADMIN', 'ADMIN'].includes(session.role)) {
+    if (!session || !ADMIN_ROLES.includes(session.role as any)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const [auditLogs, securityEvents] = await Promise.all([
+    const isSuperAdminSession = session.role === 'SUPER_ADMIN';
+
+    const [rawLogs, rawEvents] = await Promise.all([
       db.auditLog.findMany({
         take: 100,
         orderBy: { createdAt: 'desc' },
-        include: { admin: { select: { username: true } } }
+        include: { admin: { select: { id: true, username: true, role: true } } }
       }),
       db.securityEvent.findMany({
         take: 100,
         orderBy: { createdAt: 'desc' },
-        include: { user: { select: { username: true } } }
+        include: { user: { select: { id: true, username: true, role: true } } }
       })
     ]);
+
+    const auditLogs = rawLogs.map((log) => {
+      const isSuperActor = !log.admin || log.admin.role === 'SUPER_ADMIN' || log.admin.username === 'superadmin';
+      
+      // Sanitize action string to remove 'SUPER_ADMIN_' prefix
+      const cleanAction = log.action.replace(/^SUPER_ADMIN_/g, 'SYSTEM_ADMIN_');
+
+      if (!isSuperAdminSession && isSuperActor) {
+        return {
+          ...log,
+          action: cleanAction,
+          adminId: null,
+          admin: { username: 'System Administrator' }
+        };
+      }
+
+      return {
+        ...log,
+        action: cleanAction,
+        admin: log.admin ? { username: log.admin.username === 'superadmin' ? 'System Administrator' : log.admin.username } : { username: 'System Administrator' }
+      };
+    });
+
+    const securityEvents = rawEvents.map((event) => {
+      const isSuperActor = !event.user || event.user.role === 'SUPER_ADMIN' || event.user.username === 'superadmin';
+      
+      if (!isSuperAdminSession && isSuperActor) {
+        return {
+          ...event,
+          userId: null,
+          user: { username: 'System Administrator' }
+        };
+      }
+
+      return {
+        ...event,
+        user: event.user ? { username: event.user.username === 'superadmin' ? 'System Administrator' : event.user.username } : null
+      };
+    });
 
     return NextResponse.json({
       auditLogs,
