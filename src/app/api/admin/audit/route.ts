@@ -6,7 +6,7 @@ import { ADMIN_ROLES } from '@/lib/permissions';
 export async function GET(request: NextRequest) {
   try {
     const session = await getSession();
-    if (!session || (!ADMIN_ROLES.includes(session.role) && session.role !== 'SUPER_ADMIN')) {
+    if (!session || !ADMIN_ROLES.includes(session.role as any)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
