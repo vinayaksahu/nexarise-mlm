@@ -200,7 +200,7 @@ function RegisterForm() {
 
           <Input
             label="Mobile (Optional)"
-            placeholder="+91 9876543210"
+            placeholder="+1 (555) 000-0000"
             value={form.mobile}
             onChange={(e) => setForm(p => ({ ...p, mobile: e.target.value }))}
           />
