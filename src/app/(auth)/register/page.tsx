@@ -65,7 +65,7 @@ function RegisterForm() {
           <Input label="Full Name" placeholder="John Doe" value={form.name} onChange={(e) => setForm(p => ({ ...p, name: e.target.value }))} required />
           <Input label="Username" placeholder="johndoe" value={form.username} onChange={(e) => setForm(p => ({ ...p, username: e.target.value.toLowerCase() }))} required />
           <Input label="Email" type="email" placeholder="john@example.com" value={form.email} onChange={(e) => setForm(p => ({ ...p, email: e.target.value }))} required />
-          <Input label="Mobile (Optional)" placeholder="+91 9876543210" value={form.mobile} onChange={(e) => setForm(p => ({ ...p, mobile: e.target.value }))} />
+          <Input label="Mobile (Optional)" placeholder="+1 (555) 000-0000" value={form.mobile} onChange={(e) => setForm(p => ({ ...p, mobile: e.target.value }))} />
           <Input label="Password" type="password" placeholder="Min 8 characters" value={form.password} onChange={(e) => setForm(p => ({ ...p, password: e.target.value }))} required />
           <Input label="Confirm Password" type="password" placeholder="Confirm your password" value={form.confirmPassword} onChange={(e) => setForm(p => ({ ...p, confirmPassword: e.target.value }))} required />
           <Input label="Referral Code" placeholder="Enter referral code" value={form.referralCode} onChange={(e) => setForm(p => ({ ...p, referralCode: e.target.value }))} required />
