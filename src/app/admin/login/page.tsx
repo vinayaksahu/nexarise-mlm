@@ -84,7 +84,7 @@ export default function AdminLoginPage() {
                   Admin Username or Email
                 </label>
                 <Input
-                  placeholder="e.g. superadmin"
+                  placeholder="e.g. admin"
                   value={form.login}
                   onChange={(e) => setForm(p => ({ ...p, login: e.target.value }))}
                   required
