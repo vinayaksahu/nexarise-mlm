@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
     const [directReferrals, businessVolume] = await Promise.all([
       db.user.findMany({
-        where: { sponsorId: session.userId },
+        where: { sponsorId: session.userId, role: 'USER' },
         orderBy: { createdAt: 'desc' },
         select: {
           id: true,

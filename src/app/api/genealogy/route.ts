@@ -14,18 +14,19 @@ interface TreeNode {
   children: TreeNode[]
 }
 
-async function buildTree(userId: string, depth: number): Promise<TreeNode[]> {
+async function buildTree(userId: string, depth: number, isSuperAdminSession: boolean): Promise<TreeNode[]> {
   if (depth > 4) return []
 
   const users = await db.user.findMany({
-    where: { sponsorId: userId },
+    where: { sponsorId: userId, role: 'USER' },
     select: {
       id: true,
       name: true,
       username: true,
       referralCode: true,
       status: true,
-      createdAt: true
+      createdAt: true,
+      role: true,
     }
   })
 
@@ -38,12 +39,15 @@ async function buildTree(userId: string, depth: number): Promise<TreeNode[]> {
     })
     const activeInvestment = new Decimal(investments._sum.amount?.toString() || 0).toNumber()
 
-    const children = await buildTree(user.id, depth + 1)
+    const children = await buildTree(user.id, depth + 1, isSuperAdminSession)
+
+    const isSuper = user.role === 'SUPER_ADMIN' || user.username === 'superadmin'
+    const displayUsername = (!isSuperAdminSession && isSuper) ? 'System' : user.username
 
     treeNodes.push({
       id: user.id,
       name: user.name,
-      username: user.username,
+      username: displayUsername,
       referralCode: user.referralCode,
       status: user.status,
       createdAt: user.createdAt,
@@ -62,6 +66,8 @@ export async function GET() {
   }
 
   try {
+    const isSuperAdminSession = session.role === 'SUPER_ADMIN'
+
     const rootUser = await db.user.findUnique({
       where: { id: session.userId },
       select: {
@@ -71,6 +77,7 @@ export async function GET() {
         referralCode: true,
         status: true,
         createdAt: true,
+        role: true,
       }
     })
 
@@ -80,13 +87,20 @@ export async function GET() {
     })
     const rootActiveInvestment = new Decimal(rootInvestments._sum.amount?.toString() || 0).toNumber()
 
-    const tree = await buildTree(session.userId, 1)
+    const tree = await buildTree(session.userId, 1, isSuperAdminSession)
+
+    let sanitizedRoot = null
+    if (rootUser) {
+      const isSuper = rootUser.role === 'SUPER_ADMIN' || rootUser.username === 'superadmin'
+      sanitizedRoot = {
+        ...rootUser,
+        username: (!isSuperAdminSession && isSuper) ? 'System' : rootUser.username,
+        activeInvestment: rootActiveInvestment
+      }
+    }
 
     return NextResponse.json({
-      root: rootUser ? {
-        ...rootUser,
-        activeInvestment: rootActiveInvestment
-      } : null,
+      root: sanitizedRoot,
       tree
     })
   } catch (error) {

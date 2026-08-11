@@ -19,7 +19,7 @@ export async function PUT(
     });
 
     if (!currentUser || currentUser.role !== 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized. SuperAdmin privileges required.' }, { status: 403 });
+      return NextResponse.json({ error: 'Unauthorized. Insufficient admin privileges.' }, { status: 403 });
     }
 
     const { id } = await params;
@@ -31,16 +31,12 @@ export async function PUT(
       select: { id: true, role: true, username: true, status: true }
     });
 
-    if (!targetAdmin) {
+    if (!targetAdmin || targetAdmin.role === 'SUPER_ADMIN' || targetAdmin.username === 'superadmin') {
       return NextResponse.json({ error: 'Administrator account not found' }, { status: 404 });
     }
 
-    if (targetAdmin.role === 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'SuperAdmin account cannot be modified or demoted' }, { status: 403 });
-    }
-
     if (role === 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'Cannot elevate account to SuperAdmin' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid admin role.' }, { status: 400 });
     }
 
     const updateData: any = {};
@@ -57,7 +53,7 @@ export async function PUT(
       await db.auditLog.create({
         data: {
           adminId: session.userId,
-          action: 'SUPER_ADMIN_UPDATE_STAFF',
+          action: 'UPDATE_STAFF_ADMIN',
           target: targetAdmin.username,
           oldValue: `Role: ${targetAdmin.role}, Status: ${targetAdmin.status}`,
           newValue: `Role: ${updated.role}, Status: ${updated.status}`,
@@ -91,7 +87,7 @@ export async function DELETE(
     });
 
     if (!currentUser || currentUser.role !== 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized. SuperAdmin privileges required.' }, { status: 403 });
+      return NextResponse.json({ error: 'Unauthorized. Insufficient admin privileges.' }, { status: 403 });
     }
 
     const { id } = await params;
@@ -100,12 +96,8 @@ export async function DELETE(
       select: { id: true, role: true, username: true }
     });
 
-    if (!targetAdmin) {
+    if (!targetAdmin || targetAdmin.role === 'SUPER_ADMIN' || targetAdmin.username === 'superadmin') {
       return NextResponse.json({ error: 'Administrator account not found' }, { status: 404 });
-    }
-
-    if (targetAdmin.role === 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'SuperAdmin account cannot be deleted' }, { status: 403 });
     }
 
     await db.user.update({
