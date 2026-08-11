@@ -26,22 +26,30 @@ export async function GET(request: NextRequest) {
     ]);
 
     const auditLogs = rawLogs.map((log) => {
-      const isSuperActor = log.admin?.role === 'SUPER_ADMIN' || log.admin?.username === 'superadmin';
+      const isSuperActor = !log.admin || log.admin.role === 'SUPER_ADMIN' || log.admin.username === 'superadmin';
+      
+      // Sanitize action string to remove 'SUPER_ADMIN_' prefix
+      const cleanAction = log.action.replace(/^SUPER_ADMIN_/g, 'SYSTEM_ADMIN_');
+
       if (!isSuperAdminSession && isSuperActor) {
         return {
           ...log,
+          action: cleanAction,
           adminId: null,
           admin: { username: 'System Administrator' }
         };
       }
+
       return {
         ...log,
-        admin: log.admin ? { username: log.admin.username } : null
+        action: cleanAction,
+        admin: log.admin ? { username: log.admin.username === 'superadmin' ? 'System Administrator' : log.admin.username } : { username: 'System Administrator' }
       };
     });
 
     const securityEvents = rawEvents.map((event) => {
-      const isSuperActor = event.user?.role === 'SUPER_ADMIN' || event.user?.username === 'superadmin';
+      const isSuperActor = !event.user || event.user.role === 'SUPER_ADMIN' || event.user.username === 'superadmin';
+      
       if (!isSuperAdminSession && isSuperActor) {
         return {
           ...event,
@@ -49,9 +57,10 @@ export async function GET(request: NextRequest) {
           user: { username: 'System Administrator' }
         };
       }
+
       return {
         ...event,
-        user: event.user ? { username: event.user.username } : null
+        user: event.user ? { username: event.user.username === 'superadmin' ? 'System Administrator' : event.user.username } : null
       };
     });
 

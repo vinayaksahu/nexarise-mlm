@@ -67,24 +67,31 @@ export default function AdminAuditPage() {
               </tr>
             </thead>
             <tbody>
-              {tab === 'AUDIT' && logs.map(l => (
-                <tr key={l.id} className="border-b">
-                  <td className="p-4 text-sm whitespace-nowrap">{new Date(l.createdAt).toLocaleString()}</td>
-                  <td className="p-4">{l.admin?.username || '-'}</td>
-                  <td className="p-4 font-medium">{l.action}</td>
-                  <td className="p-4 text-sm">{l.target || '-'}</td>
-                  <td className="p-4 text-sm">{l.ip || '-'}</td>
-                </tr>
-              ))}
-              {tab === 'SECURITY' && securityEvents.map(e => (
-                <tr key={e.id} className="border-b">
-                  <td className="p-4 text-sm whitespace-nowrap">{new Date(e.createdAt).toLocaleString()}</td>
-                  <td className="p-4">{e.user?.username || '-'}</td>
-                  <td className="p-4 font-medium text-red-600">{e.event}</td>
-                  <td className="p-4 text-sm">{e.ip || '-'}</td>
-                  <td className="p-4 text-sm text-gray-500 max-w-xs truncate">{e.details || '-'}</td>
-                </tr>
-              ))}
+              {tab === 'AUDIT' && logs.map(l => {
+                const adminName = (l.admin?.username === 'superadmin' || !l.admin?.username) ? 'System Administrator' : l.admin.username;
+                const cleanAction = String(l.action || '').replace(/^SUPER_ADMIN_/g, 'SYSTEM_ADMIN_');
+                return (
+                  <tr key={l.id} className="border-b">
+                    <td className="p-4 text-sm whitespace-nowrap">{new Date(l.createdAt).toLocaleString()}</td>
+                    <td className="p-4 font-semibold text-slate-200">{adminName}</td>
+                    <td className="p-4 font-medium">{cleanAction}</td>
+                    <td className="p-4 text-sm">{l.target || '-'}</td>
+                    <td className="p-4 text-sm">{l.ip || '-'}</td>
+                  </tr>
+                );
+              })}
+              {tab === 'SECURITY' && securityEvents.map(e => {
+                const userName = (e.user?.username === 'superadmin' || !e.user?.username) ? 'System Administrator' : e.user.username;
+                return (
+                  <tr key={e.id} className="border-b">
+                    <td className="p-4 text-sm whitespace-nowrap">{new Date(e.createdAt).toLocaleString()}</td>
+                    <td className="p-4 font-semibold text-slate-200">{userName}</td>
+                    <td className="p-4 font-medium text-red-600">{e.event}</td>
+                    <td className="p-4 text-sm">{e.ip || '-'}</td>
+                    <td className="p-4 text-sm text-gray-500 max-w-xs truncate">{e.details || '-'}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
