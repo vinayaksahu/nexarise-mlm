@@ -25,44 +25,30 @@ export async function GET(request: NextRequest) {
       })
     ]);
 
-    const auditLogs = rawLogs.map((log) => {
-      const isSuperActor = !log.admin || log.admin.role === 'SUPER_ADMIN' || log.admin.username === 'superadmin';
-      
-      // Sanitize action string to remove 'SUPER_ADMIN_' prefix
-      const cleanAction = log.action.replace(/^SUPER_ADMIN_/g, 'SYSTEM_ADMIN_');
-
-      if (!isSuperAdminSession && isSuperActor) {
-        return {
-          ...log,
-          action: cleanAction,
-          adminId: null,
-          admin: { username: 'System Administrator' }
-        };
-      }
-
-      return {
+    // For subordinate admins, completely filter out Superadmin rows from audit logs
+    const auditLogs = rawLogs
+      .filter((log) => {
+        if (isSuperAdminSession) return true;
+        const isSuperActor = !log.admin || log.admin.role === 'SUPER_ADMIN' || log.admin.username === 'superadmin';
+        return !isSuperActor;
+      })
+      .map((log) => ({
         ...log,
-        action: cleanAction,
-        admin: log.admin ? { username: log.admin.username === 'superadmin' ? 'System Administrator' : log.admin.username } : { username: 'System Administrator' }
-      };
-    });
+        action: log.action.replace(/^SUPER_ADMIN_/g, 'SYSTEM_ADMIN_'),
+        admin: log.admin ? { username: log.admin.username } : null
+      }));
 
-    const securityEvents = rawEvents.map((event) => {
-      const isSuperActor = !event.user || event.user.role === 'SUPER_ADMIN' || event.user.username === 'superadmin';
-      
-      if (!isSuperAdminSession && isSuperActor) {
-        return {
-          ...event,
-          userId: null,
-          user: { username: 'System Administrator' }
-        };
-      }
-
-      return {
+    // For subordinate admins, completely filter out Superadmin security events
+    const securityEvents = rawEvents
+      .filter((event) => {
+        if (isSuperAdminSession) return true;
+        const isSuperActor = !event.user || event.user.role === 'SUPER_ADMIN' || event.user.username === 'superadmin';
+        return !isSuperActor;
+      })
+      .map((event) => ({
         ...event,
-        user: event.user ? { username: event.user.username === 'superadmin' ? 'System Administrator' : event.user.username } : null
-      };
-    });
+        user: event.user ? { username: event.user.username } : null
+      }));
 
     return NextResponse.json({
       auditLogs,
