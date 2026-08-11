@@ -68,7 +68,7 @@ export default function AdminAuditPage() {
             </thead>
             <tbody>
               {tab === 'AUDIT' && logs.map(l => {
-                const adminName = (l.admin?.username === 'superadmin' || !l.admin?.username) ? 'System Administrator' : l.admin.username;
+                const adminName = l.admin?.username || 'Staff Admin';
                 const cleanAction = String(l.action || '').replace(/^SUPER_ADMIN_/g, 'SYSTEM_ADMIN_');
                 return (
                   <tr key={l.id} className="border-b">
@@ -81,7 +81,7 @@ export default function AdminAuditPage() {
                 );
               })}
               {tab === 'SECURITY' && securityEvents.map(e => {
-                const userName = (e.user?.username === 'superadmin' || !e.user?.username) ? 'System Administrator' : e.user.username;
+                const userName = e.user?.username || 'User';
                 return (
                   <tr key={e.id} className="border-b">
                     <td className="p-4 text-sm whitespace-nowrap">{new Date(e.createdAt).toLocaleString()}</td>
