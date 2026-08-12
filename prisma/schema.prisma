@@ -30,6 +30,12 @@ enum InvestmentStatus {
   CANCELLED
 }
 
+enum PromotionalStatus {
+  ACTIVE
+  INACTIVE
+  EXPIRED
+}
+
 enum TransactionType {
   DEPOSIT
   INVESTMENT
@@ -116,6 +122,8 @@ model User {
   auditLogs                     AuditLog[]
   supportTickets                SupportTicket[]
   securityEvents                SecurityEvent[]
+  promotionalActivations        PromotionalActivation[]  @relation("UserPromotionalActivations")
+  createdPromotionalActivations PromotionalActivation[]  @relation("PromotionalCreatedBy")
 
   @@index([email])
   @@index([username])
@@ -390,4 +398,23 @@ model OtpToken {
 
   @@index([email, purpose, used])
 }
+
+model PromotionalActivation {
+  id          String            @id @default(uuid())
+  userId      String
+  user        User              @relation("UserPromotionalActivations", fields: [userId], references: [id])
+  reason      String
+  notes       String?
+  startDate   DateTime          @default(now())
+  expiryDate  DateTime?
+  status      PromotionalStatus @default(ACTIVE)
+  createdById String?
+  createdBy   User?             @relation("PromotionalCreatedBy", fields: [createdById], references: [id])
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
 

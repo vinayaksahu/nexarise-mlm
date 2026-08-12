@@ -62,6 +62,7 @@ const adminNavGroups = [
     heading: 'MANAGEMENT',
     items: [
       { label: 'User Management', href: '/admin/users', icon: '👥', permission: 'users.view' },
+      { label: 'Promotional Activations', href: '/admin/promotions', icon: '🎁', permission: 'promotions.view' },
       { label: 'Deposit Approvals', href: '/admin/deposits', icon: '📥', permission: 'deposits.view' },
       { label: 'Deposit Methods', href: '/admin/payment-methods', icon: '💳', permission: 'deposit_methods.view' },
       { label: 'Withdrawal Payouts', href: '/admin/withdrawals', icon: '📤', permission: 'withdrawals.view' },

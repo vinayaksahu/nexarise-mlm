@@ -49,6 +49,10 @@ export async function GET(request: NextRequest) {
           },
           investments: {
             select: { amount: true, status: true }
+          },
+          promotionalActivations: {
+            where: { status: 'ACTIVE' },
+            select: { id: true }
           }
         }
       }),
@@ -58,6 +62,7 @@ export async function GET(request: NextRequest) {
     const mappedUsers = await Promise.all(users.map(async (user) => {
       const selfInvestmentSum = user.investments
         .reduce((sum, inv) => sum + Number(inv.amount), 0);
+      const hasPromotionalActivation = user.promotionalActivations.length > 0;
 
       // Compute downline / team investment sum
       const downlines = await db.user.findMany({
@@ -81,6 +86,7 @@ export async function GET(request: NextRequest) {
         sponsor: sponsorUsername ? { username: sponsorUsername } : null,
         selfInvestmentSum,
         teamInvestmentSum: directTeamSum,
+        hasPromotionalActivation,
       };
     }));
 

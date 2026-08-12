@@ -127,7 +127,7 @@ export default function AdminUsersPage() {
                   ? 'SUSPENDED' 
                   : u.status === 'BANNED' 
                   ? 'BANNED' 
-                  : (u.status === 'ACTIVE' && (u.selfInvestmentSum > 0 || u.activeInvestmentsSum > 0)) 
+                  : (u.status === 'ACTIVE' && (u.selfInvestmentSum > 0 || u.activeInvestmentsSum > 0 || u.hasPromotionalActivation)) 
                   ? 'ACTIVE' 
                   : 'INACTIVE';
 

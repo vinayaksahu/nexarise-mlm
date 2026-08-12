@@ -61,10 +61,7 @@ export default function TeamPage() {
   }
 
   const directs = team?.directReferrals || [];
-  const activeDirects = directs.filter((d: any) => {
-    const hasActiveInvestment = (d.investments || []).some((inv: any) => Number(inv.amount) > 0);
-    return d.status === 'ACTIVE' && hasActiveInvestment;
-  }).length;
+  const activeDirects = directs.filter((d: any) => d.status === 'ACTIVE').length;
   const businessVolume = team?.businessVolume || {};
 
   return (
@@ -177,8 +174,7 @@ export default function TeamPage() {
                 <tbody>
                   {directs.map((m: any, idx: number) => {
                     const activeInvSum = (m.investments || []).reduce((acc: number, curr: any) => acc + Number(curr.amount), 0);
-                    const isEffectiveActive = m.status === 'ACTIVE' && activeInvSum > 0;
-                    const effectiveStatus = isEffectiveActive ? 'ACTIVE' : (m.status === 'SUSPENDED' ? 'SUSPENDED' : 'INACTIVE');
+                    const effectiveStatus = m.status === 'ACTIVE' ? 'ACTIVE' : (m.status === 'SUSPENDED' ? 'SUSPENDED' : 'INACTIVE');
                     
                     return (
                       <tr key={m.id} className="border-b border-border/50 hover:bg-gray-50 dark:hover:bg-slate-800/50">
