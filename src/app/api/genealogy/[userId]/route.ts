@@ -14,18 +14,19 @@ interface TreeNode {
   children: TreeNode[]
 }
 
-async function buildTree(userId: string, depth: number): Promise<TreeNode[]> {
+async function buildTree(userId: string, depth: number, isSuperAdminSession: boolean): Promise<TreeNode[]> {
   if (depth > 4) return []
 
   const users = await db.user.findMany({
-    where: { sponsorId: userId },
+    where: { sponsorId: userId, role: 'USER' },
     select: {
       id: true,
       name: true,
       username: true,
       referralCode: true,
       status: true,
-      createdAt: true
+      createdAt: true,
+      role: true,
     }
   })
 
@@ -38,14 +39,21 @@ async function buildTree(userId: string, depth: number): Promise<TreeNode[]> {
     })
     const activeInvestment = new Decimal(investments._sum.amount?.toString() || 0).toNumber()
 
-    const children = await buildTree(user.id, depth + 1)
+    const children = await buildTree(user.id, depth + 1, isSuperAdminSession)
+
+    const isSuper = user.role === 'SUPER_ADMIN' || user.username === 'superadmin'
+    const displayUsername = (!isSuperAdminSession && isSuper) ? 'System' : user.username
+
+    const effectiveStatus = (user.status === 'SUSPENDED' || user.status === 'BANNED')
+      ? user.status
+      : (activeInvestment > 0 ? 'ACTIVE' : 'INACTIVE')
 
     treeNodes.push({
       id: user.id,
       name: user.name,
-      username: user.username,
+      username: displayUsername,
       referralCode: user.referralCode,
-      status: user.status,
+      status: effectiveStatus,
       createdAt: user.createdAt,
       activeInvestment,
       children
@@ -79,9 +87,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  const isSuperAdminSession = session.role === 'SUPER_ADMIN'
   const { userId } = await params
 
-  if (session.role !== 'ADMIN' && session.userId !== userId) {
+  if (session.role !== 'ADMIN' && session.role !== 'SUPER_ADMIN' && session.userId !== userId) {
     const inDownline = await isUserInDownline(session.userId, userId)
     if (!inDownline) {
       return NextResponse.json({ error: 'Unauthorized to view this tree' }, { status: 403 })
@@ -89,7 +98,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
   }
 
   try {
-    const tree = await buildTree(userId, 1)
+    const tree = await buildTree(userId, 1, isSuperAdminSession)
     return NextResponse.json({ tree })
   } catch (error) {
     console.error('Genealogy GET error:', error)
