@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 
 interface PromotionRecord {
   id: string;
+  amount?: number | string;
   reason: string;
   notes: string | null;
   startDate: string;
@@ -51,6 +52,7 @@ export default function AdminPromotionalActivationsPage() {
   const [userOptions, setUserOptions] = useState<UserOption[]>([]);
   const [selectedUser, setSelectedUser] = useState<UserOption | null>(null);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [amount, setAmount] = useState('0');
   const [reason, setReason] = useState('');
   const [notes, setNotes] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -131,6 +133,7 @@ export default function AdminPromotionalActivationsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: selectedUser.id,
+          amount: Number(amount || 0),
           reason: reason.trim(),
           notes: notes.trim() || undefined,
           startDate: startDate || undefined,
@@ -145,6 +148,7 @@ export default function AdminPromotionalActivationsPage() {
         // Reset form
         setSelectedUser(null);
         setUserQuery('');
+        setAmount('0');
         setReason('');
         setNotes('');
         setStartDate('');
@@ -185,6 +189,7 @@ export default function AdminPromotionalActivationsPage() {
   };
 
   const activeCount = promotions.filter(p => p.status === 'ACTIVE').length;
+  const totalPromoValue = promotions.reduce((sum, p) => sum + Number(p.amount || 0), 0);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -218,6 +223,7 @@ export default function AdminPromotionalActivationsPage() {
             setShowCreateModal(true);
             setSelectedUser(null);
             setUserQuery('');
+            setAmount('0');
             setReason('');
             setNotes('');
             setStartDate('');
@@ -252,11 +258,11 @@ export default function AdminPromotionalActivationsPage() {
 
         <Card className="bg-white dark:bg-slate-900 border-border shadow-sm">
           <CardHeader className="p-4 pb-1">
-            <CardTitle className="text-xs text-indigo-500 font-medium uppercase tracking-wider">Business Impact</CardTitle>
+            <CardTitle className="text-xs text-indigo-500 font-medium uppercase tracking-wider">Promotional Value</CardTitle>
           </CardHeader>
           <CardContent className="p-4 pt-1">
-            <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">$0.00</div>
-            <p className="text-[11px] text-slate-500 mt-0.5">Guaranteed zero inflation of Actual Business</p>
+            <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">${totalPromoValue.toFixed(2)}</div>
+            <p className="text-[11px] text-slate-500 mt-0.5">Actual Business Inflation: $0.00</p>
           </CardContent>
         </Card>
       </div>
@@ -292,6 +298,7 @@ export default function AdminPromotionalActivationsPage() {
             <thead>
               <tr className="border-b border-border bg-slate-50 dark:bg-slate-800/50 text-slate-500 text-left">
                 <th className="p-3.5 font-semibold">User</th>
+                <th className="p-3.5 font-semibold">Activation Amount</th>
                 <th className="p-3.5 font-semibold">Reason</th>
                 <th className="p-3.5 font-semibold">Start Date</th>
                 <th className="p-3.5 font-semibold">Expiry Date</th>
@@ -303,14 +310,14 @@ export default function AdminPromotionalActivationsPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-slate-400">
+                  <td colSpan={8} className="p-8 text-center text-slate-400">
                     <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary mr-2" />
                     Loading promotional activations...
                   </td>
                 </tr>
               ) : promotions.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-10 text-center text-slate-400">
+                  <td colSpan={8} className="p-10 text-center text-slate-400">
                     <p className="text-3xl mb-2">🎁</p>
                     <p className="font-semibold">No promotional activation records found</p>
                     <p className="text-xs text-slate-500 mt-1">Click "Create Promotional Activation" above to add one.</p>
@@ -323,6 +330,9 @@ export default function AdminPromotionalActivationsPage() {
                       <div className="font-semibold text-gray-900 dark:text-white">{promo.user.name}</div>
                       <div className="text-xs text-primary font-mono">@{promo.user.username}</div>
                       <div className="text-xs text-slate-400">{promo.user.email}</div>
+                    </td>
+                    <td className="p-3.5 font-semibold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
+                      ${Number(promo.amount || 0).toFixed(2)}
                     </td>
                     <td className="p-3.5 max-w-[220px]">
                       <div className="font-medium text-gray-800 dark:text-gray-200 truncate" title={promo.reason}>{promo.reason}</div>
@@ -468,6 +478,24 @@ export default function AdminPromotionalActivationsPage() {
                     )}
                   </div>
                 )}
+              </div>
+
+              {/* Activation Amount ($) */}
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300">
+                  Activation Amount ($) (Optional / Nominal)
+                </label>
+                <Input
+                  type="number"
+                  placeholder="e.g. 0, 50, 100"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  min="0"
+                  step="any"
+                />
+                <p className="text-[11px] text-slate-500">
+                  Recorded for promotional reference. Does NOT generate fake investments or inflate Actual Business.
+                </p>
               </div>
 
               {/* Reason */}

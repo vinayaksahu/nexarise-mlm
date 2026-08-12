@@ -403,6 +403,7 @@ model PromotionalActivation {
   id          String            @id @default(uuid())
   userId      String
   user        User              @relation("UserPromotionalActivations", fields: [userId], references: [id])
+  amount      Decimal           @default(0) @db.Decimal(20, 8)
   reason      String
   notes       String?
   startDate   DateTime          @default(now())

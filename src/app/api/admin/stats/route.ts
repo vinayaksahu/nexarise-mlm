@@ -45,13 +45,14 @@ export async function GET() {
       db.ledgerEntry.aggregate({ where: { type: 'SELF_ROI', status: 'COMPLETED' }, _sum: { amount: true } }).catch(err => { console.error('roiDistributed error:', err); return { _sum: { amount: null } }; }),
       db.ledgerEntry.aggregate({ where: { type: 'LEVEL_INCOME', status: 'COMPLETED' }, _sum: { amount: true } }).catch(err => { console.error('levelIncome error:', err); return { _sum: { amount: null } }; }),
       db.ledgerEntry.aggregate({ where: { type: { in: ['REWARD', 'REWARD_INCOME'] }, status: 'COMPLETED' }, _sum: { amount: true } }).catch(err => { console.error('rewardsPaid error:', err); return { _sum: { amount: null } }; }),
-      db.businessVolume.aggregate({ _sum: { totalBusiness: true } }).catch(err => { console.error('totalBusiness error:', err); return { _sum: { totalBusiness: null } }; }),
       db.promotionalActivation.count().catch(err => { console.error('totalPromotions error:', err); return 0; }),
-      db.promotionalActivation.count({ where: { status: 'ACTIVE' } }).catch(err => { console.error('activePromotions error:', err); return 0; })
+      db.promotionalActivation.count({ where: { status: 'ACTIVE' } }).catch(err => { console.error('activePromotions error:', err); return 0; }),
+      db.promotionalActivation.aggregate({ where: { status: 'ACTIVE' }, _sum: { amount: true } }).catch(err => { console.error('promotionalValue error:', err); return { _sum: { amount: null } }; })
     ])
 
     const totalInv = Number(totalInvestmentResult._sum.amount || 0)
     const totalBus = Number(totalBusinessResult._sum.totalBusiness || 0)
+    const promoVal = Number(promotionalValueResult._sum.amount || 0)
 
     return NextResponse.json({
       stats: {
@@ -69,7 +70,7 @@ export async function GET() {
         totalBusiness: totalBus > 0 ? totalBus : totalInv,
         totalPromotions: totalPromotionsCount,
         activePromotions: activePromotionsCount,
-        promotionalValue: 0
+        promotionalValue: promoVal
       }
     })
   } catch (error: any) {

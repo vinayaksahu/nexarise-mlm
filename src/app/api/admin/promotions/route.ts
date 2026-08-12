@@ -88,7 +88,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { userId, reason, notes, startDate, expiryDate } = body;
+    const { userId, reason, notes, startDate, expiryDate, amount } = body;
+    const promoAmount = Number(amount || 0);
 
     if (!userId || typeof userId !== 'string') {
       return NextResponse.json({ error: 'User selection is required' }, { status: 400 });
@@ -119,6 +120,7 @@ export async function POST(request: NextRequest) {
       const promo = await tx.promotionalActivation.create({
         data: {
           userId,
+          amount: promoAmount >= 0 ? promoAmount : 0,
           reason: reason.trim(),
           notes: notes ? notes.trim() : null,
           startDate: parsedStartDate,
