@@ -44,12 +44,16 @@ async function buildTree(userId: string, depth: number, isSuperAdminSession: boo
     const isSuper = user.role === 'SUPER_ADMIN' || user.username === 'superadmin'
     const displayUsername = (!isSuperAdminSession && isSuper) ? 'System' : user.username
 
+    const effectiveStatus = (user.status === 'SUSPENDED' || user.status === 'BANNED')
+      ? user.status
+      : (activeInvestment > 0 ? 'ACTIVE' : 'INACTIVE')
+
     treeNodes.push({
       id: user.id,
       name: user.name,
       username: displayUsername,
       referralCode: user.referralCode,
-      status: user.status,
+      status: effectiveStatus,
       createdAt: user.createdAt,
       activeInvestment,
       children
@@ -92,9 +96,14 @@ export async function GET() {
     let sanitizedRoot = null
     if (rootUser) {
       const isSuper = rootUser.role === 'SUPER_ADMIN' || rootUser.username === 'superadmin'
+      const rootEffectiveStatus = (rootUser.status === 'SUSPENDED' || rootUser.status === 'BANNED')
+        ? rootUser.status
+        : (rootActiveInvestment > 0 ? 'ACTIVE' : 'INACTIVE')
+
       sanitizedRoot = {
         ...rootUser,
         username: (!isSuperAdminSession && isSuper) ? 'System' : rootUser.username,
+        status: rootEffectiveStatus,
         activeInvestment: rootActiveInvestment
       }
     }

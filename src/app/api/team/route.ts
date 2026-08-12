@@ -32,8 +32,19 @@ export async function GET(request: NextRequest) {
       })
     ])
 
+    const mappedReferrals = directReferrals.map(u => {
+      const activeSum = u.investments.reduce((sum, i) => sum + Number(i.amount), 0)
+      const effectiveStatus = (u.status === 'SUSPENDED' || u.status === 'BANNED')
+        ? u.status
+        : (activeSum > 0 ? 'ACTIVE' : 'INACTIVE')
+      return {
+        ...u,
+        status: effectiveStatus
+      }
+    })
+
     return NextResponse.json({
-      directReferrals,
+      directReferrals: mappedReferrals,
       businessVolume: businessVolume || {
         totalBusiness: 0,
         directBusiness: 0,
