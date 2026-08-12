@@ -20,6 +20,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const user = await getCachedUser(session.userId)
   if (!user) redirect('/login')
 
+  if (user.role !== 'USER') {
+    redirect('/admin')
+  }
+
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-slate-950 overflow-x-hidden">
       <Sidebar />
