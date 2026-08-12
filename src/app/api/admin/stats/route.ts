@@ -32,7 +32,8 @@ export async function GET() {
       rewardsPaidResult,
       totalBusinessResult,
       totalPromotionsCount,
-      activePromotionsCount
+      activePromotionsCount,
+      promotionalValueResult
     ] = await Promise.all([
       db.user.count({ where: { role: 'USER' } }).catch(err => { console.error('totalUsers error:', err); return 0; }),
       db.user.count({ where: { role: 'USER', status: 'ACTIVE' } }).catch(err => { console.error('activeUsers error:', err); return 0; }),
@@ -45,6 +46,7 @@ export async function GET() {
       db.ledgerEntry.aggregate({ where: { type: 'SELF_ROI', status: 'COMPLETED' }, _sum: { amount: true } }).catch(err => { console.error('roiDistributed error:', err); return { _sum: { amount: null } }; }),
       db.ledgerEntry.aggregate({ where: { type: 'LEVEL_INCOME', status: 'COMPLETED' }, _sum: { amount: true } }).catch(err => { console.error('levelIncome error:', err); return { _sum: { amount: null } }; }),
       db.ledgerEntry.aggregate({ where: { type: { in: ['REWARD', 'REWARD_INCOME'] }, status: 'COMPLETED' }, _sum: { amount: true } }).catch(err => { console.error('rewardsPaid error:', err); return { _sum: { amount: null } }; }),
+      db.businessVolume.aggregate({ _sum: { totalBusiness: true } }).catch(err => { console.error('totalBusiness error:', err); return { _sum: { totalBusiness: null } }; }),
       db.promotionalActivation.count().catch(err => { console.error('totalPromotions error:', err); return 0; }),
       db.promotionalActivation.count({ where: { status: 'ACTIVE' } }).catch(err => { console.error('activePromotions error:', err); return 0; }),
       db.promotionalActivation.aggregate({ where: { status: 'ACTIVE' }, _sum: { amount: true } }).catch(err => { console.error('promotionalValue error:', err); return { _sum: { amount: null } }; })
