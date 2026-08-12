@@ -9,10 +9,17 @@ import { Badge } from '@/components/ui/badge';
 interface PaymentMethod {
   id: string;
   name: string;
-  type: string;
-  network: string;
-  walletAddress: string;
-  qrCodeUrl: string;
+  type: 'CRYPTO' | 'BANKING' | 'UPI' | string;
+  network?: string;
+  walletAddress?: string;
+  bankName?: string;
+  accountName?: string;
+  accountNumber?: string;
+  ifscCode?: string;
+  branchName?: string;
+  upiId?: string;
+  payeeName?: string;
+  qrCodeUrl?: string;
   instructions?: string;
   isDefault: boolean;
   sortOrder: number;
@@ -23,6 +30,7 @@ export default function DepositsPage() {
   const [amount, setAmount] = useState('');
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [selectedMethodId, setSelectedMethodId] = useState<string>('');
+  const [activeCategoryTab, setActiveCategoryTab] = useState<'ALL' | 'CRYPTO' | 'BANKING' | 'UPI'>('ALL');
   const [proofUrl, setProofUrl] = useState('');
   const [deposits, setDeposits] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,7 +72,12 @@ export default function DepositsPage() {
     fetchDepositsAndMethods();
   }, []);
 
-  const selectedMethod = paymentMethods.find(m => m.id === selectedMethodId) || paymentMethods[0];
+  const filteredMethods = paymentMethods.filter(pm => {
+    if (activeCategoryTab === 'ALL') return true;
+    return pm.type === activeCategoryTab;
+  });
+
+  const selectedMethod = paymentMethods.find(m => m.id === selectedMethodId) || filteredMethods[0] || paymentMethods[0];
 
   const handleDeposit = async () => {
     if (paymentMethods.length === 0 || !selectedMethod) {
@@ -84,7 +97,14 @@ export default function DepositsPage() {
     setIsSubmitting(true);
     setMessage('');
 
-    const formattedMethodString = `${selectedMethod.name} (${selectedMethod.network}) - ${selectedMethod.walletAddress}`;
+    let formattedMethodString = '';
+    if (selectedMethod.type === 'BANKING') {
+      formattedMethodString = `[Banking] ${selectedMethod.name} (${selectedMethod.bankName || ''}) - A/C: ${selectedMethod.accountNumber || ''}`;
+    } else if (selectedMethod.type === 'UPI') {
+      formattedMethodString = `[UPI] ${selectedMethod.name} - UPI ID: ${selectedMethod.upiId || ''}`;
+    } else {
+      formattedMethodString = `[Crypto] ${selectedMethod.name} (${selectedMethod.network || 'BEP-20'}) - ${selectedMethod.walletAddress || ''}`;
+    }
 
     try {
       const res = await fetch('/api/deposits', {
@@ -127,12 +147,23 @@ export default function DepositsPage() {
     }
   };
 
+  const copyText = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    setMessage(`${label} copied to clipboard!`);
+    setMessageType('success');
+    setShowPopup(true);
+  };
+
+  const hasCrypto = paymentMethods.some(m => m.type === 'CRYPTO');
+  const hasBanking = paymentMethods.some(m => m.type === 'BANKING');
+  const hasUpi = paymentMethods.some(m => m.type === 'UPI');
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Deposits</h1>
         <p className="text-muted text-xs sm:text-sm mt-0.5">
-          Deposit crypto funds to your P2P Wallet using any active payment network below.
+          Deposit funds to your P2P Wallet using Crypto, Bank Transfer, or UPI payment options below.
         </p>
       </div>
 
@@ -148,12 +179,65 @@ export default function DepositsPage() {
         </Card>
       ) : (
         <>
-          {/* Payment Network Selector Tabs */}
-          {paymentMethods.length > 1 && (
+          {/* Payment Method Type Category Filter */}
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Select Payment Category</label>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setActiveCategoryTab('ALL')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                  activeCategoryTab === 'ALL'
+                    ? 'bg-primary text-white border-primary shadow-sm ring-1 ring-primary/30'
+                    : 'bg-card border-border hover:border-border/80 text-gray-700 dark:text-slate-300'
+                }`}
+              >
+                All Methods ({paymentMethods.length})
+              </button>
+              {hasCrypto && (
+                <button
+                  onClick={() => setActiveCategoryTab('CRYPTO')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                    activeCategoryTab === 'CRYPTO'
+                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm ring-1 ring-indigo-500/30'
+                      : 'bg-card border-border hover:border-border/80 text-gray-700 dark:text-slate-300'
+                  }`}
+                >
+                  ⚡ Crypto ({paymentMethods.filter(m => m.type === 'CRYPTO').length})
+                </button>
+              )}
+              {hasBanking && (
+                <button
+                  onClick={() => setActiveCategoryTab('BANKING')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                    activeCategoryTab === 'BANKING'
+                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm ring-1 ring-emerald-500/30'
+                      : 'bg-card border-border hover:border-border/80 text-gray-700 dark:text-slate-300'
+                  }`}
+                >
+                  🏦 Bank Transfer ({paymentMethods.filter(m => m.type === 'BANKING').length})
+                </button>
+              )}
+              {hasUpi && (
+                <button
+                  onClick={() => setActiveCategoryTab('UPI')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                    activeCategoryTab === 'UPI'
+                      ? 'bg-purple-600 text-white border-purple-600 shadow-sm ring-1 ring-purple-500/30'
+                      : 'bg-card border-border hover:border-border/80 text-gray-700 dark:text-slate-300'
+                  }`}
+                >
+                  📱 UPI Payment ({paymentMethods.filter(m => m.type === 'UPI').length})
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Payment Method Select Cards */}
+          {filteredMethods.length > 0 && (
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Select Payment Network</label>
+              <label className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Select Payment Method</label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                {paymentMethods.map(pm => (
+                {filteredMethods.map(pm => (
                   <button
                     key={pm.id}
                     onClick={() => setSelectedMethodId(pm.id)}
@@ -163,10 +247,10 @@ export default function DepositsPage() {
                         : 'bg-card border-border hover:border-border/80'
                     }`}
                   >
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-xs font-bold text-gray-900 dark:text-white">{pm.name}</span>
-                      <Badge variant="default" className="text-[10px] bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border-indigo-500/30">
-                        {pm.network}
+                    <div className="flex items-center justify-between w-full gap-1">
+                      <span className="text-xs font-bold text-gray-900 dark:text-white truncate">{pm.name}</span>
+                      <Badge variant="default" className="text-[10px] shrink-0 bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border-indigo-500/30">
+                        {pm.type === 'BANKING' ? 'BANK' : pm.type === 'UPI' ? 'UPI' : pm.network || 'CRYPTO'}
                       </Badge>
                     </div>
                     {pm.isDefault && (
@@ -184,45 +268,101 @@ export default function DepositsPage() {
               <Card className="sm:col-span-2 lg:col-span-1 border-indigo-500/30">
                 <CardHeader className="p-3 sm:p-4 pb-1">
                   <CardTitle className="text-sm flex items-center justify-between">
-                    <span>{selectedMethod.name} ({selectedMethod.network}) Payment</span>
-                    <Badge variant="info">{selectedMethod.network}</Badge>
+                    <span className="flex items-center gap-1.5">
+                      <span>{selectedMethod.type === 'BANKING' ? '🏦' : selectedMethod.type === 'UPI' ? '📱' : '⚡'}</span>
+                      <span>{selectedMethod.name}</span>
+                    </span>
+                    <Badge variant="info">
+                      {selectedMethod.type === 'BANKING' ? 'Bank Transfer' : selectedMethod.type === 'UPI' ? 'UPI Pay' : selectedMethod.network}
+                    </Badge>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-3 sm:p-4 pt-1 space-y-3 text-center">
-                  <div className="bg-white p-2.5 rounded-xl inline-block border border-gray-200 dark:border-slate-700 shadow-md">
-                    <img 
-                      src={selectedMethod.qrCodeUrl || `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(selectedMethod.walletAddress)}`} 
-                      alt={`${selectedMethod.name} Deposit QR Code`} 
-                      className="w-36 h-36 mx-auto rounded-lg object-contain"
-                    />
-                  </div>
+                <CardContent className="p-3 sm:p-4 pt-1 space-y-3">
+                  {/* QR Code Preview */}
+                  {selectedMethod.qrCodeUrl && (
+                    <div className="bg-white p-2.5 rounded-xl border border-gray-200 dark:border-slate-700 shadow-md text-center">
+                      <img 
+                        src={selectedMethod.qrCodeUrl} 
+                        alt={`${selectedMethod.name} Deposit QR Code`} 
+                        className="w-36 h-36 mx-auto rounded-lg object-contain"
+                      />
+                      <p className="text-[10px] text-gray-500 mt-1">Scan QR Code to Pay</p>
+                    </div>
+                  )}
 
-                  <div className="space-y-1 text-left">
-                    <label className="text-[11px] text-gray-500 dark:text-slate-400 font-medium">Deposit Address ({selectedMethod.network})</label>
-                    <p className="text-xs font-mono text-gray-900 dark:text-slate-200 break-all bg-gray-100 dark:bg-slate-900/90 p-2.5 rounded-lg border border-gray-200 dark:border-slate-800">
-                      {selectedMethod.walletAddress}
-                    </p>
-                  </div>
+                  {/* Payment Type Details */}
+                  {selectedMethod.type === 'BANKING' ? (
+                    <div className="space-y-2 text-xs bg-gray-50 dark:bg-slate-900/90 p-3 rounded-lg border border-gray-200 dark:border-slate-800">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-500 dark:text-slate-400 font-medium">Bank Name:</span>
+                        <span className="font-bold text-gray-900 dark:text-white">{selectedMethod.bankName || 'N/A'}</span>
+                      </div>
+                      {selectedMethod.accountName && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-500 dark:text-slate-400 font-medium">Account Holder:</span>
+                          <span className="font-semibold text-gray-900 dark:text-white">{selectedMethod.accountName}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-500 dark:text-slate-400 font-medium">Account Number:</span>
+                        <div className="flex items-center gap-1.5 font-mono">
+                          <span className="font-bold text-emerald-600 dark:text-emerald-400">{selectedMethod.accountNumber || 'N/A'}</span>
+                          {selectedMethod.accountNumber && (
+                            <button onClick={() => copyText(selectedMethod.accountNumber!, 'Account Number')} className="text-primary font-bold text-xs p-0.5">📋</button>
+                          )}
+                        </div>
+                      </div>
+                      {selectedMethod.ifscCode && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-500 dark:text-slate-400 font-medium">IFSC / Code:</span>
+                          <div className="flex items-center gap-1.5 font-mono">
+                            <span className="font-semibold text-gray-900 dark:text-white">{selectedMethod.ifscCode}</span>
+                            <button onClick={() => copyText(selectedMethod.ifscCode!, 'IFSC Code')} className="text-primary font-bold text-xs p-0.5">📋</button>
+                          </div>
+                        </div>
+                      )}
+                      {selectedMethod.branchName && (
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="text-gray-500 dark:text-slate-400 font-medium">Branch:</span>
+                          <span className="text-gray-700 dark:text-slate-300">{selectedMethod.branchName}</span>
+                        </div>
+                      )}
+                    </div>
+                  ) : selectedMethod.type === 'UPI' ? (
+                    <div className="space-y-2 text-xs bg-gray-50 dark:bg-slate-900/90 p-3 rounded-lg border border-gray-200 dark:border-slate-800">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-500 dark:text-slate-400 font-medium">UPI ID (VPA):</span>
+                        <div className="flex items-center gap-1.5 font-mono">
+                          <span className="font-bold text-purple-600 dark:text-purple-400">{selectedMethod.upiId || 'N/A'}</span>
+                          {selectedMethod.upiId && (
+                            <button onClick={() => copyText(selectedMethod.upiId!, 'UPI ID')} className="text-primary font-bold text-xs p-0.5">📋</button>
+                          )}
+                        </div>
+                      </div>
+                      {selectedMethod.payeeName && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-500 dark:text-slate-400 font-medium">Payee Name:</span>
+                          <span className="font-semibold text-gray-900 dark:text-white">{selectedMethod.payeeName}</span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-1 text-left">
+                      <label className="text-[11px] text-gray-500 dark:text-slate-400 font-medium">Deposit Address ({selectedMethod.network || 'BEP-20'})</label>
+                      <div className="flex items-center gap-2 p-2.5 bg-gray-100 dark:bg-slate-900/90 rounded-lg border border-gray-200 dark:border-slate-800">
+                        <span className="text-xs font-mono text-gray-900 dark:text-slate-200 break-all flex-1">{selectedMethod.walletAddress}</span>
+                        {selectedMethod.walletAddress && (
+                          <button onClick={() => copyText(selectedMethod.walletAddress!, 'Wallet Address')} className="text-primary font-bold text-xs p-1 shrink-0">📋</button>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
                   {selectedMethod.instructions && (
                     <p className="text-[11px] text-gray-600 dark:text-slate-400 bg-gray-50 dark:bg-slate-900/40 p-2 rounded-lg border border-gray-200 dark:border-slate-800 text-left">
                       ℹ️ {selectedMethod.instructions}
                     </p>
                   )}
-
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full text-xs py-2 font-medium" 
-                    onClick={() => {
-                      navigator.clipboard.writeText(selectedMethod.walletAddress);
-                      setMessage(`${selectedMethod.network} deposit address copied to clipboard!`);
-                      setMessageType('success');
-                      setShowPopup(true);
-                    }}
-                  >
-                    📋 Copy Deposit Address
-                  </Button>
                 </CardContent>
               </Card>
             </div>
@@ -235,7 +375,7 @@ export default function DepositsPage() {
         <CardHeader className="p-4 sm:p-6 pb-2">
           <CardTitle className="text-base sm:text-lg">Submit Deposit Request</CardTitle>
           <CardDescription className="text-xs">
-            Send your payment to the address above, then submit your deposit request details for admin confirmation.
+            Send your payment using the details above, then submit your deposit request details for admin confirmation.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-2 space-y-4">
@@ -252,7 +392,7 @@ export default function DepositsPage() {
           </div>
 
           <div>
-            <label className="block text-xs text-gray-700 dark:text-slate-400 font-medium mb-1">Payment Method & Network</label>
+            <label className="block text-xs text-gray-700 dark:text-slate-400 font-medium mb-1">Selected Payment Method</label>
             {paymentMethods.length > 0 ? (
               <select 
                 className="w-full p-2.5 border border-input bg-transparent rounded-md text-sm dark:text-white dark:bg-slate-900" 
@@ -261,7 +401,12 @@ export default function DepositsPage() {
               >
                 {paymentMethods.map(pm => (
                   <option key={pm.id} value={pm.id}>
-                    {pm.name} ({pm.network}) {pm.isDefault ? '— Default' : ''}
+                    {pm.type === 'BANKING' 
+                      ? `[Bank Transfer] ${pm.name} (${pm.bankName || ''})`
+                      : pm.type === 'UPI'
+                      ? `[UPI] ${pm.name} (${pm.upiId || ''})`
+                      : `[Crypto] ${pm.name} (${pm.network || 'BEP-20'})`
+                    } {pm.isDefault ? '— Default' : ''}
                   </option>
                 ))}
               </select>
@@ -276,10 +421,10 @@ export default function DepositsPage() {
           </div>
 
           <div>
-            <label className="block text-xs text-gray-700 dark:text-slate-400 font-medium mb-1">Proof URL (Transaction Hash / ID)</label>
+            <label className="block text-xs text-gray-700 dark:text-slate-400 font-medium mb-1">Proof Data (Transaction Hash / Bank UTR / UPI Ref No)</label>
             <Input 
               className="w-full text-sm py-2.5" 
-              placeholder="Paste transaction hash or BSCScan/Explorer URL" 
+              placeholder="Paste Transaction Hash, Bank UTR No, or UPI Ref ID" 
               value={proofUrl}
               onChange={e => setProofUrl(e.target.value)}
               disabled={paymentMethods.length === 0}
@@ -324,7 +469,7 @@ export default function DepositsPage() {
                     <tr key={d.id} className="border-b border-border/50 hover:bg-gray-50 dark:hover:bg-slate-800/50">
                       <td className="py-2.5 px-3 font-mono text-xs">{d.id.substring(0, 8)}</td>
                       <td className="py-2.5 px-3 font-semibold text-emerald-600 dark:text-emerald-400">${Number(d.amount).toFixed(2)}</td>
-                      <td className="py-2.5 px-3 text-xs max-w-[200px] truncate" title={d.method}>{d.method}</td>
+                      <td className="py-2.5 px-3 text-xs max-w-[250px] truncate" title={d.method}>{d.method}</td>
                       <td className="py-2.5 px-3">
                         <Badge variant={statusVariant(d.status)}>{d.status}</Badge>
                       </td>

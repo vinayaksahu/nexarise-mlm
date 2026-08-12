@@ -5,9 +5,16 @@ import { z } from 'zod'
 
 const updateSchema = z.object({
   name: z.string().min(1, 'Name is required').optional(),
-  type: z.string().optional(),
-  network: z.string().min(1, 'Network is required').optional(),
-  walletAddress: z.string().min(1, 'Wallet address is required').transform(val => val.trim()).optional(),
+  type: z.enum(['CRYPTO', 'BANKING', 'UPI']).optional(),
+  network: z.string().optional(),
+  walletAddress: z.string().optional(),
+  bankName: z.string().optional(),
+  accountName: z.string().optional(),
+  accountNumber: z.string().optional(),
+  ifscCode: z.string().optional(),
+  branchName: z.string().optional(),
+  upiId: z.string().optional(),
+  payeeName: z.string().optional(),
   qrCodeUrl: z.string().optional(),
   instructions: z.string().optional(),
   isActive: z.boolean().optional(),
@@ -71,19 +78,35 @@ export async function PUT(
       }
     }
 
+    const targetType = updates.type || existing.type || 'CRYPTO'
     const newWalletAddress = updates.walletAddress !== undefined ? updates.walletAddress : (currentDetails.walletAddress || '')
+    const newUpiId = updates.upiId !== undefined ? updates.upiId : (currentDetails.upiId || '')
+    const newPayeeName = updates.payeeName !== undefined ? updates.payeeName : (currentDetails.payeeName || '')
+
     let newQrCodeUrl = updates.qrCodeUrl !== undefined ? updates.qrCodeUrl : currentDetails.qrCodeUrl
 
-    // Auto-generate QR if address changed and no custom QR code passed
-    if (updates.walletAddress && !updates.qrCodeUrl) {
-      newQrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(updates.walletAddress)}`
+    // Auto-generate QR code if needed
+    if (!updates.qrCodeUrl) {
+      if (targetType === 'UPI' && (updates.upiId || !currentDetails.qrCodeUrl)) {
+        const upiUrl = `upi://pay?pa=${encodeURIComponent(newUpiId)}&pn=${encodeURIComponent(newPayeeName || updates.name || existing.name)}`
+        newQrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUrl)}`
+      } else if (targetType === 'CRYPTO' && (updates.walletAddress || !currentDetails.qrCodeUrl)) {
+        newQrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(newWalletAddress)}`
+      }
     }
 
     const newDetails = {
       ...currentDetails,
-      network: updates.network !== undefined ? updates.network : (currentDetails.network || 'BEP-20'),
+      network: updates.network !== undefined ? updates.network : (currentDetails.network || ''),
       walletAddress: newWalletAddress,
-      qrCodeUrl: newQrCodeUrl || `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(newWalletAddress)}`,
+      bankName: updates.bankName !== undefined ? updates.bankName : (currentDetails.bankName || ''),
+      accountName: updates.accountName !== undefined ? updates.accountName : (currentDetails.accountName || ''),
+      accountNumber: updates.accountNumber !== undefined ? updates.accountNumber : (currentDetails.accountNumber || ''),
+      ifscCode: updates.ifscCode !== undefined ? updates.ifscCode : (currentDetails.ifscCode || ''),
+      branchName: updates.branchName !== undefined ? updates.branchName : (currentDetails.branchName || ''),
+      upiId: newUpiId,
+      payeeName: newPayeeName,
+      qrCodeUrl: newQrCodeUrl || '',
       instructions: updates.instructions !== undefined ? updates.instructions : (currentDetails.instructions || ''),
       isDefault: updates.isDefault !== undefined ? updates.isDefault : Boolean(currentDetails.isDefault),
       sortOrder: updates.sortOrder !== undefined ? updates.sortOrder : (currentDetails.sortOrder || 0),
@@ -93,7 +116,7 @@ export async function PUT(
       where: { id },
       data: {
         name: updates.name !== undefined ? updates.name : existing.name,
-        type: updates.type !== undefined ? updates.type : existing.type,
+        type: targetType,
         details: newDetails,
         isActive: updates.isActive !== undefined ? updates.isActive : existing.isActive,
       }

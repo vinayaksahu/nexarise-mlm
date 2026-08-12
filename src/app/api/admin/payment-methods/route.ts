@@ -5,11 +5,18 @@ import { z } from 'zod'
 
 const paymentMethodSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  type: z.string().default('CRYPTO'),
-  network: z.string().min(1, 'Network is required'),
-  walletAddress: z.string().min(1, 'Wallet address is required').transform(val => val.trim()),
-  qrCodeUrl: z.string().optional(),
-  instructions: z.string().optional(),
+  type: z.enum(['CRYPTO', 'BANKING', 'UPI']).default('CRYPTO'),
+  network: z.string().optional().default(''),
+  walletAddress: z.string().optional().default(''),
+  bankName: z.string().optional().default(''),
+  accountName: z.string().optional().default(''),
+  accountNumber: z.string().optional().default(''),
+  ifscCode: z.string().optional().default(''),
+  branchName: z.string().optional().default(''),
+  upiId: z.string().optional().default(''),
+  payeeName: z.string().optional().default(''),
+  qrCodeUrl: z.string().optional().default(''),
+  instructions: z.string().optional().default(''),
   isActive: z.boolean().default(true),
   isDefault: z.boolean().default(false),
   sortOrder: z.number().default(0),
@@ -44,9 +51,16 @@ export async function GET(request: NextRequest) {
       return {
         id: m.id,
         name: m.name,
-        type: m.type,
-        network: detailsObj.network || 'BEP-20',
+        type: m.type || 'CRYPTO',
+        network: detailsObj.network || '',
         walletAddress: detailsObj.walletAddress || '',
+        bankName: detailsObj.bankName || '',
+        accountName: detailsObj.accountName || '',
+        accountNumber: detailsObj.accountNumber || '',
+        ifscCode: detailsObj.ifscCode || '',
+        branchName: detailsObj.branchName || '',
+        upiId: detailsObj.upiId || '',
+        payeeName: detailsObj.payeeName || '',
         qrCodeUrl: detailsObj.qrCodeUrl || '',
         instructions: detailsObj.instructions || '',
         isDefault: Boolean(detailsObj.isDefault),
@@ -91,6 +105,21 @@ export async function POST(request: NextRequest) {
 
     const data = result.data
 
+    // Specific validation based on type
+    if (data.type === 'CRYPTO') {
+      if (!data.walletAddress) {
+        return NextResponse.json({ error: 'Wallet address is required for Crypto methods' }, { status: 400 })
+      }
+    } else if (data.type === 'BANKING') {
+      if (!data.accountNumber || !data.bankName) {
+        return NextResponse.json({ error: 'Bank Name and Account Number are required for Banking methods' }, { status: 400 })
+      }
+    } else if (data.type === 'UPI') {
+      if (!data.upiId) {
+        return NextResponse.json({ error: 'UPI ID (VPA) is required for UPI methods' }, { status: 400 })
+      }
+    }
+
     // If marked as default, unset default flag on all existing payment methods
     if (data.isDefault) {
       const allMethods = await db.paymentMethod.findMany()
@@ -106,10 +135,25 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    let defaultQr = ''
+    if (data.type === 'UPI' && data.upiId) {
+      const upiUrl = `upi://pay?pa=${encodeURIComponent(data.upiId)}&pn=${encodeURIComponent(data.payeeName || data.name)}`
+      defaultQr = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUrl)}`
+    } else if (data.type === 'CRYPTO' && data.walletAddress) {
+      defaultQr = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.walletAddress)}`
+    }
+
     const details = {
       network: data.network,
       walletAddress: data.walletAddress,
-      qrCodeUrl: data.qrCodeUrl || `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.walletAddress)}`,
+      bankName: data.bankName,
+      accountName: data.accountName,
+      accountNumber: data.accountNumber,
+      ifscCode: data.ifscCode,
+      branchName: data.branchName,
+      upiId: data.upiId,
+      payeeName: data.payeeName,
+      qrCodeUrl: data.qrCodeUrl || defaultQr,
       instructions: data.instructions || '',
       isDefault: data.isDefault,
       sortOrder: data.sortOrder,
