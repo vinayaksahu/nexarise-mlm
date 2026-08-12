@@ -23,12 +23,16 @@ export async function POST(
     }
 
     const config = await getBusinessConfig();
-    if (amount < config.minInvestment || amount > config.maxInvestment) {
-      return NextResponse.json({ error: `Amount must be between $${config.minInvestment} and $${config.maxInvestment}` }, { status: 400 });
+    const minInv = Number(config.minInvestment ?? 5);
+    const maxInv = Number(config.maxInvestment ?? 1000);
+    const invMult = Number(config.investmentMultiple ?? 1);
+
+    if (amount < minInv || amount > maxInv) {
+      return NextResponse.json({ error: `Amount must be between $${minInv} and $${maxInv}` }, { status: 400 });
     }
 
-    if (amount % config.investmentMultiple !== 0) {
-      return NextResponse.json({ error: `Amount must be a multiple of $${config.investmentMultiple}` }, { status: 400 });
+    if (invMult > 1 && amount % invMult !== 0) {
+      return NextResponse.json({ error: `Amount must be a multiple of $${invMult}` }, { status: 400 });
     }
 
     const targetUser = await db.user.findUnique({ where: { id } });
