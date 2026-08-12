@@ -7,6 +7,7 @@ export const registerSchema = z.object({
   mobile: z.string().optional(),
   password: z.string().min(8),
   referralCode: z.string().min(1, 'Referral code is required'),
+  otpCode: z.string().length(6, 'OTP must be 6 digits'),
 });
 
 export const loginSchema = z.object({

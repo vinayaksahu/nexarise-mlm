@@ -12,12 +12,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: result.error.issues[0]?.message || 'Invalid input' }, { status: 400 });
     }
 
-    const { name, username, email, mobile, password, referralCode } = result.data;
+    const { name, username, email, mobile, password, referralCode, otpCode } = result.data;
     const cleanUsername = username.toLowerCase().trim();
+    const cleanEmail = email.toLowerCase().trim();
+
+    // Verify OTP Token
+    const validOtp = await db.otpToken.findFirst({
+      where: {
+        email: cleanEmail,
+        code: String(otpCode).trim(),
+        purpose: 'REGISTRATION',
+        used: false,
+        expiresAt: { gte: new Date() },
+      },
+    });
+
+    if (!validOtp) {
+      return NextResponse.json({ error: 'Invalid or expired OTP code. Please request a new OTP.' }, { status: 400 });
+    }
 
     const existingUser = await db.user.findFirst({
       where: {
-        OR: [{ username: cleanUsername }, { email: email.toLowerCase() }, { referralCode: cleanUsername }]
+        OR: [{ username: cleanUsername }, { email: cleanEmail }, { referralCode: cleanUsername }]
       }
     });
 
@@ -44,16 +60,23 @@ export async function POST(req: NextRequest) {
     const passwordHash = await hashPassword(password);
 
     const user = await db.$transaction(async (tx) => {
+      // Mark OTP as used
+      await tx.otpToken.update({
+        where: { id: validOtp.id },
+        data: { used: true },
+      });
+
       const newUser = await tx.user.create({
         data: {
           name,
           username: cleanUsername,
-          email: email.toLowerCase(),
+          email: cleanEmail,
           mobile,
           passwordHash,
           referralCode: cleanUsername, // Referral code is user's chosen username!
           sponsorId,
           status: 'INACTIVE',
+          emailVerified: true, // Email verified via OTP!
           createdAt: new Date(),
           updatedAt: new Date(),
         },

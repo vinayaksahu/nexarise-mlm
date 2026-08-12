@@ -38,6 +38,9 @@ export async function getBusinessConfig(): Promise<BusinessConfig> {
     })
     if (plan) {
       const config = plan.config as unknown as BusinessConfig
+      config.minInvestment = Number(config.minInvestment ?? 5)
+      config.maxInvestment = Number(config.maxInvestment ?? 1000)
+      config.investmentMultiple = Number(config.investmentMultiple ?? 1)
       config.p2pFeePercentage = 0
       config.showP2pFee = false
       if (!config.depositAddress) {
@@ -56,8 +59,8 @@ export async function getBusinessConfig(): Promise<BusinessConfig> {
   // Safe fallback config
   const defaultConfig: BusinessConfig = {
     minInvestment: 5,
-    maxInvestment: 10000,
-    investmentMultiple: 5,
+    maxInvestment: 1000,
+    investmentMultiple: 1,
     currency: 'USDT',
     dailyRoiPercentage: 1,
     roiDurationDays: 200,

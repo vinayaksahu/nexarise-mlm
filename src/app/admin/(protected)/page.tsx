@@ -46,8 +46,10 @@ export default function AdminDashboardPage() {
   const adminStats = [
     { label: 'Total Users', value: stats.totalUsers, icon: '👥', isMoney: false },
     { label: 'Active Users', value: stats.activeUsers, icon: '✅', isMoney: false },
+    { label: 'Promotional Activations', value: (stats as any).activePromotions || 0, icon: '🎁', isMoney: false },
+    { label: 'Promotional Investment', value: (stats as any).promotionalValue || 0, icon: '🏷️', isMoney: true },
     { label: 'Total Investment', value: stats.totalInvestment, icon: '💰', isMoney: true },
-    { label: 'Active Investment', value: stats.activeInvestment, icon: '🔥', isMoney: true },
+    { label: 'Active Investment (Real)', value: stats.activeInvestment, icon: '🔥', isMoney: true },
     { label: 'Total Deposits', value: stats.totalDeposits, icon: '📥', isMoney: true },
     { label: 'Pending Deposits', value: stats.pendingDeposits, icon: '⏳', isMoney: false },
     { label: 'Total Withdrawals', value: stats.totalWithdrawals, icon: '📤', isMoney: true },

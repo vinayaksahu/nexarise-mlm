@@ -31,8 +31,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       const hasActiveInvestment = await db.investment.findFirst({
         where: { userId: id, status: 'ACTIVE' }
       });
-      // If user has no active investment, status becomes INACTIVE instead of ACTIVE
-      targetStatus = hasActiveInvestment ? 'ACTIVE' : 'INACTIVE';
+      const hasActivePromo = await db.promotionalActivation.findFirst({
+        where: { userId: id, status: 'ACTIVE' }
+      });
+      targetStatus = (hasActiveInvestment || hasActivePromo) ? 'ACTIVE' : 'INACTIVE';
     }
 
     await db.user.update({

@@ -130,8 +130,7 @@ export default function DashboardPage() {
         </h1>
         <div className="flex flex-wrap items-center gap-2 mt-2">
           {(() => {
-            const hasActiveInvestment = investments.some((inv: any) => inv.status === 'ACTIVE' && Number(inv.amount) > 0);
-            const isAccountActive = user?.status === 'ACTIVE' && hasActiveInvestment;
+            const isAccountActive = user?.status === 'ACTIVE';
             return isAccountActive ? (
               <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Account Status: Active</span>
             ) : (

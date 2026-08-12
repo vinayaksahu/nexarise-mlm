@@ -12,7 +12,8 @@ export default function AdminBusinessPlanPage() {
     dailyRoiPercentage: 1,
     roiDurationDays: 200,
     minInvestment: 5,
-    maxInvestment: 10000,
+    maxInvestment: 1000,
+    investmentMultiple: 1,
     withdrawalFeePercentage: 5,
     p2pFeePercentage: 0,
     showP2pFee: false,
@@ -35,7 +36,8 @@ export default function AdminBusinessPlanPage() {
             dailyRoiPercentage: cfg.dailyRoiPercentage ?? cfg.dailyRoiPercent ?? 1,
             roiDurationDays: cfg.roiDurationDays ?? cfg.durationDays ?? 200,
             minInvestment: cfg.minInvestment ?? 5,
-            maxInvestment: cfg.maxInvestment ?? 10000,
+            maxInvestment: cfg.maxInvestment ?? 1000,
+            investmentMultiple: cfg.investmentMultiple ?? 1,
             withdrawalFeePercentage: cfg.withdrawalFeePercentage ?? cfg.withdrawalFeePercent ?? 5,
             p2pFeePercentage: cfg.p2pFeePercentage ?? cfg.p2pFeePercent ?? 0,
             showP2pFee: cfg.showP2pFee ?? false,
@@ -176,6 +178,16 @@ export default function AdminBusinessPlanPage() {
                 type="number" 
                 value={config.maxInvestment} 
                 onChange={e => setConfig({...config, maxInvestment: parseFloat(e.target.value) || 0})}
+                className="bg-white dark:bg-slate-950 border-gray-300 dark:border-slate-800 text-gray-900 dark:text-white text-xs"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Investment Step / Multiple ($)</label>
+              <Input 
+                type="number" 
+                value={config.investmentMultiple} 
+                onChange={e => setConfig({...config, investmentMultiple: parseFloat(e.target.value) || 1})}
                 className="bg-white dark:bg-slate-950 border-gray-300 dark:border-slate-800 text-gray-900 dark:text-white text-xs"
               />
             </div>

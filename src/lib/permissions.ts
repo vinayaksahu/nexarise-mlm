@@ -4,6 +4,8 @@ export type Permission =
   | 'users.manage'
   | 'users.activate'
   | 'users.ban'
+  | 'promotions.view'
+  | 'promotions.manage'
   | 'deposits.view'
   | 'deposits.approve'
   | 'withdrawals.view'
@@ -64,6 +66,8 @@ const ROLE_PERMISSIONS: Record<AdminRole, Permission[]> = {
     'users.view',
     'users.manage',
     'users.activate',
+    'promotions.view',
+    'promotions.manage',
     'deposits.view',
     'deposits.approve',
     'withdrawals.view',
@@ -91,6 +95,8 @@ const ROLE_PERMISSIONS: Record<AdminRole, Permission[]> = {
     'users.manage',
     'users.activate',
     'users.ban',
+    'promotions.view',
+    'promotions.manage',
     'support.view',
     'support.manage',
   ],
@@ -111,6 +117,7 @@ const ROLE_PERMISSIONS: Record<AdminRole, Permission[]> = {
   VIEWER: [
     'dashboard.view',
     'users.view',
+    'promotions.view',
     'deposits.view',
     'withdrawals.view',
     'investments.view',
