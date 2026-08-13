@@ -12,34 +12,39 @@ export async function calculateLegBusiness(userId: string) {
     return { strongLeg: new Decimal(0), weakLeg: new Decimal(0), totalBusiness: new Decimal(0), legDetails: [] }
   }
 
-  // Helper to recursively get total business volume of a subtree
-  async function getSubtreeVolume(nodeUserId: string): Promise<Decimal> {
-    // Self active investments total
-    const selfInvestments = await db.investment.aggregate({
-      where: { userId: nodeUserId, status: 'ACTIVE' },
-      _sum: { amount: true }
-    })
-    const selfAmount = new Decimal(selfInvestments._sum.amount?.toString() || 0)
+  // Helper to gather all downline user IDs in a leg (including the direct referral) using BFS
+  async function getLegUserIds(directId: string): Promise<string[]> {
+    const userIds: string[] = [directId]
+    let currentLevelIds = [directId]
+    let depth = 0
 
-    // Downlines
-    const children = await db.user.findMany({
-      where: { sponsorId: nodeUserId },
-      select: { id: true }
-    })
-
-    let childTotal = new Decimal(0)
-    for (const child of children) {
-      const childVol = await getSubtreeVolume(child.id)
-      childTotal = childTotal.plus(childVol)
+    while (currentLevelIds.length > 0 && depth < 25) {
+      depth++
+      const nextLevel = await db.user.findMany({
+        where: { sponsorId: { in: currentLevelIds } },
+        select: { id: true }
+      })
+      if (nextLevel.length === 0) break
+      currentLevelIds = nextLevel.map(u => u.id)
+      userIds.push(...currentLevelIds)
     }
 
-    return selfAmount.plus(childTotal)
+    return userIds
   }
 
   const legVolumes: { userId: string; username: string; volume: Decimal }[] = []
+
   for (const direct of directs) {
-    const vol = await getSubtreeVolume(direct.id)
-    legVolumes.push({ userId: direct.id, username: direct.username, volume: vol })
+    const legUserIds = await getLegUserIds(direct.id)
+    const activeInv = await db.investment.aggregate({
+      where: {
+        userId: { in: legUserIds },
+        status: 'ACTIVE'
+      },
+      _sum: { amount: true }
+    })
+    const volume = new Decimal(activeInv._sum.amount?.toString() || 0)
+    legVolumes.push({ userId: direct.id, username: direct.username, volume })
   }
 
   // Sort legs descending

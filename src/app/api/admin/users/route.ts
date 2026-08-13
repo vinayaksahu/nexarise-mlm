@@ -67,6 +67,11 @@ export async function GET(request: NextRequest) {
           investments: {
             select: { amount: true, status: true }
           },
+          downlines: {
+            select: {
+              investments: { select: { amount: true } }
+            }
+          },
           promotionalActivations: {
             where: { status: 'ACTIVE' },
             select: { id: true }
@@ -76,21 +81,13 @@ export async function GET(request: NextRequest) {
       db.user.count({ where })
     ]);
 
-    const mappedUsers = await Promise.all(users.map(async (user) => {
+    const mappedUsers = users.map((user) => {
       const selfInvestmentSum = user.investments
         .reduce((sum, inv) => sum + Number(inv.amount), 0);
       const hasPromotionalActivation = user.promotionalActivations.length > 0;
 
-      // Compute downline / team investment sum
-      const downlines = await db.user.findMany({
-        where: { sponsorId: user.id },
-        select: {
-          investments: { select: { amount: true } }
-        }
-      });
-
-      const directTeamSum = downlines.reduce((sum, d) =>
-        sum + d.investments.reduce((s, i) => s + Number(i.amount), 0), 0);
+      const directTeamSum = (user.downlines || []).reduce((sum, d) =>
+        sum + (d.investments || []).reduce((s, i) => s + Number(i.amount), 0), 0);
 
       // Sanitize sponsor username if sponsor is Superadmin and requesting user is NOT Superadmin
       let sponsorUsername = user.sponsor?.username || null;
@@ -99,13 +96,30 @@ export async function GET(request: NextRequest) {
       }
 
       return {
-        ...user,
+        id: user.id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        mobile: user.mobile,
+        role: user.role,
+        status: user.status,
+        referralCode: user.referralCode,
+        createdAt: user.createdAt,
+        defaultPayoutMethod: user.defaultPayoutMethod,
+        cryptoWalletAddress: user.cryptoWalletAddress,
+        cryptoNetwork: user.cryptoNetwork,
+        bankName: user.bankName,
+        bankAccountName: user.bankAccountName,
+        bankAccountNumber: user.bankAccountNumber,
+        bankIfscCode: user.bankIfscCode,
+        upiId: user.upiId,
+        _count: user._count,
         sponsor: sponsorUsername ? { username: sponsorUsername } : null,
         selfInvestmentSum,
         teamInvestmentSum: directTeamSum,
         hasPromotionalActivation,
       };
-    }));
+    });
 
     const totalPages = Math.ceil(totalCount / limit);
 
