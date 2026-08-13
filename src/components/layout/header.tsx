@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/components/theme-provider';
 import { Sidebar } from './sidebar';
+import { LanguageSelector } from '@/components/layout/language-selector';
+import { Sun, Moon, Bell, Menu as MenuIcon, Key, Settings, Shield, LogOut, Check, ArrowRight } from 'lucide-react';
 
 interface HeaderProps {
   user?: { name: string; username: string; role: string } | null;
@@ -60,7 +62,6 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
 
   useEffect(() => {
     fetchNotifs();
-    // Lightweight polling every 15 seconds for real-time notification updates
     const interval = setInterval(fetchNotifs, 15000);
     return () => clearInterval(interval);
   }, [user]);
@@ -104,10 +105,10 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setMobileDrawerOpen(true)}
-            className="lg:hidden text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-lg"
+            className="lg:hidden text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-lg flex items-center justify-center"
             title="Open Navigation Menu"
           >
-            ☰
+            <MenuIcon className="w-5 h-5" />
           </button>
           <Link href={isAdmin ? '/admin' : '/dashboard'} className="flex items-center gap-1.5 lg:hidden">
             <img
@@ -126,20 +127,23 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
           {/* Dark/Light Mode Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-lg text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-lg text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center"
             title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
-            {theme === 'dark' ? '☀️' : '🌙'}
+            {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-slate-700" />}
           </button>
+
+          {/* Language Selector */}
+          <LanguageSelector />
 
           {/* Notifications Dropdown */}
           <div className="relative" ref={notifRef}>
             <button
               onClick={handleNotifToggle}
-              className="p-2 rounded-lg text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors relative"
+              className="p-2 rounded-lg text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors relative flex items-center justify-center"
               title="Notifications"
             >
-              🔔
+              <Bell className="w-5 h-5" />
               {unreadCount > 0 && (
                 <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full">
                   {unreadCount > 99 ? '99+' : unreadCount}
@@ -179,9 +183,10 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
                             <Link
                               href={n.link}
                               onClick={() => setNotifOpen(false)}
-                              className="text-blue-600 dark:text-blue-400 font-semibold hover:underline"
+                              className="text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center gap-0.5"
                             >
-                              View →
+                              <span>View</span>
+                              <ArrowRight className="w-3 h-3" />
                             </Link>
                           )}
                         </div>
@@ -192,7 +197,7 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
                           className="text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 text-xs p-1"
                           title="Mark as read"
                         >
-                          ✓
+                          <Check className="w-3.5 h-3.5" />
                         </button>
                       )}
                     </div>
@@ -235,35 +240,39 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
                   {isAdmin ? (
                     <Link
                       href="/admin/security"
-                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-800 font-medium"
+                      className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-800 font-medium"
                       onClick={() => setMenuOpen(false)}
                     >
-                      🔑 Change Password
+                      <Key className="w-3.5 h-3.5 text-blue-500" />
+                      <span>Change Password</span>
                     </Link>
                   ) : (
                     <>
                       <Link
                         href="/settings"
-                        className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-800 font-medium"
+                        className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-800 font-medium"
                         onClick={() => setMenuOpen(false)}
                       >
-                        ⚙️ Account Settings
+                        <Settings className="w-3.5 h-3.5 text-blue-500" />
+                        <span>Account Settings</span>
                       </Link>
                       <Link
                         href="/security"
-                        className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-800 font-medium"
+                        className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-800 font-medium"
                         onClick={() => setMenuOpen(false)}
                       >
-                        🔒 Security & PIN
+                        <Shield className="w-3.5 h-3.5 text-blue-500" />
+                        <span>Security & PIN</span>
                       </Link>
                     </>
                   )}
                   <hr className="my-1 border-gray-100 dark:border-slate-800" />
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 font-medium"
+                    className="w-full text-left px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 font-medium flex items-center gap-2"
                   >
-                    🚪 Logout
+                    <LogOut className="w-3.5 h-3.5 text-red-500" />
+                    <span>Logout</span>
                   </button>
                 </div>
               )}

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Menu, X, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
+import { LanguageSelector } from '@/components/layout/language-selector';
 
 export function PublicNav() {
   const [isOpen, setIsOpen] = useState(false);
@@ -47,10 +48,11 @@ export function PublicNav() {
             </div>
           </div>
 
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-3">
             <Button variant="ghost" size="sm" onClick={toggleTheme} title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}>
               {theme === 'dark' ? <Sun className="h-5 w-5 text-amber-400" /> : <Moon className="h-5 w-5 text-slate-700" />}
             </Button>
+            <LanguageSelector />
             <Link href="/login">
               <Button variant="ghost">Login</Button>
             </Link>
@@ -63,6 +65,7 @@ export function PublicNav() {
             <Button variant="ghost" size="sm" onClick={toggleTheme}>
               {theme === 'dark' ? <Sun className="h-5 w-5 text-amber-400" /> : <Moon className="h-5 w-5 text-slate-700" />}
             </Button>
+            <LanguageSelector />
             <Button variant="ghost" size="sm" onClick={toggleMenu}>
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
