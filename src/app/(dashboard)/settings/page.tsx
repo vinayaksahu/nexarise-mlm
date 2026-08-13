@@ -20,6 +20,9 @@ export default function SettingsPage() {
   const [profileStatus, setProfileStatus] = useState<'success' | 'error'>('success');
   const [profileLoading, setProfileLoading] = useState(false);
 
+  // Initial loading state to prevent flash of un-filtered methods
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+
   // Receiving Payout Methods (Crypto, Banking, UPI)
   const [payoutData, setPayoutData] = useState({
     defaultPayoutMethod: 'CRYPTO',
@@ -114,6 +117,8 @@ export default function SettingsPage() {
         }
       } catch (err) {
         console.error('Failed to load settings data:', err);
+      } finally {
+        setIsInitialLoading(false);
       }
     }
     loadData();
@@ -263,161 +268,177 @@ export default function SettingsPage() {
               Set up your withdrawal receiving accounts and select your active default. (Controlled by system admin)
             </p>
           </div>
-          <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-3 py-1.5 text-xs font-semibold self-start sm:self-auto">
-            Default Active Method: <span className="uppercase ml-1 font-bold">{payoutData.defaultPayoutMethod}</span>
-          </Badge>
+          {!isInitialLoading && (
+            <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-3 py-1.5 text-xs font-semibold self-start sm:self-auto">
+              Default Active Method: <span className="uppercase ml-1 font-bold">{payoutData.defaultPayoutMethod}</span>
+            </Badge>
+          )}
         </div>
 
-        <form onSubmit={handleUpdatePayoutMethods} className="space-y-6">
-          {/* Method Selection Radio Buttons (Only Admin-Enabled methods are shown) */}
-          <div className="space-y-2">
-            <label className="block text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
-              Select Default Payout Receiving Method
-            </label>
-            {availableMethods.length === 0 ? (
-              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs">
-                ⚠️ Receiving payout methods are currently disabled by the System Admin. Please contact support.
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {availableMethods.map((m) => (
-                  <div
-                    key={m.id}
-                    onClick={() => setPayoutData({ ...payoutData, defaultPayoutMethod: m.id })}
-                    className={`cursor-pointer p-4 rounded-xl border transition-all flex flex-col justify-between ${
-                      payoutData.defaultPayoutMethod === m.id
-                        ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-950/30 ring-2 ring-blue-600/30'
-                        : 'border-gray-200 dark:border-slate-800 hover:border-gray-300 dark:hover:border-slate-700'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-sm text-gray-900 dark:text-white">{m.label}</span>
-                      <input
-                        type="radio"
-                        name="defaultPayoutMethod"
-                        checked={payoutData.defaultPayoutMethod === m.id}
-                        onChange={() => setPayoutData({ ...payoutData, defaultPayoutMethod: m.id })}
-                        className="accent-blue-600 h-4 w-4"
-                      />
-                    </div>
-                    <p className="text-[11px] text-muted mt-1">{m.desc}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
-            {/* 1. Crypto Method Box (Only shown if Admin enabled CRYPTO) */}
-            {enabledMethods.CRYPTO && (
-              <div className={`p-4 rounded-xl border space-y-3 ${payoutData.defaultPayoutMethod === 'CRYPTO' ? 'border-blue-500/50 bg-blue-50/20 dark:bg-blue-950/20' : 'border-gray-200 dark:border-slate-800'}`}>
-                <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-slate-800">
-                  <span className="font-bold text-sm text-gray-900 dark:text-white">⚡ Crypto Wallet</span>
-                  {payoutData.defaultPayoutMethod === 'CRYPTO' && (
-                    <Badge variant="success" className="text-[10px]">Active Default</Badge>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1">Network / Token</label>
-                  <Input
-                    value={payoutData.cryptoNetwork}
-                    placeholder="e.g. USDT (BEP-20)"
-                    onChange={e => setPayoutData({ ...payoutData, cryptoNetwork: e.target.value })}
-                    className="text-xs py-2"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1">Wallet Address</label>
-                  <Input
-                    value={payoutData.cryptoWalletAddress}
-                    placeholder="0x..."
-                    onChange={e => setPayoutData({ ...payoutData, cryptoWalletAddress: e.target.value })}
-                    className="text-xs py-2 font-mono"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* 2. Banking Method Box (Only shown if Admin enabled BANKING) */}
-            {enabledMethods.BANKING && (
-              <div className={`p-4 rounded-xl border space-y-3 ${payoutData.defaultPayoutMethod === 'BANKING' ? 'border-blue-500/50 bg-blue-50/20 dark:bg-blue-950/20' : 'border-gray-200 dark:border-slate-800'}`}>
-                <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-slate-800">
-                  <span className="font-bold text-sm text-gray-900 dark:text-white">🏦 Bank Account</span>
-                  {payoutData.defaultPayoutMethod === 'BANKING' && (
-                    <Badge variant="success" className="text-[10px]">Active Default</Badge>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1">Bank Name</label>
-                  <Input
-                    value={payoutData.bankName}
-                    placeholder="e.g. HDFC Bank"
-                    onChange={e => setPayoutData({ ...payoutData, bankName: e.target.value })}
-                    className="text-xs py-2"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1">Account Holder Name</label>
-                  <Input
-                    value={payoutData.bankAccountName}
-                    placeholder="Name on account"
-                    onChange={e => setPayoutData({ ...payoutData, bankAccountName: e.target.value })}
-                    className="text-xs py-2"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1">Account Number</label>
-                  <Input
-                    value={payoutData.bankAccountNumber}
-                    placeholder="Account number"
-                    onChange={e => setPayoutData({ ...payoutData, bankAccountNumber: e.target.value })}
-                    className="text-xs py-2 font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1">IFSC Code</label>
-                  <Input
-                    value={payoutData.bankIfscCode}
-                    placeholder="IFSC Code (e.g. HDFC0001234)"
-                    onChange={e => setPayoutData({ ...payoutData, bankIfscCode: e.target.value })}
-                    className="text-xs py-2 uppercase font-mono"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* 3. UPI Method Box (Only shown if Admin enabled UPI) */}
-            {enabledMethods.UPI && (
-              <div className={`p-4 rounded-xl border space-y-3 ${payoutData.defaultPayoutMethod === 'UPI' ? 'border-blue-500/50 bg-blue-50/20 dark:bg-blue-950/20' : 'border-gray-200 dark:border-slate-800'}`}>
-                <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-slate-800">
-                  <span className="font-bold text-sm text-gray-900 dark:text-white">📱 UPI Payment</span>
-                  {payoutData.defaultPayoutMethod === 'UPI' && (
-                    <Badge variant="success" className="text-[10px]">Active Default</Badge>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1">UPI ID / VPA</label>
-                  <Input
-                    value={payoutData.upiId}
-                    placeholder="e.g. username@upi or 9876543210@paytm"
-                    onChange={e => setPayoutData({ ...payoutData, upiId: e.target.value })}
-                    className="text-xs py-2 font-mono"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {payoutMsg && (
-            <div className={`p-3 rounded-xl text-xs font-medium ${payoutStatus === 'error' ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'}`}>
-              {payoutMsg}
+        {isInitialLoading ? (
+          <div className="space-y-6 animate-pulse py-4">
+            <div className="h-4 bg-gray-200 dark:bg-slate-800 rounded w-1/3"></div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="h-24 bg-gray-100 dark:bg-slate-800/60 rounded-xl"></div>
+              <div className="h-24 bg-gray-100 dark:bg-slate-800/60 rounded-xl"></div>
             </div>
-          )}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+              <div className="h-48 bg-gray-100 dark:bg-slate-800/60 rounded-xl"></div>
+              <div className="h-48 bg-gray-100 dark:bg-slate-800/60 rounded-xl"></div>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleUpdatePayoutMethods} className="space-y-6">
+            {/* Method Selection Radio Buttons (Only Admin-Enabled methods are shown) */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                Select Default Payout Receiving Method
+              </label>
+              {availableMethods.length === 0 ? (
+                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs">
+                  ⚠️ Receiving payout methods are currently disabled by the System Admin. Please contact support.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {availableMethods.map((m) => (
+                    <div
+                      key={m.id}
+                      onClick={() => setPayoutData({ ...payoutData, defaultPayoutMethod: m.id })}
+                      className={`cursor-pointer p-4 rounded-xl border transition-all flex flex-col justify-between ${
+                        payoutData.defaultPayoutMethod === m.id
+                          ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-950/30 ring-2 ring-blue-600/30'
+                          : 'border-gray-200 dark:border-slate-800 hover:border-gray-300 dark:hover:border-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-sm text-gray-900 dark:text-white">{m.label}</span>
+                        <input
+                          type="radio"
+                          name="defaultPayoutMethod"
+                          checked={payoutData.defaultPayoutMethod === m.id}
+                          onChange={() => setPayoutData({ ...payoutData, defaultPayoutMethod: m.id })}
+                          className="accent-blue-600 h-4 w-4"
+                        />
+                      </div>
+                      <p className="text-[11px] text-muted mt-1">{m.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
-          <Button type="submit" className="w-full sm:w-auto px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5" disabled={payoutLoading || availableMethods.length === 0}>
-            {payoutLoading ? 'Saving Payout Methods...' : 'Save Receiving Payment Methods'}
-          </Button>
-        </form>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+              {/* 1. Crypto Method Box (Only shown if Admin enabled CRYPTO) */}
+              {enabledMethods.CRYPTO && (
+                <div className={`p-4 rounded-xl border space-y-3 ${payoutData.defaultPayoutMethod === 'CRYPTO' ? 'border-blue-500/50 bg-blue-50/20 dark:bg-blue-950/20' : 'border-gray-200 dark:border-slate-800'}`}>
+                  <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-slate-800">
+                    <span className="font-bold text-sm text-gray-900 dark:text-white">⚡ Crypto Wallet</span>
+                    {payoutData.defaultPayoutMethod === 'CRYPTO' && (
+                      <Badge variant="success" className="text-[10px]">Active Default</Badge>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1">Network / Token</label>
+                    <Input
+                      value={payoutData.cryptoNetwork}
+                      placeholder="e.g. USDT (BEP-20)"
+                      onChange={e => setPayoutData({ ...payoutData, cryptoNetwork: e.target.value })}
+                      className="text-xs py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1">Wallet Address</label>
+                    <Input
+                      value={payoutData.cryptoWalletAddress}
+                      placeholder="0x..."
+                      onChange={e => setPayoutData({ ...payoutData, cryptoWalletAddress: e.target.value })}
+                      className="text-xs py-2 font-mono"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* 2. Banking Method Box (Only shown if Admin enabled BANKING) */}
+              {enabledMethods.BANKING && (
+                <div className={`p-4 rounded-xl border space-y-3 ${payoutData.defaultPayoutMethod === 'BANKING' ? 'border-blue-500/50 bg-blue-50/20 dark:bg-blue-950/20' : 'border-gray-200 dark:border-slate-800'}`}>
+                  <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-slate-800">
+                    <span className="font-bold text-sm text-gray-900 dark:text-white">🏦 Bank Account</span>
+                    {payoutData.defaultPayoutMethod === 'BANKING' && (
+                      <Badge variant="success" className="text-[10px]">Active Default</Badge>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1">Bank Name</label>
+                    <Input
+                      value={payoutData.bankName}
+                      placeholder="e.g. HDFC Bank"
+                      onChange={e => setPayoutData({ ...payoutData, bankName: e.target.value })}
+                      className="text-xs py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1">Account Holder Name</label>
+                    <Input
+                      value={payoutData.bankAccountName}
+                      placeholder="Name on account"
+                      onChange={e => setPayoutData({ ...payoutData, bankAccountName: e.target.value })}
+                      className="text-xs py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1">Account Number</label>
+                    <Input
+                      value={payoutData.bankAccountNumber}
+                      placeholder="Account number"
+                      onChange={e => setPayoutData({ ...payoutData, bankAccountNumber: e.target.value })}
+                      className="text-xs py-2 font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1">IFSC Code</label>
+                    <Input
+                      value={payoutData.bankIfscCode}
+                      placeholder="IFSC Code (e.g. HDFC0001234)"
+                      onChange={e => setPayoutData({ ...payoutData, bankIfscCode: e.target.value })}
+                      className="text-xs py-2 uppercase font-mono"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* 3. UPI Method Box (Only shown if Admin enabled UPI) */}
+              {enabledMethods.UPI && (
+                <div className={`p-4 rounded-xl border space-y-3 ${payoutData.defaultPayoutMethod === 'UPI' ? 'border-blue-500/50 bg-blue-50/20 dark:bg-blue-950/20' : 'border-gray-200 dark:border-slate-800'}`}>
+                  <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-slate-800">
+                    <span className="font-bold text-sm text-gray-900 dark:text-white">📱 UPI Payment</span>
+                    {payoutData.defaultPayoutMethod === 'UPI' && (
+                      <Badge variant="success" className="text-[10px]">Active Default</Badge>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1">UPI ID / VPA</label>
+                    <Input
+                      value={payoutData.upiId}
+                      placeholder="e.g. username@upi or 9876543210@paytm"
+                      onChange={e => setPayoutData({ ...payoutData, upiId: e.target.value })}
+                      className="text-xs py-2 font-mono"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {payoutMsg && (
+              <div className={`p-3 rounded-xl text-xs font-medium ${payoutStatus === 'error' ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'}`}>
+                {payoutMsg}
+              </div>
+            )}
+
+            <Button type="submit" className="w-full sm:w-auto px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5" disabled={payoutLoading || availableMethods.length === 0}>
+              {payoutLoading ? 'Saving Payout Methods...' : 'Save Receiving Payment Methods'}
+            </Button>
+          </form>
+        )}
       </Card>
     </div>
   );
