@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
 
 interface AdminAccount {
   id: string;
@@ -73,7 +74,14 @@ export default function AdminAdministratorsPage() {
 
   const openEditModal = (adm: AdminAccount) => {
     if (adm.role === 'SUPER_ADMIN') {
-      alert('SuperAdmin role and permissions cannot be edited or modified.');
+      setConfirmModal({
+        isOpen: true,
+        title: 'Action Restricted 🛑',
+        message: 'SuperAdmin role and permissions cannot be edited or modified.',
+        variant: 'info',
+        confirmText: 'Understood',
+        cancelText: '',
+      });
       return;
     }
     setEditingAdmin(adm);
@@ -130,14 +138,31 @@ export default function AdminAdministratorsPage() {
     }
   };
 
-  const handleToggleStatus = async (adm: AdminAccount) => {
+  const handleToggleStatus = (adm: AdminAccount) => {
     if (adm.role === 'SUPER_ADMIN') {
-      alert('SuperAdmin account cannot be deactivated.');
+      setConfirmModal({
+        isOpen: true,
+        title: 'Action Restricted 🛑',
+        message: 'SuperAdmin account cannot be deactivated.',
+        variant: 'info',
+        confirmText: 'Understood',
+        cancelText: '',
+      });
       return;
     }
     const newStatus = adm.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
-    if (!confirm(`Are you sure you want to ${newStatus === 'ACTIVE' ? 'activate' : 'deactivate'} staff account "@${adm.username}"?`)) return;
+    setConfirmModal({
+      isOpen: true,
+      title: 'Confirm Status Change ⚠️',
+      message: `Are you sure you want to ${newStatus === 'ACTIVE' ? 'activate' : 'deactivate'} staff account "@${adm.username}"?`,
+      variant: newStatus === 'SUSPENDED' ? 'danger' : 'warning',
+      confirmText: newStatus === 'ACTIVE' ? 'Activate Account' : 'Deactivate Account',
+      cancelText: 'Cancel',
+      onConfirm: () => executeToggleStatus(adm, newStatus),
+    });
+  };
 
+  const executeToggleStatus = async (adm: AdminAccount, newStatus: string) => {
     try {
       const res = await fetch(`/api/admin/administrators/${adm.id}`, {
         method: 'PUT',
@@ -424,6 +449,20 @@ export default function AdminAdministratorsPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        variant={confirmModal.variant}
+        confirmText={confirmModal.confirmText}
+        cancelText={confirmModal.cancelText}
+        onConfirm={() => {
+          if (confirmModal.onConfirm) confirmModal.onConfirm();
+          setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        }}
+        onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
 
 interface PaymentMethodItem {
   id: string;
@@ -248,8 +249,16 @@ export default function AdminPaymentMethodsPage() {
     }
   };
 
-  const handleDelete = async (item: PaymentMethodItem) => {
-    if (!confirm(`Are you sure you want to delete payment method "${item.name}"?`)) return;
+  const [deleteConfirmItem, setDeleteConfirmItem] = useState<PaymentMethodItem | null>(null);
+
+  const handleDelete = (item: PaymentMethodItem) => {
+    setDeleteConfirmItem(item);
+  };
+
+  const executeDelete = async () => {
+    if (!deleteConfirmItem) return;
+    const item = deleteConfirmItem;
+    setDeleteConfirmItem(null);
     try {
       const res = await fetch(`/api/admin/payment-methods/${item.id}`, {
         method: 'DELETE',
@@ -855,6 +864,17 @@ export default function AdminPaymentMethodsPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={Boolean(deleteConfirmItem)}
+        title="Confirm Deletion 🗑️"
+        message={`Are you sure you want to delete payment method "${deleteConfirmItem?.name}"?`}
+        variant="danger"
+        confirmText="Yes, Delete"
+        cancelText="Cancel"
+        onConfirm={executeDelete}
+        onCancel={() => setDeleteConfirmItem(null)}
+      />
     </div>
   );
 }

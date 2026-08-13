@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
 
 interface InvestmentItem {
   id: string;
@@ -127,8 +128,23 @@ export default function AdminInvestmentsPage() {
     }
   };
 
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    invId: string;
+    newStatus: string;
+    message: string;
+  }>({ isOpen: false, invId: '', newStatus: '', message: '' });
+
+  const requestUpdateStatus = (invId: string, newStatus: string) => {
+    setConfirmModal({
+      isOpen: true,
+      invId,
+      newStatus,
+      message: `Are you sure you want to change investment status to ${newStatus}?`,
+    });
+  };
+
   const handleUpdateStatus = async (invId: string, newStatus: string) => {
-    if (!confirm(`Are you sure you want to change investment status to ${newStatus}?`)) return;
     setStatusUpdatingId(invId);
     try {
       const res = await fetch(`/api/admin/investments/${invId}`, {
@@ -352,15 +368,13 @@ export default function AdminInvestmentsPage() {
                               title="View Investment Details"
                             >
                               👁️ Details
-                            </Button>
-
-                            {inv.status === 'ACTIVE' && (
+                                               {inv.status === 'ACTIVE' && (
                               <Button
                                 size="sm"
                                 variant="ghost"
                                 className="text-[11px] h-7 px-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40"
                                 disabled={statusUpdatingId === inv.id}
-                                onClick={() => handleUpdateStatus(inv.id, 'CANCELLED')}
+                                onClick={() => requestUpdateStatus(inv.id, 'CANCELLED')}
                                 title="Cancel Investment"
                               >
                                 🛑 Cancel
@@ -373,12 +387,12 @@ export default function AdminInvestmentsPage() {
                                 variant="ghost"
                                 className="text-[11px] h-7 px-2 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
                                 disabled={statusUpdatingId === inv.id}
-                                onClick={() => handleUpdateStatus(inv.id, 'ACTIVE')}
+                                onClick={() => requestUpdateStatus(inv.id, 'ACTIVE')}
                                 title="Reactivate Investment"
                               >
                                 ▶️ Reactivate
                               </Button>
-                            )}
+                            )}                          )}
                           </div>
                         </td>
                       </tr>
@@ -569,6 +583,21 @@ export default function AdminInvestmentsPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title="Confirm Status Change"
+        message={confirmModal.message}
+        variant={confirmModal.newStatus === 'CANCELLED' ? 'danger' : 'warning'}
+        confirmText={confirmModal.newStatus === 'CANCELLED' ? 'Yes, Cancel' : 'Yes, Reactivate'}
+        cancelText="Keep Current"
+        onConfirm={() => {
+          const { invId, newStatus } = confirmModal;
+          setConfirmModal({ isOpen: false, invId: '', newStatus: '', message: '' });
+          handleUpdateStatus(invId, newStatus);
+        }}
+        onCancel={() => setConfirmModal({ isOpen: false, invId: '', newStatus: '', message: '' })}
+      />
     </div>
   );
 }
