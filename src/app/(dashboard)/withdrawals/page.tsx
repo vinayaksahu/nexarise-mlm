@@ -176,16 +176,17 @@ export default function WithdrawalsPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-medium mb-1">Receiving Method / Account Details</label>
+            <label className="block text-xs font-medium mb-1 text-gray-700 dark:text-slate-300">Receiving Method / Account Details (Read-Only)</label>
             <Input 
               type="text" 
-              className="w-full text-sm py-2.5 font-mono" 
-              placeholder="Payout receiving details (Crypto, Bank, or UPI)" 
+              readOnly
+              disabled
+              className="w-full text-sm py-2.5 font-mono bg-gray-100 dark:bg-slate-900/80 text-muted opacity-90 cursor-not-allowed border-gray-200 dark:border-slate-800" 
+              placeholder="Configure receiving details in Account Settings" 
               value={walletAddress} 
-              onChange={e => setWalletAddress(e.target.value)} 
             />
             <p className="text-[11px] text-muted mt-1">
-              Pre-filled from your profile's active default method. You can manage receiving methods in <Link href="/settings" className="text-blue-600 underline">Account Settings</Link>.
+              Auto-filled from your active default receiving method. To update, go to <Link href="/settings" className="text-blue-600 dark:text-blue-400 font-semibold underline">Account Settings</Link>.
             </p>
           </div>
 
