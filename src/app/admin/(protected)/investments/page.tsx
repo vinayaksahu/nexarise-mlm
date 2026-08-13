@@ -305,7 +305,7 @@ export default function AdminInvestmentsPage() {
                 ) : (
                   investments.map((inv) => {
                     const earnedRoi = inv.roiTransactions?.reduce((sum, tx) => sum + Number(tx.amount), 0) || 0;
-                    const roiPercent = inv.planVersion?.config?.dailyRoiPercent || 0.5;
+                    const roiPercent = inv.planVersion?.config?.dailyRoiPercentage ?? inv.planVersion?.config?.dailyRoiPercent ?? 1;
                     const maxCapMultiple = inv.planVersion?.config?.maxRoiCapMultiple || 3;
                     const maxCapAmount = Number(inv.amount) * maxCapMultiple;
                     const progressPercent = Math.min(100, Math.round((earnedRoi / (maxCapAmount || 1)) * 100));
@@ -491,7 +491,7 @@ export default function AdminInvestmentsPage() {
                 </span>
               </div>
               <p className="text-[10px] text-muted">
-                Daily ROI Rate: <strong>{selectedInv.planVersion?.config?.dailyRoiPercent || 0.5}%</strong> • Max Return Cap: <strong>{(selectedInv.planVersion?.config?.maxRoiCapMultiple || 3) * 100}%</strong>
+                Daily ROI Rate: <strong>{selectedInv.planVersion?.config?.dailyRoiPercentage ?? selectedInv.planVersion?.config?.dailyRoiPercent ?? 1}%</strong> • Max Return Cap: <strong>{(selectedInv.planVersion?.config?.maxRoiCapMultiple || 3) * 100}%</strong>
               </p>
             </div>
 
