@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { CheckCircle2, XCircle } from 'lucide-react';
 
 export default function InvestmentsPage() {
   const [amount, setAmount] = useState('');
@@ -115,38 +117,38 @@ export default function InvestmentsPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <h1 className="text-2xl font-bold">Investments</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Investments</h1>
       
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
         <Card>
           <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
-            <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+            <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-bold leading-tight min-h-[1.75rem] flex items-center justify-center text-center">
               Total Invested
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold truncate">
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-extrabold truncate text-center">
             ${totalInvested.toFixed(2)}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
-            <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+            <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-bold leading-tight min-h-[1.75rem] flex items-center justify-center text-center">
               Active Investments
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold truncate text-emerald-600 dark:text-emerald-400">
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-extrabold truncate text-center text-emerald-600 dark:text-emerald-400">
             {activeInvestments}
           </CardContent>
         </Card>
 
         <Card className="col-span-2 sm:col-span-1">
           <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
-            <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+            <CardTitle className="text-[11px] sm:text-xs text-slate-400 font-bold leading-tight min-h-[1.75rem] flex items-center justify-center text-center">
               Total ROI Earned
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-bold truncate text-primary dark:text-primary-light">
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 text-lg sm:text-2xl font-extrabold truncate text-center text-primary dark:text-primary-light">
             ${totalRoi.toFixed(2)}
           </CardContent>
         </Card>
@@ -156,7 +158,7 @@ export default function InvestmentsPage() {
         <CardHeader className="p-4 sm:p-6"><CardTitle>New Investment</CardTitle></CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0 space-y-4">
           <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs space-y-1">
-            <div className="flex justify-between text-slate-300">
+            <div className="flex justify-between text-slate-300 font-bold">
               <span>P2P Wallet Balance:</span>
               <span className="font-bold text-emerald-400">${Number(wallet?.p2pBalance || 0).toFixed(2)}</span>
             </div>
@@ -168,18 +170,18 @@ export default function InvestmentsPage() {
           </div>
           <Input 
             type="number" 
-            className="w-full text-sm py-2.5"
+            className="w-full text-sm py-2.5 bg-white dark:bg-slate-950 text-gray-900 dark:text-white font-bold"
             placeholder={`Amount ($${config?.minInvestment || 5} - $${config?.maxInvestment || 1000})`} 
             value={amount} 
             onChange={e => setAmount(e.target.value)} 
           />
-          <p className="text-sm text-slate-400">
-            Expected ROI: <span className="font-semibold text-emerald-500">${(Number(amount || 0) * (config?.totalRoiPercentage ? (config.totalRoiPercentage/100) : 2)).toFixed(2)}</span> ({config?.totalRoiPercentage || 200}%)
+          <p className="text-sm text-gray-600 dark:text-slate-300 font-medium">
+            Expected ROI: <span className="font-bold text-emerald-500">${(Number(amount || 0) * (config?.totalRoiPercentage ? (config.totalRoiPercentage/100) : 2)).toFixed(2)}</span> ({config?.totalRoiPercentage || 200}%)
           </p>
           <Button 
             onClick={handleInvest} 
             disabled={submitting} 
-            className="w-full sm:w-auto min-w-[140px]"
+            className="w-full sm:w-auto min-w-[140px] font-bold"
           >
             {submitting ? 'Processing...' : 'Submit Investment'}
           </Button>
@@ -224,28 +226,29 @@ export default function InvestmentsPage() {
         </CardContent>
       </Card>
 
-      {/* UI Notification Modal Popup */}
-      {popup.show && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-slate-900 border border-border dark:border-slate-800 rounded-xl shadow-2xl max-w-sm w-full p-6 space-y-4 animate-fade-in text-center">
-            <div className="text-4xl">
-              {popup.type === 'success' ? '✅' : '❌'}
+      {/* UI Notification Modal Popup - Centered & Frozen in Screen Center */}
+      {popup.show && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-[99999] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700/80 rounded-2xl shadow-2xl max-w-sm w-full p-6 space-y-4 animate-fade-in text-center text-gray-900 dark:text-white relative z-[100000] my-auto">
+            <div className="flex justify-center text-4xl">
+              {popup.type === 'success' ? <CheckCircle2 className="w-12 h-12 text-emerald-500" /> : <XCircle className="w-12 h-12 text-red-500" />}
             </div>
             <h3 className="text-lg font-bold text-gray-900 dark:text-white">
               {popup.title}
             </h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-gray-600 dark:text-slate-300 font-medium">
               {popup.message}
             </p>
             <Button 
               onClick={() => setPopup(p => ({ ...p, show: false }))} 
               variant={popup.type === 'success' ? 'primary' : 'danger'}
-              className="w-full"
+              className="w-full font-bold"
             >
               OK
             </Button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
