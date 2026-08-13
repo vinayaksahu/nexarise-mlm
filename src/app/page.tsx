@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { PublicNav } from '@/components/layout/public-nav';
 import { PublicFooter } from '@/components/layout/public-footer';
@@ -11,11 +11,35 @@ import { ArrowRight, ShieldCheck, Zap, Users, Wallet, Trophy, Lock, BarChart3, C
 
 export default function LandingPage() {
   const [investment, setInvestment] = useState<number>(100);
+  const [planConfig, setPlanConfig] = useState<any>(null);
 
-  // ROI Calculations based on 1% daily
-  const dailyROI = (investment * 0.01).toFixed(2);
-  const monthlyROI = (investment * 0.01 * 30).toFixed(2);
-  const totalReturn = (investment * 2).toFixed(2); // 200 days * 1% = 200%
+  useEffect(() => {
+    async function fetchPlan() {
+      try {
+        const res = await fetch('/api/business-plan');
+        if (res.ok) {
+          const data = await res.json();
+          setPlanConfig(data);
+          if (data.minInvestment) setInvestment(Math.max(100, data.minInvestment));
+        }
+      } catch (err) {
+        console.error('Failed to fetch plan config on landing page:', err);
+      }
+    }
+    fetchPlan();
+  }, []);
+
+  const dailyRoiPercent = planConfig?.dailyRoiPercent ?? 1.0;
+  const roiDurationDays = planConfig?.roiDurationDays ?? 200;
+  const minInvestment = planConfig?.minInvestment ?? 5;
+  const maxInvestment = planConfig?.maxInvestment ?? 1000;
+  const levelPercentages: number[] = planConfig?.levelIncomePercentages || [10, 3, 2, 1, 1, 1, 0.5, 0.5, 0.5, 0.5];
+
+  // Dynamic calculations
+  const dailyROI = (investment * (dailyRoiPercent / 100)).toFixed(2);
+  const monthlyROI = (investment * (dailyRoiPercent / 100) * 30).toFixed(2);
+  const totalReturn = (investment * (dailyRoiPercent / 100) * roiDurationDays).toFixed(2);
+  const totalReturnPercent = (dailyRoiPercent * roiDurationDays).toFixed(0);
 
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans">
@@ -33,7 +57,7 @@ export default function LandingPage() {
               </span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-              Join NexaRise to earn consistent 1% daily returns, build your global network, and unlock massive achievement rewards. Connect. Grow. Prosper.
+              Join NexaRise to earn consistent {dailyRoiPercent}% daily returns, build your global network, and unlock massive achievement rewards. Connect. Grow. Prosper.
             </p>
             <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
               <Link href="/register">
@@ -64,7 +88,7 @@ export default function LandingPage() {
                 <p className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">Active Investors</p>
               </div>
               <div>
-                <p className="text-3xl md:text-4xl font-bold text-primary mb-2">1.0%</p>
+                <p className="text-3xl md:text-4xl font-bold text-primary mb-2">{dailyRoiPercent}%</p>
                 <p className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">Daily ROI</p>
               </div>
               <div>
@@ -84,7 +108,7 @@ export default function LandingPage() {
               <div className="grid md:grid-cols-2">
                 <div className="p-8 md:p-12 border-b md:border-b-0 md:border-r">
                   <h3 className="text-2xl font-bold mb-2">Investment Calculator</h3>
-                  <p className="text-muted-foreground mb-8">Calculate your potential earnings over our 200-day cycle.</p>
+                  <p className="text-muted-foreground mb-8">Calculate your potential earnings over our {roiDurationDays}-day cycle.</p>
                   
                   <div className="space-y-6">
                     <div>
@@ -94,28 +118,28 @@ export default function LandingPage() {
                       </label>
                       <input 
                         type="range" 
-                        min="5" 
-                        max="1000" 
-                        step="5"
+                        min={minInvestment} 
+                        max={maxInvestment} 
+                        step={planConfig?.investmentStep || 1}
                         value={investment} 
                         onChange={(e) => setInvestment(Number(e.target.value))}
                         className="w-full accent-primary"
                       />
                       <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                        <span>$5</span>
-                        <span>$1000</span>
+                        <span>${minInvestment}</span>
+                        <span>${maxInvestment}</span>
                       </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-2">Or enter custom amount:</label>
                       <Input 
                         type="number" 
-                        min="5" 
-                        max="1000" 
+                        min={minInvestment} 
+                        max={maxInvestment} 
                         value={investment}
                         onChange={(e) => {
                           const val = Number(e.target.value);
-                          if(val >= 0 && val <= 1000) setInvestment(val);
+                          if(val >= 0) setInvestment(val);
                         }}
                         className="text-lg"
                       />
@@ -125,7 +149,7 @@ export default function LandingPage() {
                 <div className="p-8 md:p-12 bg-primary/5 flex flex-col justify-center">
                   <div className="space-y-6">
                     <div className="flex justify-between items-center pb-4 border-b">
-                      <span className="text-muted-foreground">Daily ROI (1%)</span>
+                      <span className="text-muted-foreground">Daily ROI ({dailyRoiPercent}%)</span>
                       <span className="text-xl font-bold text-green-500">+${dailyROI}</span>
                     </div>
                     <div className="flex justify-between items-center pb-4 border-b">
@@ -133,7 +157,7 @@ export default function LandingPage() {
                       <span className="text-xl font-bold text-green-500">+${monthlyROI}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="font-medium">Total Return (200 Days)</span>
+                      <span className="font-medium">Total Return ({roiDurationDays} Days)</span>
                       <span className="text-3xl font-extrabold text-primary">${totalReturn}</span>
                     </div>
                   </div>
@@ -161,8 +185,8 @@ export default function LandingPage() {
                     <TrendingUp className="h-8 w-8 text-primary" />
                   </div>
                   <h3 className="text-xl font-bold mb-3">1. Daily Self ROI</h3>
-                  <p className="text-muted-foreground mb-4">Earn a fixed 1.0% daily return on your active investment for 200 consecutive days.</p>
-                  <p className="font-semibold text-primary">Up to 200% Total Return</p>
+                  <p className="text-muted-foreground mb-4">Earn a fixed {dailyRoiPercent}% daily return on your active investment for {roiDurationDays} consecutive days.</p>
+                  <p className="font-semibold text-primary">Up to {totalReturnPercent}% Total Return</p>
                 </CardContent>
               </Card>
 
@@ -172,7 +196,7 @@ export default function LandingPage() {
                     <Users className="h-8 w-8 text-primary" />
                   </div>
                   <h3 className="text-xl font-bold mb-3">2. Level Commission</h3>
-                  <p className="text-muted-foreground mb-4">Earn from your network 10 levels deep. Get 10% from direct referrals instantly.</p>
+                  <p className="text-muted-foreground mb-4">Earn from your network {levelPercentages.length} levels deep. Get {levelPercentages[0]}% from direct referrals instantly.</p>
                   <p className="font-semibold text-primary">Uncapped Networking Income</p>
                 </CardContent>
               </Card>
