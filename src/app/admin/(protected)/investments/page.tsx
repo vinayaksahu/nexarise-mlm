@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -363,7 +364,7 @@ export default function AdminInvestmentsPage() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="text-[11px] h-7 px-2"
+                              className="text-[11px] h-7 px-2 font-bold"
                               onClick={() => setSelectedInv(inv)}
                               title="View Investment Details"
                             >
@@ -374,7 +375,7 @@ export default function AdminInvestmentsPage() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                className="text-[11px] h-7 px-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40"
+                                className="text-[11px] h-7 px-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 font-bold"
                                 disabled={statusUpdatingId === inv.id}
                                 onClick={() => requestUpdateStatus(inv.id, 'CANCELLED')}
                                 title="Cancel Investment"
@@ -387,7 +388,7 @@ export default function AdminInvestmentsPage() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                className="text-[11px] h-7 px-2 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                                className="text-[11px] h-7 px-2 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 font-bold"
                                 disabled={statusUpdatingId === inv.id}
                                 onClick={() => requestUpdateStatus(inv.id, 'ACTIVE')}
                                 title="Reactivate Investment"
@@ -415,7 +416,7 @@ export default function AdminInvestmentsPage() {
                   variant="outline"
                   disabled={page === 1}
                   onClick={() => setPage(p => Math.max(1, p - 1))}
-                  className="text-xs"
+                  className="text-xs font-bold"
                 >
                   ◀ Previous
                 </Button>
@@ -424,7 +425,7 @@ export default function AdminInvestmentsPage() {
                   variant="outline"
                   disabled={page === totalPages}
                   onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                  className="text-xs"
+                  className="text-xs font-bold"
                 >
                   Next ▶
                 </Button>
@@ -434,10 +435,10 @@ export default function AdminInvestmentsPage() {
         </CardContent>
       </Card>
 
-      {/* Investment Details Modal */}
-      {selectedInv && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 z-[99999] overflow-y-auto">
-          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4 text-gray-900 dark:text-white relative my-auto">
+      {/* Investment Details Modal - Centered and Frozen in Screen Center */}
+      {selectedInv && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-[99999] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700/80 rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4 text-gray-900 dark:text-white relative z-[100000] my-auto animate-fade-in">
             <div className="flex items-center justify-between border-b border-gray-200 dark:border-slate-800 pb-3">
               <div>
                 <h2 className="text-lg font-bold flex items-center gap-2">
@@ -456,28 +457,28 @@ export default function AdminInvestmentsPage() {
 
             <div className="grid grid-cols-2 gap-3 p-3 bg-gray-50 dark:bg-slate-950 rounded-xl border border-gray-200 dark:border-slate-800 text-xs">
               <div>
-                <span className="text-muted block">Investor Name:</span>
+                <span className="text-muted block font-semibold">Investor Name:</span>
                 <span className="font-bold text-gray-900 dark:text-white">{selectedInv.user?.name}</span>
                 <span className="text-[10px] text-muted block font-mono">@{selectedInv.user?.username}</span>
               </div>
               <div>
-                <span className="text-muted block">Investor Email:</span>
+                <span className="text-muted block font-semibold">Investor Email:</span>
                 <span className="font-medium text-gray-900 dark:text-white truncate block">{selectedInv.user?.email}</span>
               </div>
               <div>
-                <span className="text-muted block">Package Amount:</span>
+                <span className="text-muted block font-semibold">Package Amount:</span>
                 <span className="font-bold text-sm text-indigo-600 dark:text-indigo-400">${Number(selectedInv.amount).toFixed(2)}</span>
               </div>
               <div>
-                <span className="text-muted block">Sponsor Username:</span>
+                <span className="text-muted block font-semibold">Sponsor Username:</span>
                 <span className="font-medium text-gray-900 dark:text-white">@{selectedInv.user?.sponsor?.username || 'None'}</span>
               </div>
               <div>
-                <span className="text-muted block">Start Date:</span>
+                <span className="text-muted block font-semibold">Start Date:</span>
                 <span className="font-medium">{new Date(selectedInv.startDate).toLocaleString()}</span>
               </div>
               <div>
-                <span className="text-muted block">Plan Engine:</span>
+                <span className="text-muted block font-semibold">Plan Engine:</span>
                 <span className="font-medium">Version v{selectedInv.planVersion?.version || 1}</span>
               </div>
             </div>
@@ -513,18 +514,19 @@ export default function AdminInvestmentsPage() {
             </div>
 
             <div className="flex justify-end gap-2 pt-2 border-t border-gray-200 dark:border-slate-800">
-              <Button size="sm" variant="outline" onClick={() => setSelectedInv(null)}>
+              <Button size="sm" variant="outline" onClick={() => setSelectedInv(null)} className="font-bold">
                 Close
               </Button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* Admin Activate Package Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 z-[99999] overflow-y-auto">
-          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4 text-gray-900 dark:text-white relative my-auto">
+      {/* Admin Activate Package Modal - Centered and Frozen in Screen Center */}
+      {showAddModal && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-[99999] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700/80 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4 text-gray-900 dark:text-white relative z-[100000] my-auto animate-fade-in">
             <div className="flex items-center justify-between border-b border-gray-200 dark:border-slate-800 pb-3">
               <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <span>⚡ Admin Activate Package / Top-Up</span>
@@ -545,7 +547,7 @@ export default function AdminInvestmentsPage() {
 
             <form onSubmit={handleAdminCreatePackage} className="space-y-4 text-left">
               <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Target User (Username, Email or ID)</label>
+                <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Target User (Username, Email or ID)</label>
                 <Input 
                   type="text" 
                   value={targetUser}
@@ -557,7 +559,7 @@ export default function AdminInvestmentsPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Investment Package Amount ($)</label>
+                <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Investment Package Amount ($)</label>
                 <Input 
                   type="number" 
                   value={packageAmount}
@@ -577,13 +579,14 @@ export default function AdminInvestmentsPage() {
                 <Button type="button" variant="outline" size="sm" onClick={() => setShowAddModal(false)}>
                   Cancel
                 </Button>
-                <Button type="submit" variant="primary" size="sm" disabled={submittingAdd}>
+                <Button type="submit" variant="primary" size="sm" disabled={submittingAdd} className="font-bold">
                   {submittingAdd ? 'Activating Package...' : '⚡ Activate Package'}
                 </Button>
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       <ConfirmModal
