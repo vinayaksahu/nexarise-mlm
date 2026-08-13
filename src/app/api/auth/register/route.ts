@@ -16,19 +16,22 @@ export async function POST(req: NextRequest) {
     const cleanUsername = username.toLowerCase().trim();
     const cleanEmail = email.toLowerCase().trim();
 
-    // Verify OTP Token
-    const validOtp = await db.otpToken.findFirst({
-      where: {
-        email: cleanEmail,
-        code: String(otpCode).trim(),
-        purpose: 'REGISTRATION',
-        used: false,
-        expiresAt: { gte: new Date() },
-      },
-    });
+    // Verify OTP Token (if provided)
+    let validOtp = null;
+    if (otpCode) {
+      validOtp = await db.otpToken.findFirst({
+        where: {
+          email: cleanEmail,
+          code: String(otpCode).trim(),
+          purpose: 'REGISTRATION',
+          used: false,
+          expiresAt: { gte: new Date() },
+        },
+      });
 
-    if (!validOtp) {
-      return NextResponse.json({ error: 'Invalid or expired OTP code. Please request a new OTP.' }, { status: 400 });
+      if (!validOtp) {
+        return NextResponse.json({ error: 'Invalid or expired OTP code. Please request a new OTP.' }, { status: 400 });
+      }
     }
 
     const existingUser = await db.user.findFirst({
@@ -60,11 +63,13 @@ export async function POST(req: NextRequest) {
     const passwordHash = await hashPassword(password);
 
     const user = await db.$transaction(async (tx) => {
-      // Mark OTP as used
-      await tx.otpToken.update({
-        where: { id: validOtp.id },
-        data: { used: true },
-      });
+      // Mark OTP as used if verified
+      if (validOtp) {
+        await tx.otpToken.update({
+          where: { id: validOtp.id },
+          data: { used: true },
+        });
+      }
 
       const newUser = await tx.user.create({
         data: {

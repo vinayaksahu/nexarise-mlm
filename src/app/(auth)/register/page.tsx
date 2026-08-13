@@ -16,16 +16,10 @@ function RegisterForm() {
     password: '',
     confirmPassword: '',
     referralCode: '',
-    otpCode: '',
   })
   const [error, setError] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
   const [loading, setLoading] = useState(false)
-  
-  // OTP state
-  const [otpSent, setOtpSent] = useState(false)
-  const [sendingOtp, setSendingOtp] = useState(false)
-  const [countdown, setCountdown] = useState(0)
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -35,51 +29,6 @@ function RegisterForm() {
     if (ref) setForm(p => ({ ...p, referralCode: ref }))
   }, [searchParams])
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout
-    if (countdown > 0) {
-      timer = setInterval(() => setCountdown(prev => prev - 1), 1000)
-    }
-    return () => clearInterval(timer)
-  }, [countdown])
-
-  const handleSendOtp = async () => {
-    setError('')
-    setSuccessMsg('')
-
-    if (!form.email || !form.email.includes('@')) {
-      setError('Please enter a valid email address first.')
-      return
-    }
-
-    setSendingOtp(true)
-    try {
-      const res = await fetch('/api/auth/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: form.email, purpose: 'REGISTRATION' }),
-      })
-      const data = await res.json()
-
-      if (!res.ok) {
-        setError(data.error || 'Failed to send OTP')
-        return
-      }
-
-      setOtpSent(true)
-      setCountdown(60)
-      let msg = `OTP sent successfully to ${form.email}. Please check your inbox.`
-      if (data.devOtp) {
-        msg += ` (Dev/Test OTP: ${data.devOtp})`
-      }
-      setSuccessMsg(msg)
-    } catch {
-      setError('Failed to send OTP. Please try again.')
-    } finally {
-      setSendingOtp(false)
-    }
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -87,11 +36,6 @@ function RegisterForm() {
 
     if (form.password !== form.confirmPassword) {
       setError('Passwords do not match')
-      return
-    }
-
-    if (!form.otpCode || form.otpCode.length !== 6) {
-      setError('Please enter the 6-digit OTP code sent to your email.')
       return
     }
 
@@ -107,7 +51,6 @@ function RegisterForm() {
           mobile: form.mobile || undefined,
           password: form.password,
           referralCode: form.referralCode,
-          otpCode: form.otpCode,
         }),
       })
       const data = await res.json()
@@ -152,51 +95,14 @@ function RegisterForm() {
             onChange={(e) => setForm(p => ({ ...p, username: e.target.value.toLowerCase() }))}
             required
           />
-
-          <div>
-            <div className="flex items-end gap-2">
-              <div className="flex-1">
-                <Input
-                  label="Email Address"
-                  type="email"
-                  placeholder="john@example.com"
-                  value={form.email}
-                  onChange={(e) => setForm(p => ({ ...p, email: e.target.value }))}
-                  required
-                />
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleSendOtp}
-                loading={sendingOtp}
-                disabled={sendingOtp || countdown > 0}
-                className="mb-[2px] whitespace-nowrap text-xs h-10 border-primary/40 hover:bg-primary/20 text-primary-light"
-              >
-                {sendingOtp
-                  ? 'Sending...'
-                  : countdown > 0
-                  ? `Resend in ${countdown}s`
-                  : otpSent
-                  ? 'Resend OTP'
-                  : 'Send OTP'}
-              </Button>
-            </div>
-          </div>
-
-          {otpSent && (
-            <div className="animate-fade-in bg-primary/10 border border-primary/30 p-3 rounded-xl">
-              <Input
-                label="6-Digit Email OTP Code"
-                placeholder="Enter 6-digit OTP code"
-                maxLength={6}
-                value={form.otpCode}
-                onChange={(e) => setForm(p => ({ ...p, otpCode: e.target.value.replace(/\D/g, '') }))}
-                required
-              />
-            </div>
-          )}
-
+          <Input
+            label="Email Address"
+            type="email"
+            placeholder="john@example.com"
+            value={form.email}
+            onChange={(e) => setForm(p => ({ ...p, email: e.target.value }))}
+            required
+          />
           <Input
             label="Mobile (Optional)"
             placeholder="+1 (555) 000-0000"
@@ -227,8 +133,8 @@ function RegisterForm() {
             required
           />
 
-          <Button type="submit" loading={loading} className="w-full" size="lg" disabled={!otpSent}>
-            {loading ? 'Verifying & Creating Account...' : 'Create Verified Account'}
+          <Button type="submit" loading={loading} className="w-full" size="lg">
+            {loading ? 'Creating Account...' : 'Create Account'}
           </Button>
         </form>
 
@@ -253,7 +159,7 @@ export default function RegisterPage() {
           className="w-20 h-20 object-contain mx-auto mb-4 drop-shadow-xl animate-pulse"
         />
         <h1 className="text-3xl font-bold text-white">Create Account</h1>
-        <p className="text-gray-400 mt-2">Join NexaRise with Email OTP Verification</p>
+        <p className="text-gray-400 mt-2">Join NexaRise and start your journey</p>
       </div>
 
       <Suspense fallback={<div className="text-center text-gray-400">Loading...</div>}>
@@ -262,3 +168,4 @@ export default function RegisterPage() {
     </div>
   )
 }
+
