@@ -368,7 +368,9 @@ export default function AdminInvestmentsPage() {
                               title="View Investment Details"
                             >
                               👁️ Details
-                                               {inv.status === 'ACTIVE' && (
+                            </Button>
+
+                            {inv.status === 'ACTIVE' && (
                               <Button
                                 size="sm"
                                 variant="ghost"
@@ -392,7 +394,7 @@ export default function AdminInvestmentsPage() {
                               >
                                 ▶️ Reactivate
                               </Button>
-                            )}                          )}
+                            )}
                           </div>
                         </td>
                       </tr>
