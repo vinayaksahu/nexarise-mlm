@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useTheme } from '@/components/theme-provider';
 import { hasPermission } from '@/lib/permissions';
 
 interface SidebarProps {
@@ -83,7 +82,6 @@ const adminNavGroups = [
 export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer = false }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
-  const { theme, toggleTheme } = useTheme();
 
   const userRole = user?.role || (isAdmin ? 'ADMIN' : 'USER');
 
@@ -142,7 +140,7 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer =
       </div>
 
       {/* SB Admin Navigation Accordions */}
-      <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-4">
+      <nav className="flex-1 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden py-3 px-3 space-y-4">
         {navGroups.map((group, idx) => (
           <div key={idx} className="space-y-1">
             {(!collapsed || isMobileDrawer) && (
@@ -176,19 +174,6 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer =
           </div>
         ))}
       </nav>
-
-      {/* Theme Toggle Footer */}
-      <div className="p-3 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950 shrink-0">
-        <button
-          onClick={toggleTheme}
-          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-xs font-medium text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white transition-all"
-        >
-          <span className="text-sm">{theme === 'dark' ? '☀️' : '🌙'}</span>
-          {(!collapsed || isMobileDrawer) && (
-            <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
-          )}
-        </button>
-      </div>
     </aside>
   );
 }
