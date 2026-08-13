@@ -27,12 +27,26 @@ export async function getBusinessConfig(): Promise<BusinessConfig> {
       config.investmentMultiple = Number(config.investmentMultiple ?? 1)
       config.p2pFeePercentage = 0
       config.showP2pFee = false
+      const count = config.levelIncomePercentages?.length || 11
+      if (!config.minDirectReferralsForLevel || !Array.isArray(config.minDirectReferralsForLevel)) {
+        config.minDirectReferralsForLevel = Array.from({ length: count }, (_, i) => i + 1)
+      }
+      if (!config.requiredSelfInvestmentForLevel || !Array.isArray(config.requiredSelfInvestmentForLevel)) {
+        config.requiredSelfInvestmentForLevel = Array.from({ length: count }, () => 0)
+      }
+      if (typeof config.requireSelfInvestmentForLevelIncome !== 'boolean') {
+        config.requireSelfInvestmentForLevelIncome = false
+      }
       if (!config.levelQualifications || !Array.isArray(config.levelQualifications) || config.levelQualifications.length === 0) {
-        const count = config.levelIncomePercentages?.length || 10
         config.levelQualifications = getDefaultQualifications(count)
       }
       if (!config.achievementRewards || !Array.isArray(config.achievementRewards) || config.achievementRewards.length === 0) {
         config.achievementRewards = defaultAchievementRewards
+      } else {
+        config.achievementRewards = config.achievementRewards.map((r) => ({
+          ...r,
+          isActive: r.isActive !== false,
+        }))
       }
       if (!config.depositAddress) {
         config.depositAddress = '0x1234567890abcdef1234567890abcdef12345678'
@@ -57,6 +71,9 @@ export async function getBusinessConfig(): Promise<BusinessConfig> {
     roiDurationDays: 200,
     totalRoiPercentage: 200,
     levelIncomePercentages: [10, 3, 2, 1, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5],
+    minDirectReferralsForLevel: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+    requireSelfInvestmentForLevelIncome: false,
+    requiredSelfInvestmentForLevel: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     levelQualifications: getDefaultQualifications(11),
     maxLevels: 11,
     achievementRewards: defaultAchievementRewards,
@@ -67,7 +84,6 @@ export async function getBusinessConfig(): Promise<BusinessConfig> {
     maxWithdrawalPerDay: 5000,
     maxDirectReferralsForIncome: 11,
     requireDirectReferralsForLevelIncome: false,
-    minDirectReferralsForLevel: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     showP2pFee: false,
     showWithdrawalFee: true,
     depositAddress: '0x1234567890abcdef1234567890abcdef12345678',

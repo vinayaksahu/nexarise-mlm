@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { getBusinessConfig } from '@/lib/business-plan'
 import { checkAndClaimEligibleRewards } from '@/lib/rewards'
 
 export async function GET() {
@@ -10,31 +11,38 @@ export async function GET() {
   }
 
   try {
-    const defaultRewards = [
-      { name: 'Silver', businessRequired: 5000, rewardAmount: 200, sortOrder: 1 },
-      { name: 'Gold', businessRequired: 10000, rewardAmount: 400, sortOrder: 2 },
-      { name: 'Platinum', businessRequired: 20000, rewardAmount: 700, sortOrder: 3 },
-      { name: 'Diamond', businessRequired: 50000, rewardAmount: 1000, sortOrder: 4 },
-    ]
-
     let rewards = await db.rewardDefinition.findMany({
       where: { isActive: true },
       orderBy: { sortOrder: 'asc' }
     })
 
-    // If rewards don't match the 4 standard ranks or are seeded with old thresholds, recreate standard 4 ranks
-    const isOutdated = rewards.length !== 4 || rewards.some(r => !['Silver', 'Gold', 'Platinum', 'Diamond'].includes(r.name));
+    // If DB is empty, sync from active business plan config
+    if (rewards.length === 0) {
+      const config = await getBusinessConfig()
+      const planRewards = config.achievementRewards || []
+      const activeRewards = planRewards.filter(r => r.isActive !== false)
 
-    if (rewards.length === 0 || isOutdated) {
-      await db.rewardDefinition.updateMany({
-        data: { isActive: false }
-      })
-
-      for (const r of defaultRewards) {
+      for (let i = 0; i < activeRewards.length; i++) {
+        const r = activeRewards[i]
+        const idKey = r.name.toLowerCase().trim().replace(/\s+/g, '-')
         await db.rewardDefinition.upsert({
-          where: { id: r.name.toLowerCase() },
-          update: { ...r, isActive: true },
-          create: { id: r.name.toLowerCase(), ...r, isActive: true, createdAt: new Date() }
+          where: { id: idKey },
+          update: {
+            name: r.name,
+            businessRequired: r.volumeRequired,
+            rewardAmount: r.rewardAmount,
+            sortOrder: i + 1,
+            isActive: true,
+          },
+          create: {
+            id: idKey,
+            name: r.name,
+            businessRequired: r.volumeRequired,
+            rewardAmount: r.rewardAmount,
+            sortOrder: i + 1,
+            isActive: true,
+            createdAt: new Date(),
+          }
         })
       }
 

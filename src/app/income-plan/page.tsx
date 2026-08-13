@@ -6,6 +6,7 @@ import { PublicFooter } from '@/components/layout/public-footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { formatDirectReferrals } from '@/types/business-plan';
 
 export default function IncomePlanPage() {
   const [planConfig, setPlanConfig] = useState<any>(null);
@@ -31,26 +32,36 @@ export default function IncomePlanPage() {
   const maxInvestment = planConfig?.maxInvestment ?? 1000;
   const p2pFeePercent = planConfig?.p2pFeePercentage ?? planConfig?.p2pFeePercent ?? 0;
   const levelPercentages: number[] = planConfig?.levelIncomePercentages || [10, 3, 2, 1, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5];
+  const minDirects: number[] = planConfig?.minDirectReferralsForLevel || [];
   const levelQualifications: string[] = planConfig?.levelQualifications || [];
+  const requireSelfInvestment = planConfig?.requireSelfInvestmentForLevelIncome ?? false;
+  const requiredSelfInvestments: number[] = planConfig?.requiredSelfInvestmentForLevel || [];
 
-  const levelIncomes = levelPercentages.map((percent, idx) => ({
-    level: idx + 1,
-    percent: `${percent}%`,
-    requirement: levelQualifications[idx] || `${idx + 1} Direct Referral${idx === 0 ? '' : 's'}`,
-  }));
+  const levelIncomes = levelPercentages.map((percent, idx) => {
+    const directCount = minDirects[idx] !== undefined ? minDirects[idx] : idx + 1;
+    const reqText = levelQualifications[idx] || formatDirectReferrals(directCount);
+    return {
+      level: idx + 1,
+      percent: `${percent}%`,
+      requirement: reqText,
+      selfInvestment: requiredSelfInvestments[idx] ? `$${Number(requiredSelfInvestments[idx]).toLocaleString()}` : '$0',
+    };
+  });
 
-  const achievementRewards = planConfig?.achievementRewards || [
-    { name: 'Star', volumeRequired: 1000, rewardAmount: 25 },
-    { name: 'Bronze', volumeRequired: 5000, rewardAmount: 125 },
-    { name: 'Silver', volumeRequired: 10000, rewardAmount: 250 },
-    { name: 'Gold', volumeRequired: 25000, rewardAmount: 625 },
-    { name: 'Platinum', volumeRequired: 50000, rewardAmount: 1250 },
-    { name: 'Diamond', volumeRequired: 100000, rewardAmount: 2500 },
-    { name: 'Blue Diamond', volumeRequired: 250000, rewardAmount: 6250 },
-    { name: 'Black Diamond', volumeRequired: 500000, rewardAmount: 12500 },
-    { name: 'Crown', volumeRequired: 1000000, rewardAmount: 25000 },
-    { name: 'Crown Ambassador', volumeRequired: 5000000, rewardAmount: 100000 },
+  const rawRewards = planConfig?.achievementRewards || [
+    { name: 'Star', volumeRequired: 1000, rewardAmount: 25, isActive: true },
+    { name: 'Bronze', volumeRequired: 5000, rewardAmount: 125, isActive: true },
+    { name: 'Silver', volumeRequired: 10000, rewardAmount: 250, isActive: true },
+    { name: 'Gold', volumeRequired: 25000, rewardAmount: 625, isActive: true },
+    { name: 'Platinum', volumeRequired: 50000, rewardAmount: 1250, isActive: true },
+    { name: 'Diamond', volumeRequired: 100000, rewardAmount: 2500, isActive: true },
+    { name: 'Blue Diamond', volumeRequired: 250000, rewardAmount: 6250, isActive: true },
+    { name: 'Black Diamond', volumeRequired: 500000, rewardAmount: 12500, isActive: true },
+    { name: 'Crown', volumeRequired: 1000000, rewardAmount: 25000, isActive: true },
+    { name: 'Crown Ambassador', volumeRequired: 5000000, rewardAmount: 100000, isActive: true },
   ];
+
+  const achievementRewards = rawRewards.filter((r: any) => r.isActive !== false);
 
   const totalReturnPercent = (dailyRoiPercent * roiDurationDays).toFixed(0);
 
@@ -103,6 +114,9 @@ export default function IncomePlanPage() {
                           <th className="py-3 px-4 font-semibold text-gray-900 dark:text-white">Level</th>
                           <th className="py-3 px-4 font-semibold text-gray-900 dark:text-white">Commission</th>
                           <th className="py-3 px-4 font-semibold text-gray-900 dark:text-white">Qualification Requirement</th>
+                          {requireSelfInvestment && (
+                            <th className="py-3 px-4 font-semibold text-gray-900 dark:text-white">Required Self Investment</th>
+                          )}
                         </tr>
                       </thead>
                       <tbody>
@@ -111,6 +125,9 @@ export default function IncomePlanPage() {
                             <td className="py-3 px-4 font-medium text-gray-900 dark:text-slate-200">Level {item.level}</td>
                             <td className="py-3 px-4 font-bold text-emerald-600 dark:text-emerald-400">{item.percent}</td>
                             <td className="py-3 px-4 text-muted">{item.requirement}</td>
+                            {requireSelfInvestment && (
+                              <td className="py-3 px-4 font-semibold text-blue-600 dark:text-blue-400">{item.selfInvestment}</td>
+                            )}
                           </tr>
                         ))}
                       </tbody>
@@ -121,31 +138,33 @@ export default function IncomePlanPage() {
             </section>
 
             {/* 3. Achievement Rewards */}
-            <section>
-              <Card>
-                <CardHeader className="bg-primary/5 border-b border-border">
-                  <CardTitle className="text-2xl text-primary font-bold">3. Achievement Rewards</CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <p className="text-lg mb-6 text-gray-800 dark:text-slate-200">
-                    Hit business volume milestones across your entire downline to unlock one-time cash bonuses.
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {achievementRewards.map((reward: any, i: number) => (
-                      <div key={i} className="flex justify-between items-center p-5 border border-gray-200 dark:border-slate-800 rounded-2xl bg-gray-50 dark:bg-slate-900/60 shadow-sm transition-all hover:border-blue-500/50">
-                        <div className="space-y-1">
-                          <p className="font-bold text-lg text-gray-900 dark:text-white">{reward.name}</p>
-                          <p className="text-xs text-muted">Volume: ${Number(reward.volumeRequired).toLocaleString()}</p>
+            {achievementRewards.length > 0 && (
+              <section>
+                <Card>
+                  <CardHeader className="bg-primary/5 border-b border-border">
+                    <CardTitle className="text-2xl text-primary font-bold">3. Achievement Rewards</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <p className="text-lg mb-6 text-gray-800 dark:text-slate-200">
+                      Hit business volume milestones across your entire downline (50% max volume contribution per leg) to unlock one-time cash bonuses.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {achievementRewards.map((reward: any, i: number) => (
+                        <div key={i} className="flex justify-between items-center p-5 border border-gray-200 dark:border-slate-800 rounded-2xl bg-gray-50 dark:bg-slate-900/60 shadow-sm transition-all hover:border-blue-500/50">
+                          <div className="space-y-1">
+                            <p className="font-bold text-lg text-gray-900 dark:text-white">{reward.name}</p>
+                            <p className="text-xs text-muted">Volume: ${Number(reward.volumeRequired).toLocaleString()}</p>
+                          </div>
+                          <div className="text-2xl font-black text-blue-600 dark:text-blue-400">
+                            ${Number(reward.rewardAmount).toLocaleString()}
+                          </div>
                         </div>
-                        <div className="text-2xl font-black text-blue-600 dark:text-blue-400">
-                          ${Number(reward.rewardAmount).toLocaleString()}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </section>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </section>
+            )}
 
             {/* 4. P2P Wallet Transfer */}
             <section>
