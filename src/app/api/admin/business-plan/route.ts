@@ -32,6 +32,37 @@ export async function POST(request: NextRequest) {
         }
       });
 
+      // Sync RewardDefinition records if achievementRewards is provided
+      if (Array.isArray(body.achievementRewards) && body.achievementRewards.length > 0) {
+        await tx.rewardDefinition.updateMany({
+          data: { isActive: false }
+        });
+
+        for (let i = 0; i < body.achievementRewards.length; i++) {
+          const item = body.achievementRewards[i];
+          const idKey = item.name.toLowerCase().trim().replace(/\s+/g, '-');
+          await tx.rewardDefinition.upsert({
+            where: { id: idKey },
+            update: {
+              name: item.name,
+              businessRequired: Number(item.volumeRequired || 0),
+              rewardAmount: Number(item.rewardAmount || 0),
+              sortOrder: i + 1,
+              isActive: true,
+            },
+            create: {
+              id: idKey,
+              name: item.name,
+              businessRequired: Number(item.volumeRequired || 0),
+              rewardAmount: Number(item.rewardAmount || 0),
+              sortOrder: i + 1,
+              isActive: true,
+              createdAt: new Date(),
+            }
+          });
+        }
+      }
+
       await tx.auditLog.create({
         data: {
           adminId: session.userId,

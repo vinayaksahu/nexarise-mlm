@@ -1,28 +1,12 @@
 import { db } from './db'
+import {
+  BusinessConfig,
+  AchievementRewardItem,
+  defaultAchievementRewards,
+  getDefaultQualifications
+} from '@/types/business-plan'
 
-export interface BusinessConfig {
-  minInvestment: number
-  maxInvestment: number
-  investmentMultiple: number
-  currency: string
-  dailyRoiPercentage: number
-  roiDurationDays: number
-  totalRoiPercentage: number
-  levelIncomePercentages: number[]
-  maxLevels: number
-  p2pFeePercentage: number
-  minP2pTransfer: number
-  withdrawalFeePercentage: number
-  minWithdrawal: number
-  maxWithdrawalPerDay: number
-  maxDirectReferralsForIncome: number
-  requireDirectReferralsForLevelIncome: boolean
-  minDirectReferralsForLevel: number[]
-  showP2pFee?: boolean
-  showWithdrawalFee?: boolean
-  depositAddress?: string
-  depositQrUrl?: string
-}
+export * from '@/types/business-plan'
 
 let cachedConfig: { config: BusinessConfig; fetchedAt: number } | null = null
 const CACHE_TTL = 15 * 60 * 1000 // 15 minutes
@@ -43,6 +27,13 @@ export async function getBusinessConfig(): Promise<BusinessConfig> {
       config.investmentMultiple = Number(config.investmentMultiple ?? 1)
       config.p2pFeePercentage = 0
       config.showP2pFee = false
+      if (!config.levelQualifications || !Array.isArray(config.levelQualifications) || config.levelQualifications.length === 0) {
+        const count = config.levelIncomePercentages?.length || 10
+        config.levelQualifications = getDefaultQualifications(count)
+      }
+      if (!config.achievementRewards || !Array.isArray(config.achievementRewards) || config.achievementRewards.length === 0) {
+        config.achievementRewards = defaultAchievementRewards
+      }
       if (!config.depositAddress) {
         config.depositAddress = '0x1234567890abcdef1234567890abcdef12345678'
       }
@@ -65,8 +56,10 @@ export async function getBusinessConfig(): Promise<BusinessConfig> {
     dailyRoiPercentage: 1,
     roiDurationDays: 200,
     totalRoiPercentage: 200,
-    levelIncomePercentages: [30, 20, 10, 5, 5, 5, 5, 2.5, 2.5, 2.5, 2.5],
+    levelIncomePercentages: [10, 3, 2, 1, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5],
+    levelQualifications: getDefaultQualifications(11),
     maxLevels: 11,
+    achievementRewards: defaultAchievementRewards,
     p2pFeePercentage: 0,
     minP2pTransfer: 1,
     withdrawalFeePercentage: 5,

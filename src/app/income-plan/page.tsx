@@ -25,24 +25,31 @@ export default function IncomePlanPage() {
     fetchPlan();
   }, []);
 
-  const dailyRoiPercent = planConfig?.dailyRoiPercent ?? 1.0;
+  const dailyRoiPercent = planConfig?.dailyRoiPercentage ?? planConfig?.dailyRoiPercent ?? 1.0;
   const roiDurationDays = planConfig?.roiDurationDays ?? 200;
   const minInvestment = planConfig?.minInvestment ?? 5;
   const maxInvestment = planConfig?.maxInvestment ?? 1000;
-  const p2pFeePercent = planConfig?.p2pFeePercent ?? 0;
-  const levelPercentages: number[] = planConfig?.levelIncomePercentages || [10, 3, 2, 1, 1, 1, 0.5, 0.5, 0.5, 0.5];
+  const p2pFeePercent = planConfig?.p2pFeePercentage ?? planConfig?.p2pFeePercent ?? 0;
+  const levelPercentages: number[] = planConfig?.levelIncomePercentages || [10, 3, 2, 1, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5];
+  const levelQualifications: string[] = planConfig?.levelQualifications || [];
 
   const levelIncomes = levelPercentages.map((percent, idx) => ({
     level: idx + 1,
     percent: `${percent}%`,
-    requirement: `${idx + 1} Direct Referral${idx === 0 ? '' : 's'}`,
+    requirement: levelQualifications[idx] || `${idx + 1} Direct Referral${idx === 0 ? '' : 's'}`,
   }));
 
-  const achievementRewards = [
-    { rank: 'Silver', volume: '$5,000', reward: '$125' },
-    { rank: 'Gold', volume: '$25,000', reward: '$625' },
-    { rank: 'Platinum', volume: '$50,000', reward: '$1,250' },
-    { rank: 'Diamond', volume: '$100,000', reward: '$2,500' },
+  const achievementRewards = planConfig?.achievementRewards || [
+    { name: 'Star', volumeRequired: 1000, rewardAmount: 25 },
+    { name: 'Bronze', volumeRequired: 5000, rewardAmount: 125 },
+    { name: 'Silver', volumeRequired: 10000, rewardAmount: 250 },
+    { name: 'Gold', volumeRequired: 25000, rewardAmount: 625 },
+    { name: 'Platinum', volumeRequired: 50000, rewardAmount: 1250 },
+    { name: 'Diamond', volumeRequired: 100000, rewardAmount: 2500 },
+    { name: 'Blue Diamond', volumeRequired: 250000, rewardAmount: 6250 },
+    { name: 'Black Diamond', volumeRequired: 500000, rewardAmount: 12500 },
+    { name: 'Crown', volumeRequired: 1000000, rewardAmount: 25000 },
+    { name: 'Crown Ambassador', volumeRequired: 5000000, rewardAmount: 100000 },
   ];
 
   const totalReturnPercent = (dailyRoiPercent * roiDurationDays).toFixed(0);
@@ -120,18 +127,18 @@ export default function IncomePlanPage() {
                   <CardTitle className="text-2xl text-primary font-bold">3. Achievement Rewards</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
-                  <p className="text-lg mb-4 text-gray-800 dark:text-slate-200">
-                    Hit business volume milestones across your downline network to unlock cash rank bonuses.
+                  <p className="text-lg mb-6 text-gray-800 dark:text-slate-200">
+                    Hit business volume milestones across your entire downline to unlock one-time cash bonuses.
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {achievementRewards.map((reward, i) => (
-                      <div key={i} className="flex justify-between items-center p-4 border border-border rounded-xl bg-gray-50 dark:bg-slate-900/50">
-                        <div>
-                          <p className="font-bold text-gray-900 dark:text-white">{reward.rank} Rank</p>
-                          <p className="text-sm text-muted">Required Volume: {reward.volume}</p>
+                    {achievementRewards.map((reward: any, i: number) => (
+                      <div key={i} className="flex justify-between items-center p-5 border border-gray-200 dark:border-slate-800 rounded-2xl bg-gray-50 dark:bg-slate-900/60 shadow-sm transition-all hover:border-blue-500/50">
+                        <div className="space-y-1">
+                          <p className="font-bold text-lg text-gray-900 dark:text-white">{reward.name}</p>
+                          <p className="text-xs text-muted">Volume: ${Number(reward.volumeRequired).toLocaleString()}</p>
                         </div>
-                        <div className="text-xl font-bold text-primary">
-                          {reward.reward}
+                        <div className="text-2xl font-black text-blue-600 dark:text-blue-400">
+                          ${Number(reward.rewardAmount).toLocaleString()}
                         </div>
                       </div>
                     ))}
