@@ -7,6 +7,7 @@ export default function AdminAuditPage() {
   const [logs, setLogs] = useState<any[]>([]);
   const [securityEvents, setSecurityEvents] = useState<any[]>([]);
   const [tab, setTab] = useState<'AUDIT' | 'SECURITY'>('AUDIT');
+  const [unauthorized, setUnauthorized] = useState(false);
 
   useEffect(() => {
     const fetchLogs = async () => {
@@ -16,6 +17,8 @@ export default function AdminAuditPage() {
           const data = await res.json();
           setLogs(data.auditLogs || []);
           setSecurityEvents(data.securityEvents || []);
+        } else if (res.status === 403 || res.status === 401) {
+          setUnauthorized(true);
         }
       } catch (e) {
         console.error(e);
@@ -23,6 +26,15 @@ export default function AdminAuditPage() {
     };
     fetchLogs();
   }, []);
+
+  if (unauthorized) {
+    return (
+      <div className="p-8 text-center bg-red-500/10 border border-red-500/30 text-red-500 rounded-2xl">
+        <h2 className="text-xl font-bold mb-2">Access Denied 🛑</h2>
+        <p className="text-sm text-slate-400">Only Super Admin has permission to view Audit & Security Logs.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

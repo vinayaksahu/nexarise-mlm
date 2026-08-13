@@ -6,11 +6,9 @@ import { ADMIN_ROLES } from '@/lib/permissions';
 export async function GET(request: NextRequest) {
   try {
     const session = await getSession();
-    if (!session || !ADMIN_ROLES.includes(session.role as any)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session || session.role !== 'SUPER_ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized: Only Super Admin can access audit logs' }, { status: 403 });
     }
-
-    const isSuperAdminSession = session.role === 'SUPER_ADMIN';
 
     const [rawLogs, rawEvents] = await Promise.all([
       db.auditLog.findMany({
@@ -25,30 +23,15 @@ export async function GET(request: NextRequest) {
       })
     ]);
 
-    // For subordinate admins, completely filter out Superadmin rows from audit logs
-    const auditLogs = rawLogs
-      .filter((log) => {
-        if (isSuperAdminSession) return true;
-        const isSuperActor = !log.admin || log.admin.role === 'SUPER_ADMIN' || log.admin.username === 'superadmin';
-        return !isSuperActor;
-      })
-      .map((log) => ({
-        ...log,
-        action: log.action.replace(/^SUPER_ADMIN_/g, 'SYSTEM_ADMIN_'),
-        admin: log.admin ? { username: log.admin.username } : null
-      }));
+    const auditLogs = rawLogs.map((log) => ({
+      ...log,
+      admin: log.admin ? { username: log.admin.username } : null
+    }));
 
-    // For subordinate admins, completely filter out Superadmin security events
-    const securityEvents = rawEvents
-      .filter((event) => {
-        if (isSuperAdminSession) return true;
-        const isSuperActor = !event.user || event.user.role === 'SUPER_ADMIN' || event.user.username === 'superadmin';
-        return !isSuperActor;
-      })
-      .map((event) => ({
-        ...event,
-        user: event.user ? { username: event.user.username } : null
-      }));
+    const securityEvents = rawEvents.map((event) => ({
+      ...event,
+      user: event.user ? { username: event.user.username } : null
+    }));
 
     return NextResponse.json({
       auditLogs,

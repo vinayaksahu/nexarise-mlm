@@ -79,7 +79,6 @@ const ROLE_PERMISSIONS: Record<AdminRole, Permission[]> = {
     'deposit_methods.view',
     'support.view',
     'support.manage',
-    'audit_logs.view',
   ],
   FINANCE: [
     'dashboard.view',
