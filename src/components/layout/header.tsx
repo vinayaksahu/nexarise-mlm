@@ -232,20 +232,32 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
                     <p className="font-bold text-gray-900 dark:text-white truncate">{user.name}</p>
                     <p className="text-[10px] text-slate-500 font-mono">@{user.username}</p>
                   </div>
-                  <Link
-                    href="/settings"
-                    className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-800 font-medium"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    ⚙️ Account Settings
-                  </Link>
-                  <Link
-                    href="/security"
-                    className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-800 font-medium"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    🔒 Security & PIN
-                  </Link>
+                  {isAdmin ? (
+                    <Link
+                      href="/admin/security"
+                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-800 font-medium"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      🔑 Change Password
+                    </Link>
+                  ) : (
+                    <>
+                      <Link
+                        href="/settings"
+                        className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-800 font-medium"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        ⚙️ Account Settings
+                      </Link>
+                      <Link
+                        href="/security"
+                        className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-800 font-medium"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        🔒 Security & PIN
+                      </Link>
+                    </>
+                  )}
                   <hr className="my-1 border-gray-100 dark:border-slate-800" />
                   <button
                     onClick={handleLogout}
