@@ -81,21 +81,21 @@ export default function LandingPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               <div>
                 <p className="text-3xl md:text-4xl font-bold text-primary mb-2">$12.5M+</p>
-                <p className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">Total Payouts</p>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-300 uppercase tracking-wider font-bold">Total Payouts</p>
               </div>
               <div>
                 <p className="text-3xl md:text-4xl font-bold text-primary mb-2">45,000+</p>
-                <p className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">Active Investors</p>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-300 uppercase tracking-wider font-bold">Active Investors</p>
               </div>
               <div>
                 <p className="text-3xl md:text-4xl font-bold text-primary mb-2">{dailyRoiPercent}%</p>
-                <p className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">Daily ROI</p>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-300 uppercase tracking-wider font-bold">Daily ROI</p>
               </div>
               <div>
                 <div className="flex justify-center mb-2">
                   <ShieldCheck className="h-10 w-10 text-primary" />
                 </div>
-                <p className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">Security Guarantee</p>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-300 uppercase tracking-wider font-bold">Security Guarantee</p>
               </div>
             </div>
           </div>

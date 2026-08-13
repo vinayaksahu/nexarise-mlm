@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { formatDirectReferrals } from '@/types/business-plan';
+import { Star, Medal, Trophy, Award, Gem, Crown, Shield } from 'lucide-react';
 
 export default function IncomePlanPage() {
   const [planConfig, setPlanConfig] = useState<any>(null);
@@ -63,19 +64,83 @@ export default function IncomePlanPage() {
 
   const achievementRewards = rawRewards.filter((r: any) => r.isActive !== false);
 
-  const getRankEmoji = (name: string) => {
-    const lower = name.toLowerCase();
-    if (lower.includes('star')) return '⭐';
-    if (lower.includes('bronze')) return '🥉';
-    if (lower.includes('silver')) return '🥈';
-    if (lower.includes('gold')) return '🥇';
-    if (lower.includes('platinum')) return '💎';
-    if (lower.includes('blue diamond')) return '💠';
-    if (lower.includes('black diamond')) return '🖤';
-    if (lower.includes('diamond')) return '🔷';
-    if (lower.includes('crown ambassador')) return '👑✨';
-    if (lower.includes('crown')) return '👑';
-    return '🏆';
+  const getRankBadgeComponent = (name: string) => {
+    const lower = (name || '').toLowerCase();
+    if (lower.includes('star')) {
+      return (
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-yellow-500/10 border border-amber-500/30 flex items-center justify-center shrink-0">
+          <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+        </div>
+      );
+    }
+    if (lower.includes('bronze')) {
+      return (
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-700/20 to-amber-600/10 border border-amber-600/30 flex items-center justify-center shrink-0">
+          <Medal className="w-5 h-5 text-amber-600" />
+        </div>
+      );
+    }
+    if (lower.includes('silver')) {
+      return (
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-400/20 to-gray-500/10 border border-slate-400/30 flex items-center justify-center shrink-0">
+          <Medal className="w-5 h-5 text-slate-300" />
+        </div>
+      );
+    }
+    if (lower.includes('gold')) {
+      return (
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500/20 to-amber-400/10 border border-yellow-500/30 flex items-center justify-center shrink-0">
+          <Trophy className="w-5 h-5 text-yellow-400" />
+        </div>
+      );
+    }
+    if (lower.includes('platinum')) {
+      return (
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/10 border border-cyan-400/30 flex items-center justify-center shrink-0">
+          <Award className="w-5 h-5 text-cyan-400" />
+        </div>
+      );
+    }
+    if (lower.includes('blue diamond')) {
+      return (
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/20 to-blue-500/10 border border-indigo-400/30 flex items-center justify-center shrink-0">
+          <Gem className="w-5 h-5 text-indigo-400" />
+        </div>
+      );
+    }
+    if (lower.includes('black diamond')) {
+      return (
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 flex items-center justify-center shrink-0">
+          <Gem className="w-5 h-5 text-purple-400" />
+        </div>
+      );
+    }
+    if (lower.includes('diamond')) {
+      return (
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/10 border border-blue-400/30 flex items-center justify-center shrink-0">
+          <Gem className="w-5 h-5 text-blue-400" />
+        </div>
+      );
+    }
+    if (lower.includes('crown ambassador')) {
+      return (
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400/30 to-amber-500/20 border border-yellow-400/40 flex items-center justify-center shrink-0">
+          <Crown className="w-5 h-5 text-yellow-300 fill-yellow-300" />
+        </div>
+      );
+    }
+    if (lower.includes('crown')) {
+      return (
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-yellow-600/10 border border-amber-400/30 flex items-center justify-center shrink-0">
+          <Crown className="w-5 h-5 text-amber-300 fill-amber-300" />
+        </div>
+      );
+    }
+    return (
+      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-indigo-500/10 border border-blue-500/30 flex items-center justify-center shrink-0">
+        <Trophy className="w-5 h-5 text-blue-400" />
+      </div>
+    );
   };
 
   const totalReturnPercent = (dailyRoiPercent * roiDurationDays).toFixed(0);
@@ -88,27 +153,25 @@ export default function IncomePlanPage() {
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">NexaRise Income Plan</h1>
-            <p className="text-xl text-muted">Four powerful ways to build your wealth.</p>
+            <p className="text-xl text-gray-600 dark:text-slate-300">Four powerful ways to build your wealth.</p>
           </div>
 
           <div className="space-y-12">
             {/* 1. Daily ROI */}
             <section>
-              <Card>
+              <Card className="border border-border bg-card">
                 <CardHeader className="bg-primary/5 border-b border-border">
-                  <CardTitle className="text-2xl text-primary font-bold flex items-center gap-2">
-                    <span>⚡ 1. Daily Self ROI</span>
-                  </CardTitle>
+                  <CardTitle className="text-2xl text-primary font-bold">1. Daily Self ROI</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <p className="text-lg mb-4 text-gray-800 dark:text-slate-200">
                     Earn a consistent, automated return on your active investment packages.
                   </p>
-                  <ul className="list-disc list-inside space-y-2 text-muted">
-                    <li><strong>Daily Return:</strong> {dailyRoiPercent}% per day</li>
-                    <li><strong>Duration:</strong> {roiDurationDays} Days</li>
-                    <li><strong>Total Return:</strong> {totalReturnPercent}% (Includes Principal)</li>
-                    <li><strong>Investment Range:</strong> ${minInvestment.toFixed(2)} to ${maxInvestment.toFixed(2)}</li>
+                  <ul className="list-disc list-inside space-y-2 text-gray-600 dark:text-slate-300">
+                    <li><strong className="text-gray-900 dark:text-white">Daily Return:</strong> {dailyRoiPercent}% per day</li>
+                    <li><strong className="text-gray-900 dark:text-white">Duration:</strong> {roiDurationDays} Days</li>
+                    <li><strong className="text-gray-900 dark:text-white">Total Return:</strong> {totalReturnPercent}% (Includes Principal)</li>
+                    <li><strong className="text-gray-900 dark:text-white">Investment Range:</strong> ${minInvestment.toFixed(2)} to ${maxInvestment.toFixed(2)}</li>
                   </ul>
                 </CardContent>
               </Card>
@@ -116,11 +179,9 @@ export default function IncomePlanPage() {
 
             {/* 2. Level Income */}
             <section>
-              <Card>
+              <Card className="border border-border bg-card">
                 <CardHeader className="bg-primary/5 border-b border-border">
-                  <CardTitle className="text-2xl text-primary font-bold flex items-center gap-2">
-                    <span>👥 2. Level Referral Commission</span>
-                  </CardTitle>
+                  <CardTitle className="text-2xl text-primary font-bold">2. Level Referral Commission</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <p className="text-lg mb-4 text-gray-800 dark:text-slate-200">
@@ -130,11 +191,11 @@ export default function IncomePlanPage() {
                     <table className="w-full text-left border-collapse">
                       <thead>
                         <tr className="border-b border-border">
-                          <th className="py-3 px-4 font-semibold text-gray-900 dark:text-white">Level</th>
-                          <th className="py-3 px-4 font-semibold text-gray-900 dark:text-white">Commission</th>
-                          <th className="py-3 px-4 font-semibold text-gray-900 dark:text-white">Qualification Requirement</th>
+                          <th className="py-3 px-4 font-bold text-gray-900 dark:text-white">Level</th>
+                          <th className="py-3 px-4 font-bold text-gray-900 dark:text-white">Commission</th>
+                          <th className="py-3 px-4 font-bold text-gray-900 dark:text-white">Qualification Requirement</th>
                           {requireSelfInvestment && (
-                            <th className="py-3 px-4 font-semibold text-gray-900 dark:text-white">Required Self Investment</th>
+                            <th className="py-3 px-4 font-bold text-gray-900 dark:text-white">Required Self Investment</th>
                           )}
                         </tr>
                       </thead>
@@ -143,7 +204,7 @@ export default function IncomePlanPage() {
                           <tr key={item.level} className="border-b border-border/60 last:border-0 hover:bg-muted/10">
                             <td className="py-3 px-4 font-medium text-gray-900 dark:text-slate-200">Level {item.level}</td>
                             <td className="py-3 px-4 font-bold text-emerald-600 dark:text-emerald-400">{item.percent}</td>
-                            <td className="py-3 px-4 text-muted">{item.requirement}</td>
+                            <td className="py-3 px-4 text-gray-600 dark:text-slate-300 font-medium">{item.requirement}</td>
                             {requireSelfInvestment && (
                               <td className="py-3 px-4 font-semibold text-blue-600 dark:text-blue-400">{item.selfInvestment}</td>
                             )}
@@ -159,42 +220,44 @@ export default function IncomePlanPage() {
             {/* 3. Achievement Rewards */}
             {achievementRewards.length > 0 && (
               <section>
-                <Card className="overflow-hidden border border-border shadow-lg">
+                <Card className="overflow-hidden border border-border bg-card shadow-lg">
                   <CardHeader className="bg-gradient-to-r from-blue-600/10 via-indigo-600/10 to-purple-600/10 border-b border-border">
-                    <CardTitle className="text-2xl text-primary font-bold flex items-center gap-2">
-                      <span>🎁 3. Achievement Rewards & Rank Cash Bonuses</span>
+                    <CardTitle className="text-2xl text-primary font-bold">
+                      3. Achievement Rewards & Rank Cash Bonuses
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-6 sm:p-8">
-                    <p className="text-base sm:text-lg mb-6 text-gray-800 dark:text-slate-200">
-                      Hit business volume milestones across your entire downline team <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">(50% max volume contribution per leg)</span> to unlock direct cash bonuses! 🚀
+                    <p className="text-base sm:text-lg mb-6 text-gray-800 dark:text-slate-200 flex flex-wrap items-center gap-2">
+                      <span>Hit business volume milestones across your entire downline team</span>
+                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                        (50% max volume contribution per leg)
+                      </span>
+                      <span>to unlock direct cash bonuses!</span>
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
                       {achievementRewards.map((reward: any, i: number) => {
-                        const emoji = getRankEmoji(reward.name);
+                        const badgeComponent = getRankBadgeComponent(reward.name);
                         return (
                           <div 
                             key={i} 
-                            className="group relative p-5 border border-gray-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/80 shadow-xs hover:shadow-xl hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-1 flex items-center justify-between gap-4"
+                            className="group relative p-4 sm:p-5 border border-gray-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/90 shadow-xs hover:shadow-xl hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-0.5 flex items-center justify-between gap-4"
                           >
-                            <div className="flex items-center gap-3.5">
-                              <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-2xl shrink-0 group-hover:scale-110 transition-transform">
-                                {emoji}
-                              </div>
+                            <div className="flex items-center gap-3">
+                              {badgeComponent}
                               <div>
-                                <h4 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-1.5">
-                                  <span>{reward.name}</span>
+                                <h4 className="font-bold text-base sm:text-lg text-gray-900 dark:text-white">
+                                  {reward.name}
                                 </h4>
-                                <p className="text-xs text-muted font-medium flex items-center gap-1 mt-0.5">
-                                  <span>📊 Volume:</span>
-                                  <span className="font-bold text-gray-900 dark:text-slate-300">${Number(reward.volumeRequired).toLocaleString()}</span>
+                                <p className="text-xs text-gray-600 dark:text-slate-300 font-medium flex items-center gap-1.5 mt-0.5">
+                                  <span>Volume:</span>
+                                  <span className="font-bold text-gray-900 dark:text-white">${Number(reward.volumeRequired).toLocaleString()}</span>
                                 </p>
                               </div>
                             </div>
 
                             <div className="text-right shrink-0">
-                              <span className="text-xs uppercase font-bold text-blue-600 dark:text-blue-400 tracking-wider block">Bonus</span>
-                              <div className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-300">
+                              <span className="text-[10px] sm:text-xs uppercase font-bold text-blue-600 dark:text-blue-400 tracking-wider block">Bonus</span>
+                              <div className="text-lg sm:text-xl font-bold text-blue-600 dark:text-blue-400">
                                 ${Number(reward.rewardAmount).toLocaleString()}
                               </div>
                             </div>
@@ -209,20 +272,18 @@ export default function IncomePlanPage() {
 
             {/* 4. P2P Wallet Transfer */}
             <section>
-              <Card>
+              <Card className="border border-border bg-card">
                 <CardHeader className="bg-primary/5 border-b border-border">
-                  <CardTitle className="text-2xl text-primary font-bold flex items-center gap-2">
-                    <span>💸 4. Instant P2P Wallet Transfers</span>
-                  </CardTitle>
+                  <CardTitle className="text-2xl text-primary font-bold">4. Instant P2P Wallet Transfers</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <p className="text-lg mb-4 text-gray-800 dark:text-slate-200">
                     Move your funds instantly between NexaRise members. Use your Main Wallet balance to help new members activate their accounts instantly.
                   </p>
-                  <ul className="list-disc list-inside space-y-2 text-muted">
-                    <li><strong>Speed:</strong> Instant, zero-delay processing</li>
-                    <li><strong>Transfer Fee:</strong> {p2pFeePercent > 0 ? `${p2pFeePercent}% flat fee` : 'Free (0% fee)'}</li>
-                    <li><strong>Convenience:</strong> Bypass external crypto network fees and delays</li>
+                  <ul className="list-disc list-inside space-y-2 text-gray-600 dark:text-slate-300">
+                    <li><strong className="text-gray-900 dark:text-white">Speed:</strong> Instant, zero-delay processing</li>
+                    <li><strong className="text-gray-900 dark:text-white">Transfer Fee:</strong> {p2pFeePercent > 0 ? `${p2pFeePercent}% flat fee` : 'Free (0% fee)'}</li>
+                    <li><strong className="text-gray-900 dark:text-white">Convenience:</strong> Bypass external crypto network fees and delays</li>
                   </ul>
                 </CardContent>
               </Card>
