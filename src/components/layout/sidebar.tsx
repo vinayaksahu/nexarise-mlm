@@ -97,25 +97,25 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer =
   const baseClasses = isMobileDrawer
     ? 'flex flex-col h-full bg-white dark:bg-slate-900 text-gray-800 dark:text-slate-300 w-full overflow-hidden'
     : `hidden lg:flex flex-col h-screen sticky top-0 bg-white dark:bg-slate-900 text-gray-800 dark:text-slate-300 border-r border-gray-200 dark:border-slate-800 transition-all duration-300 ${
-        collapsed ? 'w-20' : 'w-60'
+        collapsed ? 'w-20' : 'w-64'
       }`;
 
   return (
     <aside className={baseClasses}>
       {/* Brand Header */}
-      <div className="flex items-center h-14 px-3.5 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950 shrink-0">
+      <div className="flex items-center h-16 px-4 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950 shrink-0">
         <Link
           href={isAdmin ? '/admin' : '/dashboard'}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2.5"
           onClick={onCloseMobile}
         >
           <img
             src="/images/nexarise-emblem.png"
             alt="NexaRise Logo"
-            className="w-7 h-7 object-contain shrink-0 drop-shadow"
+            className="w-8 h-8 object-contain shrink-0 drop-shadow"
           />
           {(!collapsed || isMobileDrawer) && (
-            <span className="text-base font-bold tracking-tight text-gray-900 dark:text-white">
+            <span className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
               Nexa<span className="text-blue-600 dark:text-blue-500">Rise</span>
             </span>
           )}
@@ -123,7 +123,7 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer =
         {!isMobileDrawer && (
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="hidden lg:flex ml-auto text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors p-1 rounded hover:bg-gray-100 dark:hover:bg-slate-800 text-xs"
+            className="hidden lg:flex ml-auto text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-slate-800"
             title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
           >
             {collapsed ? '➔' : '☰'}
@@ -132,7 +132,7 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer =
         {onCloseMobile && (
           <button
             onClick={onCloseMobile}
-            className="ml-auto text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors p-1 rounded hover:bg-gray-100 dark:hover:bg-slate-800 font-bold text-xs"
+            className="ml-auto text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-slate-800 font-bold"
             title="Close Drawer"
           >
             ✕
@@ -141,11 +141,11 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer =
       </div>
 
       {/* SB Admin Navigation Accordions */}
-      <nav className="flex-1 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden py-1.5 px-2 space-y-1.5 pb-6">
+      <nav className="flex-1 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden py-3 px-3 space-y-4">
         {navGroups.map((group, idx) => (
-          <div key={idx} className="space-y-[1px]">
+          <div key={idx} className="space-y-1">
             {(!collapsed || isMobileDrawer) && (
-              <div className="px-2 text-[8.5px] font-extrabold uppercase tracking-widest text-gray-400 dark:text-slate-500 pt-0.5 pb-0.5">
+              <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-1">
                 {group.heading}
               </div>
             )}
@@ -160,14 +160,14 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer =
                   key={item.href}
                   href={item.href}
                   onClick={onCloseMobile}
-                  className={`flex items-center gap-2 px-2.5 py-1 rounded-md text-[12px] font-medium leading-tight transition-all duration-150 ${
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
                     isActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-xs'
+                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
                       : 'text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'
                   }`}
                   title={collapsed && !isMobileDrawer ? item.label : undefined}
                 >
-                  <span className="text-xs shrink-0">{item.icon}</span>
+                  <span className="text-base shrink-0">{item.icon}</span>
                   {(!collapsed || isMobileDrawer) && <span className="truncate">{item.label}</span>}
                 </Link>
               );
