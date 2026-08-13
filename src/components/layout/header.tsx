@@ -154,7 +154,7 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
                     ⚙️ Account Settings
                   </Link>
                   <Link
-                    href="/settings"
+                    href="/security"
                     className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-800 font-medium"
                     onClick={() => setMenuOpen(false)}
                   >

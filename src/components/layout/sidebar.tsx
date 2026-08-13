@@ -46,6 +46,7 @@ const userNavGroups = [
     items: [
       { label: 'Help & Support', href: '/support', icon: '🎧' },
       { label: 'Account Settings', href: '/settings', icon: '⚙️' },
+      { label: 'Security & PIN', href: '/security', icon: '🔒' },
     ],
   },
 ];
