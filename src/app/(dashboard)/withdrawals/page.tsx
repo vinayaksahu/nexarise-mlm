@@ -249,11 +249,13 @@ export default function WithdrawalsPage() {
 
       <ConfirmModal
         isOpen={showPopup}
-        onClose={() => setShowPopup(false)}
+        onConfirm={() => setShowPopup(false)}
+        onCancel={() => setShowPopup(false)}
         title={messageType === 'success' ? 'Success' : 'Notice'}
         message={message}
         confirmText="OK"
-        showCancel={false}
+        cancelText=""
+        variant={messageType === 'success' ? 'success' : 'danger'}
       />
     </div>
   );
