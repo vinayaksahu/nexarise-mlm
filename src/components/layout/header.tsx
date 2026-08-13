@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/components/theme-provider';
@@ -18,6 +18,28 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
   const [notifications, setNotifications] = useState<any[]>([]);
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
+
+  const notifRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setNotifOpen(false);
+      }
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -41,6 +63,16 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
     await fetch('/api/auth/logout', { method: 'POST' });
     router.push(isAdmin ? '/admin/login' : '/login');
     router.refresh();
+  };
+
+  const handleNotifToggle = () => {
+    setNotifOpen((prev) => !prev);
+    setMenuOpen(false);
+  };
+
+  const handleMenuToggle = () => {
+    setMenuOpen((prev) => !prev);
+    setNotifOpen(false);
   };
 
   return (
@@ -79,9 +111,9 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
           </button>
 
           {/* Notifications Dropdown */}
-          <div className="relative">
+          <div className="relative" ref={notifRef}>
             <button
-              onClick={() => setNotifOpen(!notifOpen)}
+              onClick={handleNotifToggle}
               className="p-2 rounded-lg text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors relative"
               title="Notifications"
             >
@@ -94,7 +126,7 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
             </button>
 
             {notifOpen && (
-              <div className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-gray-200 dark:border-slate-800 py-2 z-50 text-gray-900 dark:text-slate-100">
+              <div className="fixed inset-x-4 top-16 sm:absolute sm:inset-auto sm:right-0 sm:top-auto sm:mt-2 w-auto sm:w-80 max-h-[80vh] sm:max-h-96 overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-800 py-2 z-[9999] text-gray-900 dark:text-slate-100 animate-fade-in">
                 <div className="flex justify-between items-center px-4 py-2 border-b border-gray-100 dark:border-slate-800">
                   <span className="font-bold text-sm">Notifications</span>
                   {unreadCount > 0 && (
@@ -127,9 +159,9 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
 
           {/* User Account Menu */}
           {user && (
-            <div className="relative">
+            <div className="relative" ref={menuRef}>
               <button
-                onClick={() => setMenuOpen(!menuOpen)}
+                onClick={handleMenuToggle}
                 className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
               >
                 <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-sm flex items-center justify-center shadow">
@@ -141,7 +173,7 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
               </button>
 
               {menuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-gray-200 dark:border-slate-800 py-1 z-50 text-gray-900 dark:text-slate-100 text-xs">
+                <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-gray-200 dark:border-slate-800 py-1 z-[9999] text-gray-900 dark:text-slate-100 text-xs animate-fade-in">
                   <div className="px-4 py-2 border-b border-gray-100 dark:border-slate-800">
                     <p className="font-bold text-gray-900 dark:text-white truncate">{user.name}</p>
                     <p className="text-[10px] text-slate-500 font-mono">@{user.username}</p>
