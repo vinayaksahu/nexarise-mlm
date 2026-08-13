@@ -12,6 +12,7 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [isAdminRedirect, setIsAdminRedirect] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -77,14 +78,24 @@ export default function LoginPage() {
               onChange={(e) => setForm(p => ({ ...p, login: e.target.value }))} 
               required 
             />
-            <Input 
-              label="Password" 
-              type="password" 
-              placeholder="Enter your password" 
-              value={form.password} 
-              onChange={(e) => setForm(p => ({ ...p, password: e.target.value }))} 
-              required 
-            />
+            <div className="relative">
+              <Input 
+                label="Password" 
+                type={showPassword ? 'text' : 'password'} 
+                placeholder="Enter your password" 
+                value={form.password} 
+                onChange={(e) => setForm(p => ({ ...p, password: e.target.value }))} 
+                required 
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-[38px] text-slate-400 hover:text-white transition-colors text-sm p-1"
+                title={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? '👁️' : '🙈'}
+              </button>
+            </div>
             <div className="flex justify-end text-xs">
               <Link href="/forgot-password" className="text-primary hover:text-primary-light transition-colors font-medium">
                 Forgot password?

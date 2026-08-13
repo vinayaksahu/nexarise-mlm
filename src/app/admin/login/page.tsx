@@ -14,6 +14,7 @@ export default function AdminLoginPage() {
   const [isMemberRedirect, setIsMemberRedirect] = useState(false)
   const [loading, setLoading] = useState(false)
   const { theme, toggleTheme } = useTheme()
+  const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -93,7 +94,7 @@ export default function AdminLoginPage() {
 
               <div className="space-y-1">
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                  Admin Username or Email
+                  Admin Username
                 </label>
                 <Input
                   placeholder="e.g. admin"
@@ -106,16 +107,26 @@ export default function AdminLoginPage() {
 
               <div className="space-y-1">
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                  Master Password
+                  Password
                 </label>
-                <Input
-                  type="password"
-                  placeholder="••••••••••••"
-                  value={form.password}
-                  onChange={(e) => setForm(p => ({ ...p, password: e.target.value }))}
-                  required
-                  className="w-full text-sm py-2.5 bg-slate-950 border-slate-800 text-white placeholder:text-slate-600"
-                />
+                <div className="relative">
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••••••"
+                    value={form.password}
+                    onChange={(e) => setForm(p => ({ ...p, password: e.target.value }))}
+                    required
+                    className="w-full text-sm py-2.5 pr-10 bg-slate-950 border-slate-800 text-white placeholder:text-slate-600"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors text-sm p-1"
+                    title={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? '👁️' : '🙈'}
+                  </button>
+                </div>
               </div>
 
               <Button
