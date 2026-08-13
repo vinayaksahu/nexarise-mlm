@@ -77,7 +77,7 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 h-16 bg-white dark:bg-slate-950 text-gray-900 dark:text-white border-b border-gray-200 dark:border-slate-800 flex items-center justify-between px-3 sm:px-6 shadow-xs transition-colors">
+      <header className="sticky top-0 z-40 h-16 bg-white dark:bg-slate-950 text-gray-900 dark:text-white border-b border-gray-200 dark:border-slate-800 flex items-center justify-between px-3 sm:px-6 shadow-xs transition-colors shrink-0">
         {/* Left Controls: Hamburger Menu & Mobile Brand Logo (hidden on desktop lg:hidden) */}
         <div className="flex items-center gap-3">
           <button

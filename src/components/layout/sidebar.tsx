@@ -96,7 +96,7 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer =
 
   const baseClasses = isMobileDrawer
     ? 'flex flex-col h-full bg-white dark:bg-slate-900 text-gray-800 dark:text-slate-300 w-full overflow-hidden'
-    : `hidden lg:flex flex-col h-screen sticky top-0 bg-white dark:bg-slate-900 text-gray-800 dark:text-slate-300 border-r border-gray-200 dark:border-slate-800 transition-all duration-300 ${
+    : `hidden lg:flex flex-col h-screen sticky top-0 bg-white dark:bg-slate-900 text-gray-800 dark:text-slate-300 border-r border-gray-200 dark:border-slate-800 transition-all duration-300 shrink-0 ${
         collapsed ? 'w-20' : 'w-64'
       }`;
 
