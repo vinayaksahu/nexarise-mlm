@@ -123,67 +123,71 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
-          Welcome back, {user?.name || 'User'}! 👋
-        </h1>
-        <div className="flex flex-wrap items-center gap-2 mt-2">
-          {(() => {
-            const isAccountActive = user?.status === 'ACTIVE';
-            return isAccountActive ? (
-              <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Account Status: Active</span>
+    <div className="space-y-4 animate-fade-in">
+      {/* Sleek Compact Welcome Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200 dark:border-slate-800/80 pb-3">
+        <div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+              Welcome back, {user?.name || 'User'}! 👋
+            </h1>
+            {user?.status === 'ACTIVE' ? (
+              <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-500/20">
+                Active
+              </span>
             ) : (
-              <>
-                <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Account Status: Inactive</span>
-                <Button 
-                  size="sm" 
-                  variant="primary" 
-                  className="text-xs py-1 px-3 shadow-md hover:scale-105 transition-transform" 
-                  onClick={() => setShowInvestModal(true)}
-                >
-                  ⚡ Activate Account
-                </Button>
-              </>
-            );
-          })()}
+              <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400 border border-red-500/20">
+                Inactive
+              </span>
+            )}
+          </div>
+          <p className="text-muted text-xs mt-0.5">Here is your live account overview and growth metrics.</p>
         </div>
-        <p className="text-muted text-sm mt-1">Here is your live account overview and growth metrics.</p>
+
+        {user?.status !== 'ACTIVE' && (
+          <Button 
+            size="sm" 
+            variant="primary" 
+            className="text-xs py-1.5 px-3 shadow-md shrink-0 self-start sm:self-auto" 
+            onClick={() => setShowInvestModal(true)}
+          >
+            ⚡ Activate Account
+          </Button>
+        )}
       </div>
 
-      {/* Referral Link Share Card */}
-      <Card variant="gradient" hover={false}>
-        <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-3">
-          <CardTitle className="flex items-center gap-2 text-primary dark:text-primary-light text-base sm:text-lg">
-            <span>🔗 Your Exclusive Referral Link</span>
-          </CardTitle>
-          <CardDescription className="text-xs sm:text-sm">
-            Share this link to invite new members to your downline team. Anyone signing up with your link automatically joins your network.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0">
-          <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
-            <div className="w-full text-xs font-mono truncate px-3 py-2 bg-white dark:bg-slate-900 border border-border rounded-lg flex items-center justify-between gap-2">
-              <span className="truncate">{refLink}</span>
-              <Badge variant="info" className="shrink-0">Code: {refCode}</Badge>
+      {/* Compact Referral Link Bar */}
+      <Card className="p-3 bg-gradient-to-r from-blue-950/40 via-slate-900 to-indigo-950/40 border border-blue-500/30">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-base shrink-0">🔗</span>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-gray-900 dark:text-white truncate">Your Exclusive Referral Link</p>
+              <p className="text-[11px] text-muted truncate hidden sm:block">Share to invite new members to your downline network</p>
             </div>
-            <Button onClick={copyRefLink} variant="primary" className="w-full sm:w-auto text-xs py-2 shrink-0">
-              {copied ? '✓ Copied!' : '📋 Copy Referral Link'}
+          </div>
+          <div className="flex items-center gap-2 min-w-0 flex-1 md:flex-none md:w-auto">
+            <div className="w-full md:w-80 text-xs font-mono truncate px-2.5 py-1.5 bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-lg flex items-center justify-between gap-2">
+              <span className="truncate text-blue-600 dark:text-blue-400">{refLink}</span>
+              <Badge variant="info" className="shrink-0 text-[10px] py-0 px-1.5">Code: {refCode}</Badge>
+            </div>
+            <Button onClick={copyRefLink} variant="primary" className="text-xs py-1.5 px-3 shrink-0 bg-blue-600 hover:bg-blue-500 text-white font-semibold">
+              {copied ? '✓ Copied!' : '📋 Copy'}
             </Button>
           </div>
-        </CardContent>
+        </div>
       </Card>
 
       {/* Financial Stat Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
         <Link href="/wallet" className="sm:col-span-2 lg:col-span-2">
           <Card className="h-full bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500/30 hover:border-emerald-500/60 transition-all cursor-pointer">
-            <CardContent className="p-3 sm:p-4">
-              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center justify-between">
+            <CardContent className="p-3 sm:p-3.5">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight flex items-center justify-between">
                 <span>Total Available Balance (Main + P2P)</span>
-                <span className="text-[10px] text-emerald-500">View Wallet →</span>
+                <span className="text-[10px] text-emerald-500 font-bold">View Wallet →</span>
               </p>
-              <p className="text-xl sm:text-3xl font-bold truncate mt-0.5 text-emerald-600 dark:text-emerald-400">
+              <p className="text-xl sm:text-2xl font-bold truncate mt-0.5 text-emerald-600 dark:text-emerald-400">
                 ${((Number(wallet?.availableBalance || 0)) + (Number(wallet?.p2pBalance || 0))).toFixed(2)}
               </p>
             </CardContent>
@@ -192,11 +196,11 @@ export default function DashboardPage() {
 
         <Link href="/wallet">
           <Card className="h-full hover:border-primary/50 transition-all cursor-pointer">
-            <CardContent className="p-3 sm:p-4">
-              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+            <CardContent className="p-3 sm:p-3.5">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight flex items-center">
                 Main Wallet Balance
               </p>
-              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-emerald-600 dark:text-emerald-400">
+              <p className="text-lg sm:text-xl font-bold truncate mt-0.5 text-emerald-600 dark:text-emerald-400">
                 ${wallet?.availableBalance ? Number(wallet.availableBalance).toFixed(2) : '0.00'}
               </p>
             </CardContent>
@@ -205,11 +209,11 @@ export default function DashboardPage() {
 
         <Link href="/p2p">
           <Card className="h-full hover:border-cyan-500/50 transition-all cursor-pointer">
-            <CardContent className="p-3 sm:p-4">
-              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+            <CardContent className="p-3 sm:p-3.5">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight flex items-center">
                 P2P Balance
               </p>
-              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-cyan-600 dark:text-cyan-400">
+              <p className="text-lg sm:text-xl font-bold truncate mt-0.5 text-cyan-600 dark:text-cyan-400">
                 ${wallet?.p2pBalance ? Number(wallet.p2pBalance).toFixed(2) : '0.00'}
               </p>
             </CardContent>
@@ -218,11 +222,11 @@ export default function DashboardPage() {
 
         <Link href="/self-roi">
           <Card className="h-full hover:border-primary/50 transition-all cursor-pointer">
-            <CardContent className="p-3 sm:p-4">
-              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+            <CardContent className="p-3 sm:p-3.5">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight flex items-center">
                 Today's ROI Income
               </p>
-              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-emerald-500">
+              <p className="text-lg sm:text-xl font-bold truncate mt-0.5 text-emerald-500">
                 ${wallet?.todaysRoi ? Number(wallet.todaysRoi).toFixed(2) : '0.00'}
               </p>
             </CardContent>
@@ -231,11 +235,11 @@ export default function DashboardPage() {
 
         <Link href="/self-roi">
           <Card className="h-full hover:border-primary/50 transition-all cursor-pointer">
-            <CardContent className="p-3 sm:p-4">
-              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+            <CardContent className="p-3 sm:p-3.5">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight flex items-center">
                 Total ROI Income
               </p>
-              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-primary dark:text-primary-light">
+              <p className="text-lg sm:text-xl font-bold truncate mt-0.5 text-primary dark:text-primary-light">
                 ${wallet?.roiIncome ? Number(wallet.roiIncome).toFixed(2) : '0.00'}
               </p>
             </CardContent>
@@ -244,11 +248,11 @@ export default function DashboardPage() {
 
         <Link href="/level-income">
           <Card className="h-full hover:border-accent/50 transition-all cursor-pointer">
-            <CardContent className="p-3 sm:p-4">
-              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+            <CardContent className="p-3 sm:p-3.5">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight flex items-center">
                 Total Level Income
               </p>
-              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-accent dark:text-accent-light">
+              <p className="text-lg sm:text-xl font-bold truncate mt-0.5 text-accent dark:text-accent-light">
                 ${wallet?.levelIncome ? Number(wallet.levelIncome).toFixed(2) : '0.00'}
               </p>
             </CardContent>
@@ -257,11 +261,11 @@ export default function DashboardPage() {
 
         <Link href="/rewards">
           <Card className="h-full hover:border-amber-500/50 transition-all cursor-pointer">
-            <CardContent className="p-3 sm:p-4">
-              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+            <CardContent className="p-3 sm:p-3.5">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight flex items-center">
                 Total Reward Income
               </p>
-              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-amber-500">
+              <p className="text-lg sm:text-xl font-bold truncate mt-0.5 text-amber-500">
                 ${wallet?.rewardIncome ? Number(wallet.rewardIncome).toFixed(2) : '0.00'}
               </p>
             </CardContent>
@@ -270,11 +274,11 @@ export default function DashboardPage() {
 
         <Link href="/transactions">
           <Card className="h-full hover:border-indigo-500/50 transition-all cursor-pointer">
-            <CardContent className="p-3 sm:p-4">
-              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+            <CardContent className="p-3 sm:p-3.5">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight flex items-center">
                 Total Earnings
               </p>
-              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-indigo-600 dark:text-indigo-400">
+              <p className="text-lg sm:text-xl font-bold truncate mt-0.5 text-indigo-600 dark:text-indigo-400">
                 ${wallet?.totalIncome ? Number(wallet.totalIncome).toFixed(2) : '0.00'}
               </p>
             </CardContent>
@@ -283,11 +287,11 @@ export default function DashboardPage() {
 
         <Link href="/investments">
           <Card className="h-full hover:border-emerald-500/50 transition-all cursor-pointer">
-            <CardContent className="p-3 sm:p-4">
-              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+            <CardContent className="p-3 sm:p-3.5">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight flex items-center">
                 Total Investments
               </p>
-              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-emerald-500">
+              <p className="text-lg sm:text-xl font-bold truncate mt-0.5 text-emerald-500">
                 ${wallet?.totalInvestments ? Number(wallet.totalInvestments).toFixed(2) : '0.00'}
               </p>
             </CardContent>
@@ -296,11 +300,11 @@ export default function DashboardPage() {
 
         <Link href="/transactions?type=P2P_SENT">
           <Card className="h-full hover:border-red-500/50 transition-all cursor-pointer">
-            <CardContent className="p-3 sm:p-4">
-              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+            <CardContent className="p-3 sm:p-3.5">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight flex items-center">
                 Total P2P Sent
               </p>
-              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-red-500">
+              <p className="text-lg sm:text-xl font-bold truncate mt-0.5 text-red-500">
                 ${wallet?.totalP2pSent ? Number(wallet.totalP2pSent).toFixed(2) : '0.00'}
               </p>
             </CardContent>
@@ -309,11 +313,11 @@ export default function DashboardPage() {
 
         <Link href="/transactions?type=P2P_RECEIVED">
           <Card className="h-full hover:border-cyan-500/50 transition-all cursor-pointer">
-            <CardContent className="p-3 sm:p-4">
-              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+            <CardContent className="p-3 sm:p-3.5">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight flex items-center">
                 Total P2P Received
               </p>
-              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-cyan-500">
+              <p className="text-lg sm:text-xl font-bold truncate mt-0.5 text-cyan-500">
                 ${wallet?.totalP2pReceived ? Number(wallet.totalP2pReceived).toFixed(2) : '0.00'}
               </p>
             </CardContent>
@@ -322,11 +326,11 @@ export default function DashboardPage() {
 
         <Link href="/withdrawals">
           <Card className="h-full hover:border-gray-500/50 transition-all cursor-pointer">
-            <CardContent className="p-3 sm:p-4">
-              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+            <CardContent className="p-3 sm:p-3.5">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight flex items-center">
                 Total Withdrawals
               </p>
-              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-gray-700 dark:text-gray-300">
+              <p className="text-lg sm:text-xl font-bold truncate mt-0.5 text-gray-700 dark:text-gray-300">
                 ${wallet?.totalWithdrawals ? Number(wallet.totalWithdrawals).toFixed(2) : '0.00'}
               </p>
             </CardContent>
@@ -335,11 +339,11 @@ export default function DashboardPage() {
 
         <Link href="/team">
           <Card className="h-full hover:border-blue-500/50 transition-all cursor-pointer">
-            <CardContent className="p-3 sm:p-4">
-              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+            <CardContent className="p-3 sm:p-3.5">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight flex items-center">
                 Direct Referrals
               </p>
-              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-blue-600 dark:text-blue-400">
+              <p className="text-lg sm:text-xl font-bold truncate mt-0.5 text-blue-600 dark:text-blue-400">
                 {team?.directReferrals?.length || 0}
               </p>
             </CardContent>
@@ -348,11 +352,11 @@ export default function DashboardPage() {
 
         <Link href="/team">
           <Card className="h-full hover:border-purple-500/50 transition-all cursor-pointer">
-            <CardContent className="p-3 sm:p-4">
-              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+            <CardContent className="p-3 sm:p-3.5">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight flex items-center">
                 Total Team Business
               </p>
-              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-purple-600 dark:text-purple-400">
+              <p className="text-lg sm:text-xl font-bold truncate mt-0.5 text-purple-600 dark:text-purple-400">
                 ${team?.businessVolume?.totalBusiness ? Number(team.businessVolume.totalBusiness).toFixed(2) : '0.00'}
               </p>
             </CardContent>
@@ -361,11 +365,11 @@ export default function DashboardPage() {
 
         <Link href="/team">
           <Card className="h-full hover:border-purple-500/50 transition-all cursor-pointer">
-            <CardContent className="p-3 sm:p-4">
-              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+            <CardContent className="p-3 sm:p-3.5">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight flex items-center">
                 Strong Leg Business
               </p>
-              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-purple-500">
+              <p className="text-lg sm:text-xl font-bold truncate mt-0.5 text-purple-500">
                 ${team?.businessVolume?.strongLeg ? Number(team.businessVolume.strongLeg).toFixed(2) : '0.00'}
               </p>
             </CardContent>
@@ -374,11 +378,11 @@ export default function DashboardPage() {
 
         <Link href="/team">
           <Card className="h-full hover:border-amber-500/50 transition-all cursor-pointer">
-            <CardContent className="p-3 sm:p-4">
-              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight min-h-[1.75rem] flex items-center">
+            <CardContent className="p-3 sm:p-3.5">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight flex items-center">
                 Weak Leg Business
               </p>
-              <p className="text-lg sm:text-2xl font-bold truncate mt-0.5 text-amber-500">
+              <p className="text-lg sm:text-xl font-bold truncate mt-0.5 text-amber-500">
                 ${team?.businessVolume?.weakLeg ? Number(team.businessVolume.weakLeg).toFixed(2) : '0.00'}
               </p>
             </CardContent>
@@ -389,34 +393,34 @@ export default function DashboardPage() {
       {/* Quick Action Banner */}
       <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
         <Link href="/deposits">
-          <Button variant="primary" className="w-full sm:w-auto text-xs py-2.5 justify-center">📥 Deposit Funds</Button>
+          <Button variant="primary" className="w-full sm:w-auto text-xs py-2 justify-center">📥 Deposit Funds</Button>
         </Link>
         <Link href="/investments">
-          <Button variant="secondary" className="w-full sm:w-auto text-xs py-2.5 justify-center">📈 Activate Investment</Button>
+          <Button variant="secondary" className="w-full sm:w-auto text-xs py-2 justify-center">📈 Activate Investment</Button>
         </Link>
         <Link href="/p2p">
-          <Button variant="outline" className="w-full sm:w-auto text-xs py-2.5 justify-center">🔄 P2P Transfer</Button>
+          <Button variant="outline" className="w-full sm:w-auto text-xs py-2 justify-center">🔄 P2P Transfer</Button>
         </Link>
         <Link href="/withdrawals">
-          <Button variant="ghost" className="w-full sm:w-auto text-xs py-2.5 justify-center">📤 Withdraw Earnings</Button>
+          <Button variant="ghost" className="w-full sm:w-auto text-xs py-2 justify-center">📤 Withdraw Earnings</Button>
         </Link>
       </div>
 
       {/* Recent Transactions Preview Table */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between p-4 sm:p-6">
+        <CardHeader className="flex flex-row items-center justify-between p-3.5 sm:p-5">
           <CardTitle className="text-base sm:text-lg">Recent Transactions</CardTitle>
           <Link href="/transactions" className="text-xs text-primary hover:underline">View All →</Link>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0">
+        <CardContent className="p-3.5 sm:p-5 pt-0">
           {transactions.length === 0 ? (
-            <div className="text-center py-8 text-muted">
-              <p className="text-3xl mb-1">📋</p>
-              <p className="text-sm">No recent transactions yet.</p>
+            <div className="text-center py-6 text-muted">
+              <p className="text-2xl mb-1">📋</p>
+              <p className="text-xs">No recent transactions yet.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
-              <table className="w-full text-left text-sm min-w-[500px]">
+            <div className="overflow-x-auto -mx-3.5 sm:mx-0 px-3.5 sm:px-0">
+              <table className="w-full text-left text-xs min-w-[500px]">
                 <thead>
                   <tr className="border-b border-border text-muted">
                     <th className="py-2 px-3">Type</th>
@@ -428,18 +432,18 @@ export default function DashboardPage() {
                 <tbody>
                   {transactions.map((tx: any) => (
                     <tr key={tx.id} className="border-b border-border/50 hover:bg-gray-50 dark:hover:bg-slate-800/50">
-                      <td className="py-2.5 px-3 font-medium">
-                        <Badge variant="default">{tx.type}</Badge>
+                      <td className="py-2 px-3 font-medium">
+                        <Badge variant="default" className="text-[10px] py-0 px-1.5">{tx.type}</Badge>
                       </td>
-                      <td className="py-2.5 px-3 font-semibold text-gray-900 dark:text-white">
+                      <td className="py-2 px-3 font-semibold text-gray-900 dark:text-white">
                         ${Number(tx.amount).toFixed(2)}
                       </td>
-                      <td className="py-2.5 px-3">
-                        <Badge variant={tx.status === 'COMPLETED' ? 'success' : tx.status === 'PENDING' ? 'warning' : 'danger'}>
+                      <td className="py-2 px-3">
+                        <Badge variant={tx.status === 'COMPLETED' ? 'success' : tx.status === 'PENDING' ? 'warning' : 'danger'} className="text-[10px] py-0 px-1.5">
                           {tx.status}
                         </Badge>
                       </td>
-                      <td className="py-2.5 px-3 text-xs text-muted">
+                      <td className="py-2 px-3 text-[11px] text-muted">
                         {new Date(tx.createdAt).toLocaleDateString()}
                       </td>
                     </tr>
