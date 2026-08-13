@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { registerSchema } from '@/lib/validations';
 import { hashPassword } from '@/lib/auth';
+import { notifyAdmins } from '@/lib/notifications';
 
 export async function POST(req: NextRequest) {
   try {
@@ -103,6 +104,16 @@ export async function POST(req: NextRequest) {
       });
 
       return newUser;
+    });
+
+    // Notify authorized admins of new user registration
+    await notifyAdmins({
+      title: 'New User Registration',
+      message: `New user @${user.username} has registered.`,
+      type: 'USER',
+      link: '/admin/users',
+      permission: 'users.view',
+      eventId: `reg_user_${user.id}`,
     });
 
     return NextResponse.json({ success: true, userId: user.id }, { status: 201 });

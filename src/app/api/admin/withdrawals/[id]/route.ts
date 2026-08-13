@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { createNotification } from '@/lib/notifications'
 import Decimal from 'decimal.js'
 import { logAudit } from '@/lib/audit'
 
@@ -106,6 +107,36 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       newValue: status,
       ip: req.headers.get('x-forwarded-for') || 'unknown'
     })
+
+    // Trigger Notifications
+    if (status === 'APPROVED') {
+      await createNotification({
+        userId: withdrawal.userId,
+        title: 'Withdrawal Approved',
+        message: `Your withdrawal of $${Number(withdrawal.amount).toFixed(2)} has been approved.`,
+        type: 'WITHDRAWAL',
+        link: '/withdrawals',
+        eventId: `wd_approved_${id}`,
+      })
+    } else if (status === 'REJECTED') {
+      await createNotification({
+        userId: withdrawal.userId,
+        title: 'Withdrawal Rejected',
+        message: `Your withdrawal request of $${Number(withdrawal.amount).toFixed(2)} was rejected.`,
+        type: 'WITHDRAWAL',
+        link: '/withdrawals',
+        eventId: `wd_rejected_${id}`,
+      })
+    } else if (status === 'PAID') {
+      await createNotification({
+        userId: withdrawal.userId,
+        title: 'Withdrawal Paid',
+        message: `Your withdrawal of $${Number(withdrawal.amount).toFixed(2)} has been marked as paid.`,
+        type: 'WITHDRAWAL',
+        link: '/withdrawals',
+        eventId: `wd_paid_${id}`,
+      })
+    }
 
     return NextResponse.json({ message: 'Withdrawal updated successfully', withdrawal: updatedWithdrawal })
   } catch (error) {

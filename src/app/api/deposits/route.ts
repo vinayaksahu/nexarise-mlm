@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { createNotification, notifyAdmins } from '@/lib/notifications'
 import { z } from 'zod'
 
 const depositSchema = z.object({
@@ -71,6 +72,30 @@ export async function POST(request: NextRequest) {
         status: 'PENDING',
         createdAt: new Date(),
       },
+    })
+
+    const userObj = await db.user.findUnique({
+      where: { id: session.userId },
+      select: { username: true },
+    })
+
+    // Trigger Notifications
+    await createNotification({
+      userId: session.userId,
+      title: 'Deposit Submitted',
+      message: `Your deposit request of $${amount.toFixed(2)} has been submitted successfully.`,
+      type: 'DEPOSIT',
+      link: '/deposits',
+      eventId: `dep_submitted_${deposit.id}`,
+    })
+
+    await notifyAdmins({
+      title: 'New Deposit Request',
+      message: `New deposit request of $${amount.toFixed(2)} from @${userObj?.username || 'user'} requires approval.`,
+      type: 'DEPOSIT',
+      link: '/admin/deposits',
+      permission: 'deposits.approve',
+      eventId: `dep_admin_${deposit.id}`,
     })
 
     return NextResponse.json(deposit, { status: 201 })

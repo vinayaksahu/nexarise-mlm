@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { getBusinessConfig } from '@/lib/business-plan'
+import { createNotification, notifyAdmins } from '@/lib/notifications'
 import Decimal from 'decimal.js'
 import { z } from 'zod'
 
@@ -146,6 +147,30 @@ export async function POST(request: NextRequest) {
       }
       
       return newWithdrawal
+    })
+
+    const userObj = await db.user.findUnique({
+      where: { id: session.userId },
+      select: { username: true },
+    })
+
+    // Trigger Notifications
+    await createNotification({
+      userId: session.userId,
+      title: 'Withdrawal Requested',
+      message: `Your withdrawal request of $${amount.toFixed(2)} has been submitted.`,
+      type: 'WITHDRAWAL',
+      link: '/withdrawals',
+      eventId: `wd_submitted_${withdrawal.id}`,
+    })
+
+    await notifyAdmins({
+      title: 'New Withdrawal Request',
+      message: `New withdrawal request of $${amount.toFixed(2)} from @${userObj?.username || 'user'} requires review.`,
+      type: 'WITHDRAWAL',
+      link: '/admin/withdrawals',
+      permission: 'withdrawals.approve',
+      eventId: `wd_admin_${withdrawal.id}`,
     })
 
     return NextResponse.json(withdrawal, { status: 201 })

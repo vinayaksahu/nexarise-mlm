@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { createNotification } from '@/lib/notifications';
 import Decimal from 'decimal.js';
 
 export async function GET(request: NextRequest) {
@@ -231,6 +232,25 @@ export async function POST(request: NextRequest) {
       });
 
       return inv;
+    });
+
+    // Trigger Notifications for Target User
+    await createNotification({
+      userId: targetUser.id,
+      title: 'Investment Created',
+      message: `Your investment of $${investmentAmount.toFixed(2)} has been created successfully.`,
+      type: 'INVESTMENT',
+      link: '/investments',
+      eventId: `inv_created_${newInvestment.id}`,
+    });
+
+    await createNotification({
+      userId: targetUser.id,
+      title: 'Investment Activated',
+      message: `Your investment of $${investmentAmount.toFixed(2)} is now active.`,
+      type: 'INVESTMENT',
+      link: '/investments',
+      eventId: `inv_activated_${newInvestment.id}`,
     });
 
     return NextResponse.json({ message: 'Package activated successfully', investment: newInvestment }, { status: 201 });

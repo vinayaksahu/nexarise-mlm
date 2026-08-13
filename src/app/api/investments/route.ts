@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { getBusinessConfig } from '@/lib/business-plan'
+import { createNotification, notifyAdmins } from '@/lib/notifications'
 import Decimal from 'decimal.js'
 import { z } from 'zod'
 
@@ -164,6 +165,41 @@ export async function POST(request: NextRequest) {
       }
       
       return newInvestment
+    })
+
+    const userObj = await db.user.findUnique({
+      where: { id: session.userId },
+      select: { username: true },
+    })
+
+    // Trigger Real Event Notifications
+    await createNotification({
+      userId: session.userId,
+      title: 'Investment Created',
+      message: `Your investment of $${amount.toFixed(2)} has been created successfully.`,
+      type: 'INVESTMENT',
+      link: '/investments',
+      eventId: `inv_created_${investment.id}`,
+    })
+
+    if (investment.status === 'ACTIVE') {
+      await createNotification({
+        userId: session.userId,
+        title: 'Investment Activated',
+        message: `Your investment of $${amount.toFixed(2)} is now active.`,
+        type: 'INVESTMENT',
+        link: '/investments',
+        eventId: `inv_activated_${investment.id}`,
+      })
+    }
+
+    await notifyAdmins({
+      title: 'New Investment Created',
+      message: `New investment of $${amount.toFixed(2)} created by @${userObj?.username || 'user'}.`,
+      type: 'INVESTMENT',
+      link: '/admin/investments',
+      permission: 'investments.view',
+      eventId: `inv_admin_${investment.id}`,
     })
 
     return NextResponse.json(investment, { status: 201 })

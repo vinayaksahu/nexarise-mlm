@@ -132,6 +132,20 @@ export async function distributeLevelIncome(
         createdAt: new Date(),
       },
     })
+
+    // Create Notification
+    await tx.notification.create({
+      data: {
+        userId: sponsorId,
+        title: 'Level Income Credited',
+        message: `Level Income of $${amount.toFixed(2)} has been credited to your Main Wallet.`,
+        type: 'INCOME',
+        link: '/income-history',
+        eventId: `lvl_inc_${referenceKey}`,
+        isRead: false,
+        createdAt: new Date(),
+      },
+    })
     
     currentUserId = sponsorId
   }

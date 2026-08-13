@@ -334,8 +334,14 @@ model Notification {
   title     String
   message   String
   type      String
+  link      String?
+  eventId   String?
   isRead    Boolean  @default(false)
-  createdAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@index([eventId])
 }
 
 model AuditLog {

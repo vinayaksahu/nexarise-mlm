@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession, verifyPassword, hashPin } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { createNotification } from '@/lib/notifications'
 import { logSecurityEvent } from '@/lib/audit'
 
 export async function POST(req: NextRequest) {
@@ -49,6 +50,16 @@ export async function POST(req: NextRequest) {
       event: 'TRANSACTION_PIN_UPDATED',
       ip,
       userAgent
+    })
+
+    // Trigger Notification
+    await createNotification({
+      userId: session.userId,
+      title: 'Transaction PIN Changed',
+      message: 'Your Transaction PIN was updated successfully.',
+      type: 'SECURITY',
+      link: '/security',
+      eventId: `pin_changed_${session.userId}_${Date.now()}`,
     })
 
     return NextResponse.json({ message: 'Transaction PIN updated successfully' })

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { createNotification } from '@/lib/notifications'
 import Decimal from 'decimal.js'
 
 export async function PATCH(
@@ -106,6 +107,26 @@ export async function PATCH(
           processedAt: new Date(),
           processedById: session.userId,
         },
+      })
+    }
+
+    if (effectiveAction === 'approve') {
+      await createNotification({
+        userId: deposit.userId,
+        title: 'Deposit Approved',
+        message: `Your deposit of $${Number(deposit.amount).toFixed(2)} has been approved and credited to your wallet.`,
+        type: 'DEPOSIT',
+        link: '/deposits',
+        eventId: `dep_approved_${deposit.id}`,
+      })
+    } else {
+      await createNotification({
+        userId: deposit.userId,
+        title: 'Deposit Rejected',
+        message: `Your deposit request of $${Number(deposit.amount).toFixed(2)} has been rejected.`,
+        type: 'DEPOSIT',
+        link: '/deposits',
+        eventId: `dep_rejected_${deposit.id}`,
       })
     }
 

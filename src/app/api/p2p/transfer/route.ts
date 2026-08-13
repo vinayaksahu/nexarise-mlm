@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession, verifyPin } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { createNotification } from '@/lib/notifications'
 import Decimal from 'decimal.js'
 import { p2pTransferSchema } from '@/lib/validations'
 import { logSecurityEvent } from '@/lib/audit'
@@ -172,6 +173,30 @@ export async function POST(req: NextRequest) {
         userAgent
       })
     }
+
+    const [senderUserObj, receiverUserObj] = await Promise.all([
+      db.user.findUnique({ where: { id: sender.id }, select: { username: true } }),
+      db.user.findUnique({ where: { id: receiver.id }, select: { username: true } }),
+    ])
+
+    // Trigger Notifications for both Sender & Recipient
+    await createNotification({
+      userId: sender.id,
+      title: 'P2P Transfer Sent',
+      message: `$${transferAmount.toFixed(2)} has been sent to @${receiverUserObj?.username || 'user'} through P2P transfer.`,
+      type: 'P2P',
+      link: '/p2p',
+      eventId: `p2p_sent_${result.id}`,
+    })
+
+    await createNotification({
+      userId: receiver.id,
+      title: 'P2P Transfer Received',
+      message: `You received $${transferAmount.toFixed(2)} through P2P transfer from @${senderUserObj?.username || 'user'}.`,
+      type: 'P2P',
+      link: '/p2p',
+      eventId: `p2p_rec_${result.id}`,
+    })
 
     return NextResponse.json({ message: 'Transfer successful', transfer: result })
   } catch (error: any) {

@@ -154,6 +154,46 @@ export async function checkAndClaimEligibleRewards(userId: string) {
             }
           })
 
+          // Create Real Event Notifications
+          await tx.notification.create({
+            data: {
+              userId,
+              title: 'Rank Achieved',
+              message: `Congratulations! You have achieved the ${reward.name} rank.`,
+              type: 'REWARD',
+              link: '/rewards',
+              eventId: `rank_${reward.name}_${userId}`,
+              isRead: false,
+              createdAt: new Date(),
+            }
+          })
+
+          await tx.notification.create({
+            data: {
+              userId,
+              title: 'Reward Claimed',
+              message: `Your reward of $${rewardAmt.toFixed(2)} (${reward.name}) has been successfully claimed.`,
+              type: 'REWARD',
+              link: '/rewards',
+              eventId: `rwd_claimed_${reward.id}_${userId}`,
+              isRead: false,
+              createdAt: new Date(),
+            }
+          })
+
+          await tx.notification.create({
+            data: {
+              userId,
+              title: 'Reward Income Credited',
+              message: `Reward of $${rewardAmt.toFixed(2)} has been credited to your Main Wallet.`,
+              type: 'INCOME',
+              link: '/income-history',
+              eventId: `rwd_inc_${reward.id}_${userId}`,
+              isRead: false,
+              createdAt: new Date(),
+            }
+          })
+
           newlyClaimed.push(rewardTx)
         })
       } catch (err) {

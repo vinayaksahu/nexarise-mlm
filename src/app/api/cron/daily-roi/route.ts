@@ -106,6 +106,19 @@ export async function GET(request: NextRequest) {
               createdAt: new Date(),
             }
           })
+
+          await tx.notification.create({
+            data: {
+              userId: investment.userId,
+              title: 'Self ROI Credited',
+              message: `Self ROI of $${roiAmount.toFixed(2)} has been credited to your Main Wallet.`,
+              type: 'INCOME',
+              link: '/income-history',
+              eventId: `roi_${investment.id}_${dateString}`,
+              isRead: false,
+              createdAt: new Date(),
+            }
+          })
           
           await tx.investment.update({
             where: { id: investment.id },

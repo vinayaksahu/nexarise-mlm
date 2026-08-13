@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { createNotification, notifyAdmins } from '@/lib/notifications';
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -53,6 +54,43 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         createdAt: new Date()
       }
     });
+
+    // Trigger User & Admin Notifications
+    if (status === 'ACTIVE') {
+      await createNotification({
+        userId: id,
+        title: 'Account Activated',
+        message: 'Your NexaRise account has been activated.',
+        type: 'ACCOUNT',
+        link: '/dashboard',
+        eventId: `user_act_${id}_${Date.now()}`,
+      });
+      await notifyAdmins({
+        title: 'User Activated',
+        message: `User @${user.username} has been activated.`,
+        type: 'USER',
+        link: '/admin/users',
+        permission: 'users.view',
+        eventId: `admin_act_${id}_${Date.now()}`,
+      });
+    } else {
+      await createNotification({
+        userId: id,
+        title: 'Account Deactivated',
+        message: 'Your NexaRise account has been deactivated.',
+        type: 'ACCOUNT',
+        link: '/dashboard',
+        eventId: `user_deact_${id}_${Date.now()}`,
+      });
+      await notifyAdmins({
+        title: 'User Deactivated',
+        message: `User @${user.username} has been deactivated.`,
+        type: 'USER',
+        link: '/admin/users',
+        permission: 'users.view',
+        eventId: `admin_deact_${id}_${Date.now()}`,
+      });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

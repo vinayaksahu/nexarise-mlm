@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession, verifyPassword, hashPassword } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { createNotification } from '@/lib/notifications'
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,6 +39,16 @@ export async function POST(req: NextRequest) {
     await db.user.update({
       where: { id: session.userId },
       data: { passwordHash: newPasswordHash, updatedAt: new Date() }
+    })
+
+    // Trigger Notification
+    await createNotification({
+      userId: session.userId,
+      title: 'Password Changed',
+      message: 'Your account password was changed successfully.',
+      type: 'SECURITY',
+      link: '/security',
+      eventId: `pwd_changed_${session.userId}_${Date.now()}`,
     })
 
     return NextResponse.json({ message: 'Password updated successfully' })

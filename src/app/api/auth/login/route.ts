@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { loginSchema } from '@/lib/validations';
 import { verifyPassword, createToken, setSession } from '@/lib/auth';
+import { createNotification } from '@/lib/notifications';
 
 const ADMIN_ROLES = ['SUPER_ADMIN', 'ADMIN', 'FINANCE', 'SUPPORT', 'VIEWER'];
 
@@ -60,6 +61,16 @@ export async function POST(req: NextRequest) {
 
     const token = await createToken({ userId: user.id, role: user.role });
     await setSession(token);
+
+    // Trigger New Login Notification
+    await createNotification({
+      userId: user.id,
+      title: 'New Login Detected',
+      message: 'A new login was detected on your NexaRise account.',
+      type: 'SECURITY',
+      link: userIsAdmin ? '/admin' : '/security',
+      eventId: `login_${user.id}_${Date.now()}`,
+    });
 
     const redirectUrl = userIsAdmin ? '/admin' : '/dashboard';
 
