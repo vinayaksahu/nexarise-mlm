@@ -6,12 +6,14 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
+import { useTheme } from '@/components/theme-provider'
 
 export default function AdminLoginPage() {
   const [form, setForm] = useState({ login: '', password: '' })
   const [error, setError] = useState('')
   const [isMemberRedirect, setIsMemberRedirect] = useState(false)
   const [loading, setLoading] = useState(false)
+  const { theme, toggleTheme } = useTheme()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,7 +48,17 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 text-slate-100 animate-fade-in">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex flex-col items-center justify-center p-4 text-gray-900 dark:text-slate-100 relative transition-colors duration-300 animate-fade-in">
+      <div className="absolute top-4 right-4">
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white shadow-xs transition-all"
+          title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        >
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
+      </div>
+
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
           <img
@@ -54,13 +66,13 @@ export default function AdminLoginPage() {
             alt="NexaRise Logo"
             className="w-20 h-20 object-contain mx-auto shadow-2xl drop-shadow-xl animate-pulse"
           />
-          <h1 className="text-3xl font-extrabold tracking-tight text-white">NexaRise Admin Portal</h1>
-          <p className="text-xs text-slate-400 font-mono uppercase tracking-widest">
+          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">NexaRise Admin Portal</h1>
+          <p className="text-xs text-gray-500 dark:text-slate-400 font-mono uppercase tracking-widest">
             Restricted Management Console
           </p>
         </div>
 
-        <Card className="bg-slate-900/90 border border-slate-800 shadow-2xl backdrop-blur-xl">
+        <Card className="bg-white dark:bg-slate-900/90 border border-gray-200 dark:border-slate-800 shadow-2xl backdrop-blur-xl">
           <CardContent className="p-6 sm:p-8 space-y-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
