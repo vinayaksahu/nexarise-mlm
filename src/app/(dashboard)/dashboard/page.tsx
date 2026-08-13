@@ -2,21 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
+import { useLanguage } from '@/components/language-provider';
 import {
-  Wallet,
   TrendingUp,
-  Award,
-  Gift,
   ArrowUpRight,
   ArrowDownLeft,
-  Users,
   Repeat,
-  Sparkles,
+  FileText,
   Link as LinkIcon,
   Copy,
   Check,
@@ -37,6 +34,8 @@ export default function DashboardPage() {
   const [investAmount, setInvestAmount] = useState('');
   const [submittingInvest, setSubmittingInvest] = useState(false);
   const [investMsg, setInvestMsg] = useState({ text: '', type: '' as 'success' | 'error' | '' });
+
+  const { t } = useLanguage();
 
   async function loadData() {
     try {
@@ -144,30 +143,30 @@ export default function DashboardPage() {
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-              Welcome back, {user?.name || 'User'}!
+              {t('welcomeBack')}, {user?.name || 'User'}!
             </h1>
             {user?.status === 'ACTIVE' ? (
               <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-500/20">
-                Active
+                {t('active')}
               </span>
             ) : (
               <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400 border border-red-500/20">
-                Inactive
+                {t('inactive')}
               </span>
             )}
           </div>
-          <p className="text-muted text-xs mt-0.5">Here is your live account overview and growth metrics.</p>
+          <p className="text-muted text-xs mt-0.5">{t('liveAccountOverview')}</p>
         </div>
 
         {user?.status !== 'ACTIVE' && (
           <Button 
             size="sm" 
             variant="primary" 
-            className="text-xs py-1.5 px-3 shadow-md shrink-0 self-start sm:self-auto flex items-center gap-1" 
+            className="text-xs py-1.5 px-3 shadow-md shrink-0 self-start sm:self-auto flex items-center gap-1 font-bold" 
             onClick={() => setShowInvestModal(true)}
           >
             <Zap className="w-3.5 h-3.5 fill-current" />
-            <span>Activate Account</span>
+            <span>{t('activateAccount')}</span>
           </Button>
         )}
       </div>
@@ -180,8 +179,8 @@ export default function DashboardPage() {
               <LinkIcon className="w-4 h-4 text-blue-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-bold text-gray-900 dark:text-white truncate">Your Exclusive Referral Link</p>
-              <p className="text-[11px] text-slate-400 truncate hidden sm:block">Share to invite new members to your downline network</p>
+              <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{t('refLinkTitle')}</p>
+              <p className="text-[11px] text-slate-400 truncate hidden sm:block">{t('refLinkSub')}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 min-w-0 flex-1 md:flex-none md:w-auto">
@@ -193,12 +192,12 @@ export default function DashboardPage() {
               {copied ? (
                 <>
                   <Check className="w-3.5 h-3.5" />
-                  <span>Copied!</span>
+                  <span>{t('copied')}</span>
                 </>
               ) : (
                 <>
                   <Copy className="w-3.5 h-3.5" />
-                  <span>Copy</span>
+                  <span>{t('copy')}</span>
                 </>
               )}
             </Button>
@@ -206,14 +205,14 @@ export default function DashboardPage() {
         </div>
       </Card>
 
-      {/* Financial Stat Cards Grid - Centered & Bold Text */}
+      {/* Financial Stat Cards Grid - Centered & Bold Text with i18n Translation */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
         <Link href="/wallet" className="sm:col-span-2 lg:col-span-2">
           <Card className="h-full bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500/30 hover:border-emerald-500/60 transition-all cursor-pointer">
             <CardContent className="p-3.5 text-center flex flex-col items-center justify-center">
               <p className="text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-200 leading-tight flex items-center justify-center gap-2">
-                <span>Total Available Balance (Main + P2P)</span>
-                <span className="text-[10px] text-emerald-500 font-bold">View Wallet →</span>
+                <span>{t('totalAvailableBalance')}</span>
+                <span className="text-[10px] text-emerald-500 font-bold">{t('viewWallet')}</span>
               </p>
               <p className="text-2xl sm:text-3xl font-extrabold truncate mt-1 text-emerald-600 dark:text-emerald-400">
                 ${((Number(wallet?.availableBalance || 0)) + (Number(wallet?.p2pBalance || 0))).toFixed(2)}
@@ -226,7 +225,7 @@ export default function DashboardPage() {
           <Card className="h-full hover:border-primary/50 transition-all cursor-pointer">
             <CardContent className="p-3.5 text-center flex flex-col items-center justify-center">
               <p className="text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-300 leading-tight">
-                Main Wallet Balance
+                {t('mainWalletBalance')}
               </p>
               <p className="text-xl sm:text-2xl font-extrabold truncate mt-1 text-emerald-600 dark:text-emerald-400">
                 ${wallet?.availableBalance ? Number(wallet.availableBalance).toFixed(2) : '0.00'}
@@ -239,7 +238,7 @@ export default function DashboardPage() {
           <Card className="h-full hover:border-cyan-500/50 transition-all cursor-pointer">
             <CardContent className="p-3.5 text-center flex flex-col items-center justify-center">
               <p className="text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-300 leading-tight">
-                P2P Balance
+                {t('p2pBalance')}
               </p>
               <p className="text-xl sm:text-2xl font-extrabold truncate mt-1 text-cyan-600 dark:text-cyan-400">
                 ${wallet?.p2pBalance ? Number(wallet.p2pBalance).toFixed(2) : '0.00'}
@@ -252,7 +251,7 @@ export default function DashboardPage() {
           <Card className="h-full hover:border-primary/50 transition-all cursor-pointer">
             <CardContent className="p-3.5 text-center flex flex-col items-center justify-center">
               <p className="text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-300 leading-tight">
-                Today's ROI Income
+                {t('todaysRoi')}
               </p>
               <p className="text-xl sm:text-2xl font-extrabold truncate mt-1 text-emerald-500">
                 ${wallet?.todaysRoi ? Number(wallet.todaysRoi).toFixed(2) : '0.00'}
@@ -265,7 +264,7 @@ export default function DashboardPage() {
           <Card className="h-full hover:border-primary/50 transition-all cursor-pointer">
             <CardContent className="p-3.5 text-center flex flex-col items-center justify-center">
               <p className="text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-300 leading-tight">
-                Total ROI Income
+                {t('totalRoi')}
               </p>
               <p className="text-xl sm:text-2xl font-extrabold truncate mt-1 text-primary dark:text-primary-light">
                 ${wallet?.roiIncome ? Number(wallet.roiIncome).toFixed(2) : '0.00'}
@@ -278,7 +277,7 @@ export default function DashboardPage() {
           <Card className="h-full hover:border-accent/50 transition-all cursor-pointer">
             <CardContent className="p-3.5 text-center flex flex-col items-center justify-center">
               <p className="text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-300 leading-tight">
-                Total Level Income
+                {t('totalLevelIncome')}
               </p>
               <p className="text-xl sm:text-2xl font-extrabold truncate mt-1 text-indigo-600 dark:text-indigo-400">
                 ${wallet?.levelIncome ? Number(wallet.levelIncome).toFixed(2) : '0.00'}
@@ -291,7 +290,7 @@ export default function DashboardPage() {
           <Card className="h-full hover:border-amber-500/50 transition-all cursor-pointer">
             <CardContent className="p-3.5 text-center flex flex-col items-center justify-center">
               <p className="text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-300 leading-tight">
-                Total Reward Income
+                {t('totalRewardIncome')}
               </p>
               <p className="text-xl sm:text-2xl font-extrabold truncate mt-1 text-amber-500">
                 ${wallet?.rewardIncome ? Number(wallet.rewardIncome).toFixed(2) : '0.00'}
@@ -304,7 +303,7 @@ export default function DashboardPage() {
           <Card className="h-full hover:border-indigo-500/50 transition-all cursor-pointer">
             <CardContent className="p-3.5 text-center flex flex-col items-center justify-center">
               <p className="text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-300 leading-tight">
-                Total Earnings
+                {t('totalEarnings')}
               </p>
               <p className="text-xl sm:text-2xl font-extrabold truncate mt-1 text-blue-600 dark:text-blue-400">
                 ${wallet?.totalIncome ? Number(wallet.totalIncome).toFixed(2) : '0.00'}
@@ -317,7 +316,7 @@ export default function DashboardPage() {
           <Card className="h-full hover:border-emerald-500/50 transition-all cursor-pointer">
             <CardContent className="p-3.5 text-center flex flex-col items-center justify-center">
               <p className="text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-300 leading-tight">
-                Total Investments
+                {t('totalInvestments')}
               </p>
               <p className="text-xl sm:text-2xl font-extrabold truncate mt-1 text-emerald-500">
                 ${wallet?.totalInvestments ? Number(wallet.totalInvestments).toFixed(2) : '0.00'}
@@ -330,7 +329,7 @@ export default function DashboardPage() {
           <Card className="h-full hover:border-red-500/50 transition-all cursor-pointer">
             <CardContent className="p-3.5 text-center flex flex-col items-center justify-center">
               <p className="text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-300 leading-tight">
-                Total P2P Sent
+                {t('totalP2pSent')}
               </p>
               <p className="text-xl sm:text-2xl font-extrabold truncate mt-1 text-red-500">
                 ${wallet?.totalP2pSent ? Number(wallet.totalP2pSent).toFixed(2) : '0.00'}
@@ -343,7 +342,7 @@ export default function DashboardPage() {
           <Card className="h-full hover:border-cyan-500/50 transition-all cursor-pointer">
             <CardContent className="p-3.5 text-center flex flex-col items-center justify-center">
               <p className="text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-300 leading-tight">
-                Total P2P Received
+                {t('totalP2pReceived')}
               </p>
               <p className="text-xl sm:text-2xl font-extrabold truncate mt-1 text-cyan-500">
                 ${wallet?.totalP2pReceived ? Number(wallet.totalP2pReceived).toFixed(2) : '0.00'}
@@ -356,7 +355,7 @@ export default function DashboardPage() {
           <Card className="h-full hover:border-gray-500/50 transition-all cursor-pointer">
             <CardContent className="p-3.5 text-center flex flex-col items-center justify-center">
               <p className="text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-300 leading-tight">
-                Total Withdrawals
+                {t('totalWithdrawals')}
               </p>
               <p className="text-xl sm:text-2xl font-extrabold truncate mt-1 text-gray-700 dark:text-gray-300">
                 ${wallet?.totalWithdrawals ? Number(wallet.totalWithdrawals).toFixed(2) : '0.00'}
@@ -369,7 +368,7 @@ export default function DashboardPage() {
           <Card className="h-full hover:border-blue-500/50 transition-all cursor-pointer">
             <CardContent className="p-3.5 text-center flex flex-col items-center justify-center">
               <p className="text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-300 leading-tight">
-                Direct Referrals
+                {t('directReferrals')}
               </p>
               <p className="text-xl sm:text-2xl font-extrabold truncate mt-1 text-blue-600 dark:text-blue-400">
                 {team?.directReferrals?.length || 0}
@@ -382,7 +381,7 @@ export default function DashboardPage() {
           <Card className="h-full hover:border-purple-500/50 transition-all cursor-pointer">
             <CardContent className="p-3.5 text-center flex flex-col items-center justify-center">
               <p className="text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-300 leading-tight">
-                Total Team Business
+                {t('totalTeamBusiness')}
               </p>
               <p className="text-xl sm:text-2xl font-extrabold truncate mt-1 text-purple-600 dark:text-purple-400">
                 ${team?.businessVolume?.totalBusiness ? Number(team.businessVolume.totalBusiness).toFixed(2) : '0.00'}
@@ -395,7 +394,7 @@ export default function DashboardPage() {
           <Card className="h-full hover:border-purple-500/50 transition-all cursor-pointer">
             <CardContent className="p-3.5 text-center flex flex-col items-center justify-center">
               <p className="text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-300 leading-tight">
-                Strong Leg Business
+                {t('strongLegBusiness')}
               </p>
               <p className="text-xl sm:text-2xl font-extrabold truncate mt-1 text-purple-500">
                 ${team?.businessVolume?.strongLeg ? Number(team.businessVolume.strongLeg).toFixed(2) : '0.00'}
@@ -408,7 +407,7 @@ export default function DashboardPage() {
           <Card className="h-full hover:border-amber-500/50 transition-all cursor-pointer">
             <CardContent className="p-3.5 text-center flex flex-col items-center justify-center">
               <p className="text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-300 leading-tight">
-                Weak Leg Business
+                {t('weakLegBusiness')}
               </p>
               <p className="text-xl sm:text-2xl font-extrabold truncate mt-1 text-amber-500">
                 ${team?.businessVolume?.weakLeg ? Number(team.businessVolume.weakLeg).toFixed(2) : '0.00'}
@@ -423,25 +422,25 @@ export default function DashboardPage() {
         <Link href="/deposits">
           <Button variant="primary" className="w-full sm:w-auto text-xs py-2 justify-center flex items-center gap-1 font-bold">
             <ArrowDownLeft className="w-3.5 h-3.5" />
-            <span>Deposit Funds</span>
+            <span>{t('depositFunds')}</span>
           </Button>
         </Link>
         <Link href="/investments">
           <Button variant="secondary" className="w-full sm:w-auto text-xs py-2 justify-center flex items-center gap-1 font-bold">
             <TrendingUp className="w-3.5 h-3.5" />
-            <span>Activate Investment</span>
+            <span>{t('activateInvestment')}</span>
           </Button>
         </Link>
         <Link href="/p2p">
           <Button variant="outline" className="w-full sm:w-auto text-xs py-2 justify-center flex items-center gap-1 font-bold">
             <Repeat className="w-3.5 h-3.5" />
-            <span>P2P Transfer</span>
+            <span>{t('p2pTransfer')}</span>
           </Button>
         </Link>
         <Link href="/withdrawals">
           <Button variant="ghost" className="w-full sm:w-auto text-xs py-2 justify-center flex items-center gap-1 font-bold">
             <ArrowUpRight className="w-3.5 h-3.5" />
-            <span>Withdraw Earnings</span>
+            <span>{t('withdrawEarnings')}</span>
           </Button>
         </Link>
       </div>
@@ -449,8 +448,8 @@ export default function DashboardPage() {
       {/* Recent Transactions Preview Table */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between p-3.5 sm:p-5">
-          <CardTitle className="text-base sm:text-lg font-bold">Recent Transactions</CardTitle>
-          <Link href="/transactions" className="text-xs text-primary font-bold hover:underline">View All →</Link>
+          <CardTitle className="text-base sm:text-lg font-bold">{t('recentTransactions')}</CardTitle>
+          <Link href="/transactions" className="text-xs text-primary font-bold hover:underline">{t('viewAll')}</Link>
         </CardHeader>
         <CardContent className="p-3.5 sm:p-5 pt-0">
           {transactions.length === 0 ? (

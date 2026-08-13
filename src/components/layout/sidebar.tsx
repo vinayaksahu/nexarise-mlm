@@ -4,6 +4,31 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { hasPermission } from '@/lib/permissions';
+import { useLanguage } from '@/components/language-provider';
+import {
+  LayoutDashboard,
+  TrendingUp,
+  Wallet,
+  ArrowDownLeft,
+  ArrowUpRight,
+  Repeat,
+  History,
+  FileText,
+  Users,
+  GitFork,
+  Trophy,
+  Gift,
+  HelpCircle,
+  Settings,
+  ShieldCheck,
+  CreditCard,
+  ClipboardList,
+  ShieldAlert,
+  UserCog,
+  ChevronRight,
+  Menu,
+  X
+} from 'lucide-react';
 
 interface SidebarProps {
   isAdmin?: boolean;
@@ -12,81 +37,81 @@ interface SidebarProps {
   isMobileDrawer?: boolean;
 }
 
-const userNavGroups = [
-  {
-    heading: 'CORE',
-    items: [
-      { label: 'Dashboard', href: '/dashboard', icon: '📊' },
-    ],
-  },
-  {
-    heading: 'FINANCIAL OPS',
-    items: [
-      { label: 'Investments', href: '/investments', icon: '💰' },
-      { label: 'Wallet', href: '/wallet', icon: '👛' },
-      { label: 'Deposits', href: '/deposits', icon: '📥' },
-      { label: 'Withdrawals', href: '/withdrawals', icon: '📤' },
-      { label: 'P2P Transfer', href: '/p2p', icon: '🔄' },
-      { label: 'Income History', href: '/income-history', icon: '💵' },
-      { label: 'Transactions', href: '/transactions', icon: '📋' },
-    ],
-  },
-  {
-    heading: 'NETWORK & TEAM',
-    items: [
-      { label: 'Team & Referrals', href: '/team', icon: '👥' },
-      { label: 'Genealogy Tree', href: '/genealogy', icon: '🌳' },
-      { label: 'Self ROI', href: '/self-roi', icon: '📈' },
-      { label: 'Level Income', href: '/level-income', icon: '🏆' },
-      { label: 'Rewards & Ranks', href: '/rewards', icon: '🎁' },
-    ],
-  },
-  {
-    heading: 'SUPPORT & SETTINGS',
-    items: [
-      { label: 'Help & Support', href: '/support', icon: '🎧' },
-      { label: 'Account Settings', href: '/settings', icon: '⚙️' },
-      { label: 'Security & PIN', href: '/security', icon: '🔒' },
-    ],
-  },
-];
-
-const adminNavGroups = [
-  {
-    heading: 'CORE',
-    items: [
-      { label: 'Admin Dashboard', href: '/admin', icon: '📊', permission: 'dashboard.view' },
-    ],
-  },
-  {
-    heading: 'MANAGEMENT',
-    items: [
-      { label: 'User Management', href: '/admin/users', icon: '👥', permission: 'users.view' },
-      { label: 'Promotional Activations', href: '/admin/promotions', icon: '🎁', permission: 'promotions.view' },
-      { label: 'Deposit Approvals', href: '/admin/deposits', icon: '📥', permission: 'deposits.view' },
-      { label: 'Deposit Methods', href: '/admin/payment-methods', icon: '💳', permission: 'deposit_methods.view' },
-      { label: 'Withdrawal Payouts', href: '/admin/withdrawals', icon: '📤', permission: 'withdrawals.view' },
-      { label: 'System Investments', href: '/admin/investments', icon: '💰', permission: 'investments.view' },
-    ],
-  },
-  {
-    heading: 'SYSTEM & PLAN',
-    items: [
-      { label: 'Business Plan Editor', href: '/admin/business-plan', icon: '📋', permission: 'plan.view' },
-      { label: 'Reward Slabs', href: '/admin/rewards', icon: '🎁', permission: 'rewards.view' },
-      { label: 'Audit & Security Logs', href: '/admin/audit', icon: '📜', permission: 'audit_logs.view' },
-      { label: 'Admin Roles & Staff', href: '/admin/administrators', icon: '🛡️', permission: 'admins.manage' },
-    ],
-  },
-];
-
 export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer = false }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   const userRole = user?.role || (isAdmin ? 'ADMIN' : 'USER');
 
-  // Filter admin nav groups based on permissions
+  const userNavGroups = [
+    {
+      heading: t('core'),
+      items: [
+        { label: t('dashboard'), href: '/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
+      ],
+    },
+    {
+      heading: t('financialOps'),
+      items: [
+        { label: t('investments'), href: '/investments', icon: <TrendingUp className="w-4 h-4 text-emerald-500" /> },
+        { label: t('wallet'), href: '/wallet', icon: <Wallet className="w-4 h-4 text-blue-500" /> },
+        { label: t('deposits'), href: '/deposits', icon: <ArrowDownLeft className="w-4 h-4 text-emerald-400" /> },
+        { label: t('withdrawals'), href: '/withdrawals', icon: <ArrowUpRight className="w-4 h-4 text-red-500" /> },
+        { label: t('p2pTransfer'), href: '/p2p', icon: <Repeat className="w-4 h-4 text-cyan-400" /> },
+        { label: 'Income History', href: '/income-history', icon: <History className="w-4 h-4 text-amber-500" /> },
+        { label: t('recentTransactions'), href: '/transactions', icon: <FileText className="w-4 h-4 text-slate-400" /> },
+      ],
+    },
+    {
+      heading: t('networkTeam'),
+      items: [
+        { label: t('teamReferrals'), href: '/team', icon: <Users className="w-4 h-4 text-blue-400" /> },
+        { label: t('genealogyTree'), href: '/genealogy', icon: <GitFork className="w-4 h-4 text-emerald-500" /> },
+        { label: 'Self ROI', href: '/self-roi', icon: <TrendingUp className="w-4 h-4 text-purple-400" /> },
+        { label: 'Level Income', href: '/level-income', icon: <Trophy className="w-4 h-4 text-yellow-500" /> },
+        { label: t('rewardsRanks'), href: '/rewards', icon: <Gift className="w-4 h-4 text-amber-400" /> },
+      ],
+    },
+    {
+      heading: 'SUPPORT & SETTINGS',
+      items: [
+        { label: 'Help & Support', href: '/support', icon: <HelpCircle className="w-4 h-4 text-cyan-400" /> },
+        { label: t('accountSettings'), href: '/settings', icon: <Settings className="w-4 h-4 text-slate-400" /> },
+        { label: t('securityPin'), href: '/security', icon: <ShieldCheck className="w-4 h-4 text-indigo-400" /> },
+      ],
+    },
+  ];
+
+  const adminNavGroups = [
+    {
+      heading: t('core'),
+      items: [
+        { label: t('adminDashboard'), href: '/admin', icon: <LayoutDashboard className="w-4 h-4" />, permission: 'dashboard.view' },
+      ],
+    },
+    {
+      heading: 'MANAGEMENT',
+      items: [
+        { label: t('userManagement'), href: '/admin/users', icon: <Users className="w-4 h-4 text-blue-400" />, permission: 'users.view' },
+        { label: t('promotions'), href: '/admin/promotions', icon: <Gift className="w-4 h-4 text-purple-400" />, permission: 'promotions.view' },
+        { label: 'Deposit Approvals', href: '/admin/deposits', icon: <ArrowDownLeft className="w-4 h-4 text-emerald-400" />, permission: 'deposits.view' },
+        { label: 'Deposit Methods', href: '/admin/payment-methods', icon: <CreditCard className="w-4 h-4 text-indigo-400" />, permission: 'deposit_methods.view' },
+        { label: 'Withdrawal Payouts', href: '/admin/withdrawals', icon: <ArrowUpRight className="w-4 h-4 text-red-500" />, permission: 'withdrawals.view' },
+        { label: t('systemInvestments'), href: '/admin/investments', icon: <TrendingUp className="w-4 h-4 text-emerald-500" />, permission: 'investments.view' },
+      ],
+    },
+    {
+      heading: 'SYSTEM & PLAN',
+      items: [
+        { label: 'Business Plan Editor', href: '/admin/business-plan', icon: <ClipboardList className="w-4 h-4 text-amber-400" />, permission: 'plan.view' },
+        { label: 'Reward Slabs', href: '/admin/rewards', icon: <Gift className="w-4 h-4 text-cyan-400" />, permission: 'rewards.view' },
+        { label: 'Audit & Security Logs', href: '/admin/audit', icon: <ShieldAlert className="w-4 h-4 text-slate-400" />, permission: 'audit_logs.view' },
+        { label: 'Admin Roles & Staff', href: '/admin/administrators', icon: <UserCog className="w-4 h-4 text-blue-500" />, permission: 'admins.manage' },
+      ],
+    },
+  ];
+
   const filteredAdminNavGroups = adminNavGroups.map(group => ({
     ...group,
     items: group.items.filter(item => hasPermission(userRole, item.permission as any))
@@ -126,7 +151,7 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer =
             className="hidden lg:flex ml-auto text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-slate-800"
             title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
           >
-            {collapsed ? '➔' : '☰'}
+            {collapsed ? <ChevronRight className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         )}
         {onCloseMobile && (
@@ -135,7 +160,7 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer =
             className="ml-auto text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-slate-800 font-bold"
             title="Close Drawer"
           >
-            ✕
+            <X className="w-5 h-5" />
           </button>
         )}
       </div>
@@ -162,12 +187,12 @@ export function Sidebar({ isAdmin = false, user, onCloseMobile, isMobileDrawer =
                   onClick={onCloseMobile}
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
                     isActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      ? 'bg-blue-600 text-white font-bold shadow-sm'
                       : 'text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'
                   }`}
                   title={collapsed && !isMobileDrawer ? item.label : undefined}
                 >
-                  <span className="text-base shrink-0">{item.icon}</span>
+                  <span className="shrink-0">{item.icon}</span>
                   {(!collapsed || isMobileDrawer) && <span className="truncate">{item.label}</span>}
                 </Link>
               );
