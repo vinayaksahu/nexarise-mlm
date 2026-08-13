@@ -25,14 +25,14 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
 
   const fetchNotifs = () => {
     if (user) {
-      fetch('/api/notifications')
+      fetch('/api/notifications?filter=unread')
         .then((r) => r.json())
         .then((data) => {
           if (data.notifications) setNotifications(data.notifications);
           if (typeof data.unreadCount === 'number') {
             setUnreadCount(data.unreadCount);
           } else if (data.notifications) {
-            setUnreadCount(data.notifications.filter((n: any) => !n.isRead).length);
+            setUnreadCount(data.notifications.length);
           }
         })
         .catch((err) => console.error(err));
@@ -67,7 +67,7 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
 
   const markAllRead = async () => {
     await fetch('/api/notifications', { method: 'PATCH' });
-    setNotifications(notifications.map((n) => ({ ...n, isRead: true })));
+    setNotifications([]);
     setUnreadCount(0);
   };
 
@@ -77,7 +77,7 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     });
-    setNotifications(notifications.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
     setUnreadCount((prev) => Math.max(0, prev - 1));
   };
 
@@ -200,7 +200,7 @@ export function Header({ user, isAdmin = false }: HeaderProps) {
                 )}
                 <div className="border-t border-gray-100 dark:border-slate-800 p-2 text-center">
                   <Link
-                    href="/notifications"
+                    href={isAdmin ? '/admin/notifications' : '/notifications'}
                     onClick={() => setNotifOpen(false)}
                     className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline block py-1"
                   >

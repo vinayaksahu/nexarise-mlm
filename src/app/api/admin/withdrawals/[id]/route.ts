@@ -108,6 +108,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ip: req.headers.get('x-forwarded-for') || 'unknown'
     })
 
+    // Remove pending admin request notification from notification bar
+    await db.notification.deleteMany({
+      where: { eventId: `wd_admin_${id}` },
+    })
+
     // Trigger Notifications
     if (status === 'APPROVED') {
       await createNotification({

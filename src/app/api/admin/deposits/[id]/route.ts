@@ -110,6 +110,11 @@ export async function PATCH(
       })
     }
 
+    // Remove pending admin request notification from notification bar
+    await db.notification.deleteMany({
+      where: { eventId: `dep_admin_${deposit.id}` },
+    })
+
     if (effectiveAction === 'approve') {
       await createNotification({
         userId: deposit.userId,
