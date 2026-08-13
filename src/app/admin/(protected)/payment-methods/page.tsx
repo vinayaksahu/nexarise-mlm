@@ -319,9 +319,9 @@ export default function AdminPaymentMethodsPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Deposit Payment Methods</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Deposit & Payout Payment Methods</h1>
           <p className="text-muted text-xs sm:text-sm mt-0.5">
-            Manage deposit options for users across Cryptocurrency, Bank Transfer, and UPI payments.
+            Manage system deposit options and control active receiving payout methods (Crypto, Bank, UPI) enabled for users in account settings.
           </p>
         </div>
         <div className="flex items-center gap-2">
