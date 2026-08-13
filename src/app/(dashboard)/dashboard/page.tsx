@@ -210,9 +210,8 @@ export default function DashboardPage() {
         <Link href="/wallet" className="sm:col-span-2 lg:col-span-2">
           <Card className="h-full bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500/30 hover:border-emerald-500/60 transition-all cursor-pointer">
             <CardContent className="p-3.5 text-center flex flex-col items-center justify-center">
-              <p className="text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-200 leading-tight flex items-center justify-center gap-2">
-                <span>{t('totalAvailableBalance')}</span>
-                <span className="text-[10px] text-emerald-500 font-bold">{t('viewWallet')}</span>
+              <p className="text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-200 leading-tight text-center">
+                {t('totalAvailableBalance')}
               </p>
               <p className="text-2xl sm:text-3xl font-extrabold truncate mt-1 text-emerald-600 dark:text-emerald-400">
                 ${((Number(wallet?.availableBalance || 0)) + (Number(wallet?.p2pBalance || 0))).toFixed(2)}
