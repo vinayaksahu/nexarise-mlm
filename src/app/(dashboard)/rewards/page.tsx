@@ -56,6 +56,21 @@ export default function RewardsPage() {
     }
   };
 
+  const getRankEmoji = (name: string) => {
+    const lower = (name || '').toLowerCase();
+    if (lower.includes('star')) return '⭐';
+    if (lower.includes('bronze')) return '🥉';
+    if (lower.includes('silver')) return '🥈';
+    if (lower.includes('gold')) return '🥇';
+    if (lower.includes('platinum')) return '💎';
+    if (lower.includes('blue diamond')) return '💠';
+    if (lower.includes('black diamond')) return '🖤';
+    if (lower.includes('diamond')) return '🔷';
+    if (lower.includes('crown ambassador')) return '👑✨';
+    if (lower.includes('crown')) return '👑';
+    return '🏆';
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px] text-muted">
@@ -75,8 +90,10 @@ export default function RewardsPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Rewards & Achievements</h1>
-          <p className="text-muted text-sm mt-1">Unlock rank milestone rewards as your network business volume grows.</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <span>🎁 Rewards & Achievements</span>
+          </h1>
+          <p className="text-muted text-sm mt-1">Unlock rank milestone cash bonuses as your network business volume grows.</p>
         </div>
         <Button onClick={handleClaim} loading={claiming} variant="primary" size="md">
           🎁 Check & Claim Rewards
@@ -108,7 +125,9 @@ export default function RewardsPage() {
       {/* Reward Slabs List */}
       <Card>
         <CardHeader>
-          <CardTitle>Rank Reward Slabs</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <span>🏆 Rank Reward Slabs</span>
+          </CardTitle>
           <CardDescription>Achieve required business volume with 50/50 two-leg balance to claim cash bonuses directly to your wallet.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -119,13 +138,17 @@ export default function RewardsPage() {
             const isClaimed = claimedSet.has(r.id);
             const isQualified = totalBus >= req && strongLeg >= halfReq && weakLeg >= halfReq;
             const pct = Math.min(100, Math.round((totalBus / req) * 100));
+            const emoji = getRankEmoji(r.name);
 
             return (
               <div key={r.id} className="p-4 bg-gray-50 dark:bg-slate-900 border border-border rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex-1 space-y-1.5 w-full">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-gray-900 dark:text-white text-base">{r.name} Rank</span>
-                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Bonus: ${fmt(amt)}</span>
+                    <span className="font-bold text-gray-900 dark:text-white text-base flex items-center gap-2">
+                      <span className="text-xl">{emoji}</span>
+                      <span>{r.name} Rank</span>
+                    </span>
+                    <span className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400">💰 ${fmt(amt)}</span>
                   </div>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-muted gap-1">
                     <span>Target: ${fmt(req)} (Min Strong: ${fmt(halfReq)} | Min Weak: ${fmt(halfReq)})</span>
@@ -140,7 +163,7 @@ export default function RewardsPage() {
                   {isClaimed ? (
                     <Badge variant="success" className="w-full sm:w-auto justify-center">✓ CLAIMED</Badge>
                   ) : isQualified ? (
-                    <Button onClick={handleClaim} loading={claiming} variant="primary" className="w-full sm:w-auto text-xs py-2">Claim Now</Button>
+                    <Button onClick={handleClaim} loading={claiming} variant="primary" className="w-full sm:w-auto text-xs py-2 font-bold shadow-md">Claim Now</Button>
                   ) : (
                     <Badge variant="default" className="w-full sm:w-auto justify-center">LOCKED</Badge>
                   )}
@@ -180,7 +203,10 @@ export default function RewardsPage() {
                   {claimedRewards.map((c: any) => (
                     <tr key={c.id} className="border-b border-border/50 hover:bg-gray-50 dark:hover:bg-slate-800/50">
                       <td className="py-2.5 px-3 font-semibold text-gray-900 dark:text-white">
-                        <Badge variant="success">{c.rewardDefinition?.name || 'Rank Reward'}</Badge>
+                        <Badge variant="success" className="flex items-center gap-1 w-fit">
+                          <span>{getRankEmoji(c.rewardDefinition?.name)}</span>
+                          <span>{c.rewardDefinition?.name || 'Rank Reward'}</span>
+                        </Badge>
                       </td>
                       <td className="py-2.5 px-3 font-semibold text-emerald-600 dark:text-emerald-400">
                         +${fmt(c.amount)}

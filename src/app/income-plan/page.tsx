@@ -63,6 +63,21 @@ export default function IncomePlanPage() {
 
   const achievementRewards = rawRewards.filter((r: any) => r.isActive !== false);
 
+  const getRankEmoji = (name: string) => {
+    const lower = name.toLowerCase();
+    if (lower.includes('star')) return '⭐';
+    if (lower.includes('bronze')) return '🥉';
+    if (lower.includes('silver')) return '🥈';
+    if (lower.includes('gold')) return '🥇';
+    if (lower.includes('platinum')) return '💎';
+    if (lower.includes('blue diamond')) return '💠';
+    if (lower.includes('black diamond')) return '🖤';
+    if (lower.includes('diamond')) return '🔷';
+    if (lower.includes('crown ambassador')) return '👑✨';
+    if (lower.includes('crown')) return '👑';
+    return '🏆';
+  };
+
   const totalReturnPercent = (dailyRoiPercent * roiDurationDays).toFixed(0);
 
   return (
@@ -81,7 +96,9 @@ export default function IncomePlanPage() {
             <section>
               <Card>
                 <CardHeader className="bg-primary/5 border-b border-border">
-                  <CardTitle className="text-2xl text-primary font-bold">1. Daily Self ROI</CardTitle>
+                  <CardTitle className="text-2xl text-primary font-bold flex items-center gap-2">
+                    <span>⚡ 1. Daily Self ROI</span>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <p className="text-lg mb-4 text-gray-800 dark:text-slate-200">
@@ -101,7 +118,9 @@ export default function IncomePlanPage() {
             <section>
               <Card>
                 <CardHeader className="bg-primary/5 border-b border-border">
-                  <CardTitle className="text-2xl text-primary font-bold">2. Level Referral Commission</CardTitle>
+                  <CardTitle className="text-2xl text-primary font-bold flex items-center gap-2">
+                    <span>👥 2. Level Referral Commission</span>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <p className="text-lg mb-4 text-gray-800 dark:text-slate-200">
@@ -140,26 +159,48 @@ export default function IncomePlanPage() {
             {/* 3. Achievement Rewards */}
             {achievementRewards.length > 0 && (
               <section>
-                <Card>
-                  <CardHeader className="bg-primary/5 border-b border-border">
-                    <CardTitle className="text-2xl text-primary font-bold">3. Achievement Rewards</CardTitle>
+                <Card className="overflow-hidden border border-border shadow-lg">
+                  <CardHeader className="bg-gradient-to-r from-blue-600/10 via-indigo-600/10 to-purple-600/10 border-b border-border">
+                    <CardTitle className="text-2xl text-primary font-bold flex items-center gap-2">
+                      <span>🎁 3. Achievement Rewards & Rank Cash Bonuses</span>
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent className="p-6">
-                    <p className="text-lg mb-6 text-gray-800 dark:text-slate-200">
-                      Hit business volume milestones across your entire downline (50% max volume contribution per leg) to unlock one-time cash bonuses.
+                  <CardContent className="p-6 sm:p-8">
+                    <p className="text-base sm:text-lg mb-6 text-gray-800 dark:text-slate-200">
+                      Hit business volume milestones across your entire downline team <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">(50% max volume contribution per leg)</span> to unlock direct cash bonuses! 🚀
                     </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {achievementRewards.map((reward: any, i: number) => (
-                        <div key={i} className="flex justify-between items-center p-5 border border-gray-200 dark:border-slate-800 rounded-2xl bg-gray-50 dark:bg-slate-900/60 shadow-sm transition-all hover:border-blue-500/50">
-                          <div className="space-y-1">
-                            <p className="font-bold text-lg text-gray-900 dark:text-white">{reward.name}</p>
-                            <p className="text-xs text-muted">Volume: ${Number(reward.volumeRequired).toLocaleString()}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                      {achievementRewards.map((reward: any, i: number) => {
+                        const emoji = getRankEmoji(reward.name);
+                        return (
+                          <div 
+                            key={i} 
+                            className="group relative p-5 border border-gray-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/80 shadow-xs hover:shadow-xl hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-1 flex items-center justify-between gap-4"
+                          >
+                            <div className="flex items-center gap-3.5">
+                              <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-2xl shrink-0 group-hover:scale-110 transition-transform">
+                                {emoji}
+                              </div>
+                              <div>
+                                <h4 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-1.5">
+                                  <span>{reward.name}</span>
+                                </h4>
+                                <p className="text-xs text-muted font-medium flex items-center gap-1 mt-0.5">
+                                  <span>📊 Volume:</span>
+                                  <span className="font-bold text-gray-900 dark:text-slate-300">${Number(reward.volumeRequired).toLocaleString()}</span>
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="text-right shrink-0">
+                              <span className="text-xs uppercase font-bold text-blue-600 dark:text-blue-400 tracking-wider block">Bonus</span>
+                              <div className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-300">
+                                ${Number(reward.rewardAmount).toLocaleString()}
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-2xl font-black text-blue-600 dark:text-blue-400">
-                            ${Number(reward.rewardAmount).toLocaleString()}
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </CardContent>
                 </Card>
@@ -170,7 +211,9 @@ export default function IncomePlanPage() {
             <section>
               <Card>
                 <CardHeader className="bg-primary/5 border-b border-border">
-                  <CardTitle className="text-2xl text-primary font-bold">4. Instant P2P Wallet Transfers</CardTitle>
+                  <CardTitle className="text-2xl text-primary font-bold flex items-center gap-2">
+                    <span>💸 4. Instant P2P Wallet Transfers</span>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <p className="text-lg mb-4 text-gray-800 dark:text-slate-200">
