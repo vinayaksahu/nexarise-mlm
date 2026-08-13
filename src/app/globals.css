@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Use @theme for Tailwind v4 custom values */
 @theme {
   --color-primary: #6366f1;
@@ -25,6 +27,7 @@
   --color-surface: var(--color-surface-dark);
   --color-card: var(--color-card-dark);
   --color-border: var(--color-border-dark);
+  --color-muted: #94a3b8;
 }
 
 /* Smooth scrolling & prevent horizontal overflow on mobile */
