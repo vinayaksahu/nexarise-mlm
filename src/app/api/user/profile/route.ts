@@ -20,6 +20,15 @@ export async function GET() {
         role: true,
         referralCode: true,
         createdAt: true,
+        defaultPayoutMethod: true,
+        cryptoWalletAddress: true,
+        cryptoNetwork: true,
+        bankName: true,
+        bankAccountName: true,
+        bankAccountNumber: true,
+        bankIfscCode: true,
+        bankBranch: true,
+        upiId: true,
       }
     });
 
@@ -42,12 +51,33 @@ export async function PUT(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { name, mobile } = body;
+    const {
+      name,
+      mobile,
+      defaultPayoutMethod,
+      cryptoWalletAddress,
+      cryptoNetwork,
+      bankName,
+      bankAccountName,
+      bankAccountNumber,
+      bankIfscCode,
+      bankBranch,
+      upiId,
+    } = body;
 
     const dataToUpdate: any = { updatedAt: new Date() };
 
     if (name !== undefined) dataToUpdate.name = String(name).trim();
     if (mobile !== undefined) dataToUpdate.mobile = String(mobile).trim();
+    if (defaultPayoutMethod !== undefined) dataToUpdate.defaultPayoutMethod = String(defaultPayoutMethod).toUpperCase();
+    if (cryptoWalletAddress !== undefined) dataToUpdate.cryptoWalletAddress = String(cryptoWalletAddress).trim();
+    if (cryptoNetwork !== undefined) dataToUpdate.cryptoNetwork = String(cryptoNetwork).trim();
+    if (bankName !== undefined) dataToUpdate.bankName = String(bankName).trim();
+    if (bankAccountName !== undefined) dataToUpdate.bankAccountName = String(bankAccountName).trim();
+    if (bankAccountNumber !== undefined) dataToUpdate.bankAccountNumber = String(bankAccountNumber).trim();
+    if (bankIfscCode !== undefined) dataToUpdate.bankIfscCode = String(bankIfscCode).trim();
+    if (bankBranch !== undefined) dataToUpdate.bankBranch = String(bankBranch).trim();
+    if (upiId !== undefined) dataToUpdate.upiId = String(upiId).trim();
 
     const updatedUser = await db.user.update({
       where: { id: session.userId },
@@ -58,6 +88,15 @@ export async function PUT(req: NextRequest) {
         username: true,
         email: true,
         mobile: true,
+        defaultPayoutMethod: true,
+        cryptoWalletAddress: true,
+        cryptoNetwork: true,
+        bankName: true,
+        bankAccountName: true,
+        bankAccountNumber: true,
+        bankIfscCode: true,
+        bankBranch: true,
+        upiId: true,
       }
     });
 

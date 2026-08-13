@@ -106,6 +106,17 @@ model User {
   createdAt          DateTime
   updatedAt          DateTime
 
+  // User Receiving Payout Methods
+  defaultPayoutMethod String?    @default("CRYPTO")
+  cryptoWalletAddress String?
+  cryptoNetwork       String?    @default("USDT (BEP-20)")
+  bankName            String?
+  bankAccountName     String?
+  bankAccountNumber   String?
+  bankIfscCode        String?
+  bankBranch          String?
+  upiId               String?
+
   investments                   Investment[]
   wallet                        Wallet?
   ledgerEntries                 LedgerEntry[]

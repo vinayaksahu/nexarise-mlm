@@ -40,7 +40,24 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
-        include: {
+        select: {
+          id: true,
+          name: true,
+          username: true,
+          email: true,
+          mobile: true,
+          role: true,
+          status: true,
+          referralCode: true,
+          createdAt: true,
+          defaultPayoutMethod: true,
+          cryptoWalletAddress: true,
+          cryptoNetwork: true,
+          bankName: true,
+          bankAccountName: true,
+          bankAccountNumber: true,
+          bankIfscCode: true,
+          upiId: true,
           _count: {
             select: { downlines: true }
           },

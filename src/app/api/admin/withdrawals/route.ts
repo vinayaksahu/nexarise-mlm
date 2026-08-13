@@ -20,7 +20,23 @@ export async function GET(req: NextRequest) {
     const withdrawals = await db.withdrawal.findMany({
       where: whereClause,
       include: {
-        user: { select: { name: true, username: true, email: true } }
+        user: {
+          select: {
+            name: true,
+            username: true,
+            email: true,
+            mobile: true,
+            defaultPayoutMethod: true,
+            cryptoWalletAddress: true,
+            cryptoNetwork: true,
+            bankName: true,
+            bankAccountName: true,
+            bankAccountNumber: true,
+            bankIfscCode: true,
+            bankBranch: true,
+            upiId: true,
+          }
+        }
       },
       orderBy: { createdAt: 'desc' }
     })
